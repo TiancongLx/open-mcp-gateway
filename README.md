@@ -1,74 +1,74 @@
 # Open MCP Gateway (OMG)
 
-> 高性能 MCP 转 OpenAPI 3.1.0 网关，专为 Open WebUI 生态打造。
+> High-performance MCP-to-OpenAPI 3.1.0 gateway, built for the Open WebUI ecosystem.
 
-基于 **Bun 1.4** 与 **TypeScript** 构建。将任意本地部署的 MCP（Model Context Protocol）服务节点——原生二进制 Stdio、Node/Bun 脚本串流管道或 SSE/HTTP 网络传输——统一聚合为严格对齐 **OpenAPI 3.1.0** 规范的 HTTP RESTful 路由，供 Open WebUI 等外部客户端直接作为 Tool 调用。
+Built with **Bun 1.4** and **TypeScript**. It aggregates locally deployed MCP (Model Context Protocol) service nodes — native binary stdio, Node/Bun script streaming pipelines, or SSE/HTTP network transports — into HTTP RESTful routes strictly aligned with the **OpenAPI 3.1.0** specification, ready to be consumed as tools by external clients such as Open WebUI.
 
-*社区项目，与 Open WebUI 团队无官方隶属关系。*
+*Community project — not affiliated with the Open WebUI team.*
 
-## 特性
+## Features
 
-- **严格 OpenAPI 3.1.0 契约**：工具入参准确挂载于 `requestBody.content['application/json'].schema`；生成的 `operationId` 与原始工具名完全一致，无 `tool_*_post` 式命名污染
-- **全传输类型聚合**：Native Binary Stdio / Script Stdio / SSE / HTTP 统一纳管，协议封装、生命周期自愈与热重载
-- **蓝绿会话池**：异步互斥锁（AsyncMutex）保障的服务会话热切换，更新配置不中断在途请求
-- **跨平台 XDG 四大规范布局**：配置、数据、状态、缓存彻底分离，源码目录零污染
-- **单文件二进制分发**：`bun build --compile` 一键产出原生可执行文件，无运行时依赖
-- **反向代理友好**：自动解析 `X-Forwarded-*` 请求头，OpenAPI 文档中的 `servers.url` 始终生成为外部真实访问地址
+- **Strict OpenAPI 3.1.0 contract**: tool inputs are mounted under `requestBody.content['application/json'].schema`; generated `operationId`s match the original tool names exactly, with no `tool_*_post` naming pollution
+- **Full transport coverage**: Native Binary Stdio / Script Stdio / SSE / HTTP unified under one gateway, with protocol wrapping, lifecycle self-healing, and hot reloading
+- **Blue-green session pool**: service session hot-swapping guarded by an AsyncMutex, so config updates never interrupt in-flight requests
+- **Cross-platform XDG layout**: strict separation of config, data, state, and cache directories — zero pollution of the source tree
+- **Single-binary distribution**: `bun build --compile` produces a native executable with no runtime dependencies
+- **Reverse-proxy friendly**: `X-Forwarded-*` headers are parsed automatically, so `servers.url` in OpenAPI documents always reflects the real external base URL
 
-## 架构
+## Architecture
 
 ```txt
 ┌──────────────────────────────┐
-│        外部客户端            │
+│      External Clients        │
 │        Open WebUI            │
 └──────────────┬───────────────┘
                │ HTTP / HTTPS
                ▼
 ┌──────────────────────────────┐
-│  反向代理 (Caddy / Nginx)    │
+│ Reverse Proxy (Caddy/Nginx)  │
 └──────────────┬───────────────┘
                ▼
 ┌──────────────────────────────┐
 │      Open MCP Gateway        │
-│  - OpenAPI 3.1.0 规范生成    │
-│  - 蓝绿会话池 / 热重载       │
-│  - XDG 路径与环境变量插值    │
+│  - OpenAPI 3.1.0 generation  │
+│  - Blue-green session pool   │
+│  - XDG paths & interpolation │
 └──────┬───────────────┬───────┘
        │ JSON-RPC (stdio)
        ▼
 ┌──────────────────────────────┐
-│      各类 MCP 服务进程       │
-│  (codebase-memory 等)        │
+│      MCP service processes   │
+│  (codebase-memory, etc.)     │
 └──────────────────────────────┘
 ```
 
-## 安装
+## Installation
 
 ```bash
-# 源码运行（需 Bun 1.4+）
+# Run from source (requires Bun 1.4+)
 bun install
 bun run dev
 
-# 或编译为单文件原生可执行文件
-bun run build   # 产物: build/mcp-gateway(.exe)
+# Or compile into a single native executable
+bun run build   # Output: build/mcp-gateway(.exe)
 ```
 
-## 配置
+## Configuration
 
-配置文件位于 `$XDG_CONFIG_HOME/mcp-gateway/config.json5`（JSON5 格式，支持注释与尾随逗号），路径支持环境变量动态插值：`${APP_DATA_DIR}`、`${XDG_DATA_HOME}`、`${HOME}` / `%USERPROFILE%` 等，提升跨机可移植性。
+The config file lives at `$XDG_CONFIG_HOME/mcp-gateway/config.json5` (JSON5 format, comments and trailing commas supported). Paths support environment variable interpolation — `${APP_DATA_DIR}`, `${XDG_DATA_HOME}`, `${HOME}` / `%USERPROFILE%`, and more — for cross-machine portability.
 
 ```json5
 {
     mcpServers: {
-        // 示例 1：本地原生二进制 MCP（Native Binary Stdio）
+        // Example 1: local native binary MCP (Native Binary Stdio)
         codebase_memory: {
             command: "${HOME}/.local/bin/codebase-memory-mcp",
             args: [],
             env: {},
         },
 
-        // 示例 2：通过 npm 包运行的 MCP（Script Stdio）
-        // 外部包统一安装于 ${APP_DATA_DIR}，详见下文插件管理
+        // Example 2: npm-packaged MCP (Script Stdio)
+        // External packages live under ${APP_DATA_DIR}; see Plugin Management below
         another_mcp: {
             command: "bun",
             args: ["run", "${APP_DATA_DIR}/node_modules/<pkg>/dist/index.js"],
@@ -81,43 +81,43 @@ bun run build   # 产物: build/mcp-gateway(.exe)
 }
 ```
 
-### XDG 目录布局
+### XDG Directory Layout
 
-| 规范目录 | 环境变量 | 职能 |
+| Directory | Env Variable | Purpose |
 | :--- | :--- | :--- |
-| Config | `XDG_CONFIG_HOME` | 静态主配置 `config.json5` |
-| Data | `XDG_DATA_HOME` | 外部 MCP 插件仓储（独立 `package.json`） |
-| State | `XDG_STATE_HOME` | 动态状态与运行时持久化日志 |
-| Cache | `XDG_CACHE_HOME` | 规范文档缓存与瞬态运行时数据 |
+| Config | `XDG_CONFIG_HOME` | Main config `config.json5` |
+| Data | `XDG_DATA_HOME` | External MCP plugin repository (its own `package.json`) |
+| State | `XDG_STATE_HOME` | Runtime state and persistent logs |
+| Cache | `XDG_CACHE_HOME` | Spec document cache and transient runtime data |
 
-## 外部 MCP 插件管理
+## External MCP Plugin Management
 
-业务型 MCP 扩展包不安装在本工程源码内，统一在数据层集中管理：
+Business MCP extension packages are never installed inside this repository; they are centrally managed in the data directory:
 
 ```bash
 cd "$XDG_DATA_HOME/mcp-gateway"
-bun add <mcp-package-name>    # 安装
-bun update <pkg>              # 升级
+bun add <mcp-package-name>    # install
+bun update <pkg>              # upgrade
 ```
 
-## 对接 Open WebUI
+## Integrating with Open WebUI
 
-1. 启动网关并在其前置一层反向代理（如 Caddy），网关会自动依据 `X-Forwarded-*` 头生成正确的外部基准地址
-2. 在 Open WebUI「管理面板 → 函数 / 工具 / OpenAPI」中注册各 MCP 的 OpenAPI 文档地址：
+1. Start the gateway behind a reverse proxy (e.g., Caddy). The gateway parses `X-Forwarded-*` headers automatically to generate the correct external base URL
+2. In Open WebUI's admin panel (Functions / Tools / OpenAPI), register each MCP's OpenAPI document URL:
 
 ```txt
 http://<gateway-host>:8444/codebase_memory/openapi.json
 ```
 
-3. 完成。Open WebUI 即可像调用原生 Tool 一样使用你本地全部 MCP 服务。
+3. Done. Open WebUI can now use all of your local MCP services as native tools.
 
-## 测试与日志
+## Testing and Logs
 
 ```bash
-bun run test          # 或: .\ps1_scripts\test-gateway.ps1
-                      # 端到端断言: 健康检查 / 服务握手 / 代理 Origin 对齐
+bun run test          # or: .\ps1_scripts\test-gateway.ps1
+                      # End-to-end assertions: health check / handshake / proxy origin alignment
 
-tail -f "$XDG_STATE_HOME/mcp-gateway/logs/gateway.log"   # 日志观测
+tail -f "$XDG_STATE_HOME/mcp-gateway/logs/gateway.log"   # log monitoring
 ```
 
 ## License
