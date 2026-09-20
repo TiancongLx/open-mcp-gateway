@@ -1,0 +1,117 @@
+<mxfile host="embed.diagrams.net" pages="2">
+  <diagram id="fkrcaqlj-wupn" name="核心拓扑">
+    <mxGraphModel dx="883" dy="567" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="light-dark(#ffffff, #121212)" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=18;fontColor=#263238;fontStyle=1;rounded=1;sketch=1;curveFitting=1;jiggle=2;" value="mcp-gateway 核心架构拓扑图" vertex="1">
+          <mxGeometry height="30" width="260" x="270" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8F9FA;strokeColor=#CFD8DC;strokeWidth=1.5;dashed=1;verticalAlign=top;align=left;spacingLeft=15;spacingTop=10;fontSize=12;fontColor=#546E7A;arcSize=4;sketch=1;curveFitting=1;jiggle=2;" value="本地 / 宿主服务端环境 (Host Environment)" vertex="1">
+          <mxGeometry height="390" width="680" x="60" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;strokeWidth=2;fontSize=14;fontColor=#0D47A1;arcSize=15;sketch=1;curveFitting=1;jiggle=2;" value="&lt;b&gt;外部客户端&lt;/b&gt;&lt;br&gt;Open WebUI" vertex="1">
+          <mxGeometry height="60" width="240" x="280" y="65" as="geometry" />
+        </mxCell>
+        <mxCell id="4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#388E3C;strokeWidth=2;fontSize=14;fontColor=#1B5E20;arcSize=15;sketch=1;curveFitting=1;jiggle=2;" value="&lt;b&gt;反向代理网关&lt;/b&gt;&lt;br&gt;Caddy (:8444)" vertex="1">
+          <mxGeometry height="60" width="240" x="280" y="195" as="geometry" />
+        </mxCell>
+        <mxCell id="5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#F57C00;strokeWidth=2;fontSize=14;fontColor=#E65100;arcSize=15;sketch=1;curveFitting=1;jiggle=2;" value="&lt;b&gt;核心路由与协议转换&lt;/b&gt;&lt;br&gt;mcp-gateway (:9090)" vertex="1">
+          <mxGeometry height="65" width="240" x="280" y="315" as="geometry" />
+        </mxCell>
+        <mxCell id="6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EDE7F6;strokeColor=#512DA8;strokeWidth=2;fontSize=13;fontColor=#311B92;arcSize=15;sketch=1;curveFitting=1;jiggle=2;" value="&lt;b&gt;底层原生进程&lt;/b&gt;&lt;br&gt;codebase_memory&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;(Native Binary 守护进程)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="75" width="260" x="90" y="445" as="geometry" />
+        </mxCell>
+        <mxCell id="7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0F2F1;strokeColor=#00796B;strokeWidth=2;fontSize=13;fontColor=#004D40;arcSize=15;sketch=1;curveFitting=1;jiggle=2;" value="&lt;b&gt;串流子进程&lt;/b&gt;&lt;br&gt;drawio MCP Server&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;(stdio 管道串流子进程)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="75" width="260" x="450" y="445" as="geometry" />
+        </mxCell>
+        <mxCell id="10" edge="1" parent="1" source="3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#1976D2;strokeWidth=2;endArrow=classic;fontSize=11;fontColor=#0D47A1;labelBackgroundColor=#FFFFFF;labelBorderColor=#B0BEC5;dashed=1;flowAnimation=1;sketch=1;curveFitting=1;jiggle=2;" target="4" value="HTTP / HTTPS (REST API)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="11" edge="1" parent="1" source="4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#388E3C;strokeWidth=2;endArrow=classic;fontSize=11;fontColor=#1B5E20;labelBackgroundColor=#FFFFFF;labelBorderColor=#B0BEC5;dashed=1;flowAnimation=1;sketch=1;curveFitting=1;jiggle=2;" target="5" value="HTTP 反向代理转发 (:8444 &amp;rarr; :9090)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="12" edge="1" parent="1" source="5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#512DA8;strokeWidth=2;endArrow=classic;fontSize=11;fontColor=#311B92;labelBackgroundColor=#FFFFFF;labelBorderColor=#B0BEC5;dashed=1;flowAnimation=1;sketch=1;curveFitting=1;jiggle=2;" target="6" value="JSON-RPC (Native IPC / HTTP)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="13" edge="1" parent="1" source="5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#00796B;strokeWidth=2;endArrow=classic;fontSize=11;fontColor=#004D40;labelBackgroundColor=#FFFFFF;labelBorderColor=#B0BEC5;dashed=1;flowAnimation=1;sketch=1;curveFitting=1;jiggle=2;" target="7" value="JSON-RPC (stdio 串流管道)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="jq7q0vwv-s7rk" name="Open WebUI 架构">
+    <mxGraphModel dx="883" dy="567" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="1">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=18;fontColor=#263238;fontStyle=1;rounded=1;" value="Open WebUI 系统架构全景图" vertex="1">
+          <mxGeometry height="30" width="300" x="270" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="10" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8F9FA;strokeColor=#B0BEC5;strokeWidth=1.5;dashed=1;verticalAlign=top;align=left;spacingLeft=15;spacingTop=8;fontSize=12;fontColor=#455A64;arcSize=4;" value="前台表现层 (Frontend Presentation Layer - SvelteKit SPA)" vertex="1">
+          <mxGeometry height="95" width="760" x="40" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="11" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;strokeWidth=1.5;fontSize=12;fontColor=#0D47A1;arcSize=12;" value="&lt;b&gt;UI 界面与工作区&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px;&quot;&gt;Chat, Models, Knowledge, Prompts&lt;/font&gt;" vertex="1">
+          <mxGeometry height="55" width="220" x="60" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="12" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;strokeWidth=1.5;fontSize=12;fontColor=#0D47A1;arcSize=12;" value="&lt;b&gt;状态管理与 API 客户端&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px;&quot;&gt;Svelte Stores &amp;amp; REST Client&lt;/font&gt;" vertex="1">
+          <mxGeometry height="55" width="220" x="310" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="13" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;strokeWidth=1.5;fontSize=12;fontColor=#0D47A1;arcSize=12;" value="&lt;b&gt;实时通信与流订阅&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px;&quot;&gt;SSE 流式渲染 &amp;amp; Socket.IO 通道&lt;/font&gt;" vertex="1">
+          <mxGeometry height="55" width="220" x="560" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="20" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8F9FA;strokeColor=#B0BEC5;strokeWidth=1.5;dashed=1;verticalAlign=top;align=left;spacingLeft=15;spacingTop=8;fontSize=12;fontColor=#455A64;arcSize=4;" value="服务端核心应用层 (Backend Core Layer - FastAPI)" vertex="1">
+          <mxGeometry height="170" width="760" x="40" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="21" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#FFA000;strokeWidth=1.5;fontSize=12;fontColor=#E65100;arcSize=10;verticalAlign=top;spacingTop=6;" value="&lt;b&gt;知识检索与权限治理&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;margin:4px 0;&quot;&gt;&lt;font style=&quot;font-size:11px;text-align:left;&quot;&gt;• 认证鉴权: JWT / OAuth / RBAC&lt;br&gt;• RAG 引擎: 文档切片与加载器&lt;br&gt;• 混合重排: BM25 / Reranker&lt;br&gt;• 记忆/通道: Memories &amp;amp; Channels&lt;/font&gt;" vertex="1">
+          <mxGeometry height="130" width="220" x="60" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="22" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#F57C00;strokeWidth=1.5;fontSize=12;fontColor=#BF360C;arcSize=10;verticalAlign=top;spacingTop=6;" value="&lt;b&gt;对话调度与工作流&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;margin:4px 0;&quot;&gt;&lt;font style=&quot;font-size:11px;text-align:left;&quot;&gt;• 会话编排: 上下文组装与管理&lt;br&gt;• 扩展管道: Pipelines &amp;amp; Filters&lt;br&gt;• 外部工具: Tools &amp;amp; Actions 过滤&lt;br&gt;• 异步事件: Socket.IO 广播发射&lt;/font&gt;" vertex="1">
+          <mxGeometry height="130" width="220" x="310" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="23" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#43A047;strokeWidth=1.5;fontSize=12;fontColor=#1B5E20;arcSize=10;verticalAlign=top;spacingTop=6;" value="&lt;b&gt;模型接入与适配网关&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;margin:4px 0;&quot;&gt;&lt;font style=&quot;font-size:11px;text-align:left;&quot;&gt;• 模型路由: 多上游聚合分发&lt;br&gt;• Ollama 驱动: 本地 API 桥接&lt;br&gt;• OpenAI 协议: 统一格式转换&lt;br&gt;• 连接管理: 连接池与负载策略&lt;/font&gt;" vertex="1">
+          <mxGeometry height="130" width="220" x="560" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="30" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8F9FA;strokeColor=#B0BEC5;strokeWidth=1.5;dashed=1;verticalAlign=top;align=left;spacingLeft=15;spacingTop=8;fontSize=12;fontColor=#455A64;arcSize=4;" value="持久化与存储层 (Persistence Layer)" vertex="1">
+          <mxGeometry height="180" width="365" x="40" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="31" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EDE7F6;strokeColor=#512DA8;strokeWidth=1.5;fontSize=12;fontColor=#311B92;arcSize=10;verticalAlign=top;spacingTop=6;" value="&lt;b&gt;关系型数据库 (RDBMS)&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;margin:4px 0;&quot;&gt;&lt;font style=&quot;font-size:11px;text-align:left;&quot;&gt;• SQLite (默认单机)&lt;br&gt;• PostgreSQL (生产级部署)&lt;br&gt;• SQLAlchemy ORM / Alembic&lt;br&gt;• 用户、聊天记录、会话元数据&lt;/font&gt;" vertex="1">
+          <mxGeometry height="135" width="160" x="55" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="32" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EDE7F6;strokeColor=#512DA8;strokeWidth=1.5;fontSize=12;fontColor=#311B92;arcSize=10;verticalAlign=top;spacingTop=6;" value="&lt;b&gt;向量库与资产存储&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;margin:4px 0;&quot;&gt;&lt;font style=&quot;font-size:11px;text-align:left;&quot;&gt;• 向量库: Chroma / Milvus / Qdrant / Pgvector&lt;br&gt;• 本地文件目录 / S3 兼容存储&lt;br&gt;• 知识库文件、音频与图像资产&lt;/font&gt;" vertex="1">
+          <mxGeometry height="135" width="160" x="230" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="40" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8F9FA;strokeColor=#B0BEC5;strokeWidth=1.5;dashed=1;verticalAlign=top;align=left;spacingLeft=15;spacingTop=8;fontSize=12;fontColor=#455A64;arcSize=4;" value="外部模型与生态集成 (Integrations &amp;amp; Providers)" vertex="1">
+          <mxGeometry height="180" width="365" x="435" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="41" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=1.5;fontSize=12;fontColor=#1B5E20;arcSize=10;verticalAlign=top;spacingTop=6;" value="&lt;b&gt;本地推理引擎&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;margin:4px 0;&quot;&gt;&lt;font style=&quot;font-size:11px;text-align:left;&quot;&gt;• Ollama 守护进程&lt;br&gt;• vLLM / LocalAI&lt;br&gt;• 本地 LLM 推理调度&lt;br&gt;• 本地 Embedding 向量计算&lt;/font&gt;" vertex="1">
+          <mxGeometry height="135" width="160" x="450" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="42" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=1.5;fontSize=12;fontColor=#1B5E20;arcSize=10;verticalAlign=top;spacingTop=6;" value="&lt;b&gt;云端模型与生态服务&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;margin:4px 0;&quot;&gt;&lt;font style=&quot;font-size:11px;text-align:left;&quot;&gt;• OpenAI / Anthropic / Gemini&lt;br&gt;• LiteLLM 代理转发网关&lt;br&gt;• 联网搜索: SearXNG / Tavily&lt;br&gt;• MCP (Model Context Protocol)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="135" width="160" x="625" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="51" edge="1" parent="1" source="12" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#1976D2;strokeWidth=2;endArrow=classic;fontSize=11;fontColor=#0D47A1;labelBackgroundColor=#FFFFFF;labelBorderColor=#B0BEC5;dashed=1;flowAnimation=1;" target="22" value="REST API &amp;amp; SSE 流式通信">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="52" edge="1" parent="1" source="22" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#F57C00;strokeWidth=2;endArrow=classic;startArrow=classic;fontSize=11;fontColor=#BF360C;labelBackgroundColor=#FFFFFF;labelBorderColor=#B0BEC5;dashed=1;flowAnimation=1;" target="21" value="鉴权 &amp;amp; 上下文检索">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="53" edge="1" parent="1" source="22" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#43A047;strokeWidth=2;endArrow=classic;fontSize=11;fontColor=#1B5E20;labelBackgroundColor=#FFFFFF;labelBorderColor=#B0BEC5;dashed=1;flowAnimation=1;" target="23" value="模型推理调用">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="54" edge="1" parent="1" source="21" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#512DA8;strokeWidth=2;endArrow=classic;fontSize=11;fontColor=#311B92;labelBackgroundColor=#FFFFFF;labelBorderColor=#B0BEC5;dashed=1;flowAnimation=1;" target="31" value="SQLAlchemy ORM">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="55" edge="1" parent="1" source="21" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#512DA8;strokeWidth=2;endArrow=classic;fontSize=11;fontColor=#311B92;labelBackgroundColor=#FFFFFF;labelBorderColor=#B0BEC5;dashed=1;flowAnimation=1;" target="32" value="向量索引与存储">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="56" edge="1" parent="1" source="23" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#2E7D32;strokeWidth=2;endArrow=classic;fontSize=11;fontColor=#1B5E20;labelBackgroundColor=#FFFFFF;labelBorderColor=#B0BEC5;dashed=1;flowAnimation=1;" target="41" value="Ollama 原生 API">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="57" edge="1" parent="1" source="23" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#2E7D32;strokeWidth=2;endArrow=classic;fontSize=11;fontColor=#1B5E20;labelBackgroundColor=#FFFFFF;labelBorderColor=#B0BEC5;dashed=1;flowAnimation=1;" target="42" value="OpenAI 兼容 / MCP">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

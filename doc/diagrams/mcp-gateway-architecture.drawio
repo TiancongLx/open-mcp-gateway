@@ -1,0 +1,62 @@
+<mxGraphModel>
+  <root>
+    <mxCell id="0"/>
+    <mxCell id="1" parent="0"/>
+    
+    <!-- 标题 -->
+    <mxCell id="2" value="MCP Gateway 系统架构拓扑" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;fontColor=#1E293B;" vertex="1" parent="1">
+      <mxGeometry x="200" y="15" width="400" height="30" as="geometry"/>
+    </mxCell>
+
+    <!-- 1. 外部客户端 -->
+    <mxCell id="3" value="外部客户端 (External Client)&#xa;Open WebUI" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF2FF;strokeColor=#4F46E5;strokeWidth=2;fontStyle=1;fontSize=13;fontColor=#312E81;arcSize=14;" vertex="1" parent="1">
+      <mxGeometry x="250" y="55" width="300" height="50" as="geometry"/>
+    </mxCell>
+
+    <!-- 2. 反向代理网关 -->
+    <mxCell id="4" value="反向代理网关 (Reverse Proxy)&#xa;Caddy (:8444)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FAF5FF;strokeColor=#9333EA;strokeWidth=2;fontStyle=1;fontSize=13;fontColor=#581C87;arcSize=14;" vertex="1" parent="1">
+      <mxGeometry x="250" y="145" width="300" height="50" as="geometry"/>
+    </mxCell>
+
+    <!-- 3. 核心路由与协议转换网关 -->
+    <mxCell id="5" value="核心路由与协议转换网关 (mcp-gateway :9090)&#xa;• OpenAPI 3.1.0 规范生成与路由转换&#xa;• 异步互斥锁 (AsyncMutex) 保障的蓝绿会话池&#xa;• 跨平台 XDG 四大规范路径与环境变量插值引擎" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EFF6FF;strokeColor=#2563EB;strokeWidth=2;fontSize=12;fontColor=#1E3A8A;align=center;spacingTop=4;arcSize=12;" vertex="1" parent="1">
+      <mxGeometry x="175" y="235" width="450" height="90" as="geometry"/>
+    </mxCell>
+
+    <!-- 4.1 底层原生进程 -->
+    <mxCell id="6" value="底层原生进程 (Native Binary)&#xa;codebase_memory&#xa;(C:/Users/root/.local/bin)&#xa;JSON-RPC 通信" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECFDF5;strokeColor=#059669;strokeWidth=2;fontStyle=0;fontSize=12;fontColor=#064E3B;arcSize=14;" vertex="1" parent="1">
+      <mxGeometry x="80" y="380" width="280" height="75" as="geometry"/>
+    </mxCell>
+
+    <!-- 4.2 串流子进程 -->
+    <mxCell id="7" value="串流子进程 (Script Stdio)&#xa;Next AI Draw.io Server&#xa;(${APP_DATA_DIR}/node_modules/...)&#xa;Bun 管道串流" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FDF2F8;strokeColor=#DB2777;strokeWidth=2;fontStyle=0;fontSize=12;fontColor=#831843;arcSize=14;" vertex="1" parent="1">
+      <mxGeometry x="440" y="380" width="280" height="75" as="geometry"/>
+    </mxCell>
+
+    <!-- 5. XDG 四大规范物理隔离层 -->
+    <mxCell id="8" value="XDG 规范物理布局与运行隔离&#xa;Config: %USERPROFILE%\.config\mcp-gateway\ (config.json5) | Data: %USERPROFILE%\.local\share\mcp-gateway\ (独立 npm 仓储)&#xa;State: %USERPROFILE%\.local\state\mcp-gateway\logs\ (运行时日志) | Cache: %USERPROFILE%\.cache\mcp-gateway\ (瞬态缓存)" style="rounded=1;dashed=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#64748B;strokeWidth=1.5;fontSize=11;fontColor=#334155;arcSize=10;" vertex="1" parent="1">
+      <mxGeometry x="50" y="495" width="700" height="70" as="geometry"/>
+    </mxCell>
+
+    <!-- 边 1: 客户端 -> Caddy -->
+    <mxCell id="9" value="HTTP / HTTPS (REST API)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=classic;strokeColor=#4F46E5;strokeWidth=1.5;fontSize=11;fontColor=#312E81;" edge="1" parent="1" source="3" target="4">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+
+    <!-- 边 2: Caddy -> mcp-gateway -->
+    <mxCell id="10" value="HTTP 反向代理转发 (:8444 -&gt; :9090)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=classic;strokeColor=#9333EA;strokeWidth=1.5;fontSize=11;fontColor=#581C87;" edge="1" parent="1" source="4" target="5">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+
+    <!-- 边 3: mcp-gateway -> codebase_memory -->
+    <mxCell id="11" value="JSON-RPC (Native Stdio)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=classic;strokeColor=#059669;strokeWidth=1.5;fontSize=11;fontColor=#064E3B;" edge="1" parent="1" source="5" target="6">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+
+    <!-- 边 4: mcp-gateway -> Next AI Draw.io Server -->
+    <mxCell id="12" value="JSON-RPC (Bun Stdio 串流管道)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=classic;strokeColor=#DB2777;strokeWidth=1.5;fontSize=11;fontColor=#831843;" edge="1" parent="1" source="5" target="7">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+
+  </root>
+</mxGraphModel>

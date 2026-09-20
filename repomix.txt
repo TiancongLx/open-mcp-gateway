@@ -1,0 +1,4833 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+The content has been processed where security check has been disabled.
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Long base64 data strings (e.g., data:image/png;base64,...) have been truncated to reduce token count
+- Security check has been disabled - content may contain sensitive information
+- Files are sorted by Git change count (files with more changes are at the bottom)
+
+
+================================================================
+Directory Structure
+================================================================
+doc/
+  diagrams/
+    mcp-gateway 核心架构拓扑图.drawio
+    mcp-gateway-architecture.drawio
+    mcp-gateway-topo.gif
+ps1_scripts/
+  DeployRefactor.ps1
+  RollbackAndDeployXDG.ps1
+  Setup-ChromeMcpBun.ps1
+  SetupDataMcp.ps1
+  test-gateway.ps1
+  test-gateway.ts
+src/
+  config/
+    loader.ts
+    types.ts
+    xdg.ts
+  mcp/
+    pool.ts
+    session.ts
+  openapi/
+    generator.ts
+  server/
+    gateway.ts
+  utils/
+    lock.ts
+    logger.ts
+  global.d.ts
+  index.ts
+.cbmignore
+.env.example
+package.json
+README.md
+
+================================================================
+Files
+================================================================
+
+================
+File: doc/diagrams/mcp-gateway 核心架构拓扑图.drawio
+================
+<mxfile host="embed.diagrams.net" pages="2">
+  <diagram id="fkrcaqlj-wupn" name="核心拓扑">
+    <mxGraphModel dx="883" dy="567" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="light-dark(#ffffff, #121212)" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=18;fontColor=#263238;fontStyle=1;rounded=1;sketch=1;curveFitting=1;jiggle=2;" value="mcp-gateway 核心架构拓扑图" vertex="1">
+          <mxGeometry height="30" width="260" x="270" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8F9FA;strokeColor=#CFD8DC;strokeWidth=1.5;dashed=1;verticalAlign=top;align=left;spacingLeft=15;spacingTop=10;fontSize=12;fontColor=#546E7A;arcSize=4;sketch=1;curveFitting=1;jiggle=2;" value="本地 / 宿主服务端环境 (Host Environment)" vertex="1">
+          <mxGeometry height="390" width="680" x="60" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;strokeWidth=2;fontSize=14;fontColor=#0D47A1;arcSize=15;sketch=1;curveFitting=1;jiggle=2;" value="&lt;b&gt;外部客户端&lt;/b&gt;&lt;br&gt;Open WebUI" vertex="1">
+          <mxGeometry height="60" width="240" x="280" y="65" as="geometry" />
+        </mxCell>
+        <mxCell id="4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#388E3C;strokeWidth=2;fontSize=14;fontColor=#1B5E20;arcSize=15;sketch=1;curveFitting=1;jiggle=2;" value="&lt;b&gt;反向代理网关&lt;/b&gt;&lt;br&gt;Caddy (:8444)" vertex="1">
+          <mxGeometry height="60" width="240" x="280" y="195" as="geometry" />
+        </mxCell>
+        <mxCell id="5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#F57C00;strokeWidth=2;fontSize=14;fontColor=#E65100;arcSize=15;sketch=1;curveFitting=1;jiggle=2;" value="&lt;b&gt;核心路由与协议转换&lt;/b&gt;&lt;br&gt;mcp-gateway (:9090)" vertex="1">
+          <mxGeometry height="65" width="240" x="280" y="315" as="geometry" />
+        </mxCell>
+        <mxCell id="6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EDE7F6;strokeColor=#512DA8;strokeWidth=2;fontSize=13;fontColor=#311B92;arcSize=15;sketch=1;curveFitting=1;jiggle=2;" value="&lt;b&gt;底层原生进程&lt;/b&gt;&lt;br&gt;codebase_memory&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;(Native Binary 守护进程)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="75" width="260" x="90" y="445" as="geometry" />
+        </mxCell>
+        <mxCell id="7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0F2F1;strokeColor=#00796B;strokeWidth=2;fontSize=13;fontColor=#004D40;arcSize=15;sketch=1;curveFitting=1;jiggle=2;" value="&lt;b&gt;串流子进程&lt;/b&gt;&lt;br&gt;drawio MCP Server&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;(stdio 管道串流子进程)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="75" width="260" x="450" y="445" as="geometry" />
+        </mxCell>
+        <mxCell id="10" edge="1" parent="1" source="3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#1976D2;strokeWidth=2;endArrow=classic;fontSize=11;fontColor=#0D47A1;labelBackgroundColor=#FFFFFF;labelBorderColor=#B0BEC5;dashed=1;flowAnimation=1;sketch=1;curveFitting=1;jiggle=2;" target="4" value="HTTP / HTTPS (REST API)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="11" edge="1" parent="1" source="4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#388E3C;strokeWidth=2;endArrow=classic;fontSize=11;fontColor=#1B5E20;labelBackgroundColor=#FFFFFF;labelBorderColor=#B0BEC5;dashed=1;flowAnimation=1;sketch=1;curveFitting=1;jiggle=2;" target="5" value="HTTP 反向代理转发 (:8444 &amp;rarr; :9090)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="12" edge="1" parent="1" source="5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#512DA8;strokeWidth=2;endArrow=classic;fontSize=11;fontColor=#311B92;labelBackgroundColor=#FFFFFF;labelBorderColor=#B0BEC5;dashed=1;flowAnimation=1;sketch=1;curveFitting=1;jiggle=2;" target="6" value="JSON-RPC (Native IPC / HTTP)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="13" edge="1" parent="1" source="5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#00796B;strokeWidth=2;endArrow=classic;fontSize=11;fontColor=#004D40;labelBackgroundColor=#FFFFFF;labelBorderColor=#B0BEC5;dashed=1;flowAnimation=1;sketch=1;curveFitting=1;jiggle=2;" target="7" value="JSON-RPC (stdio 串流管道)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="jq7q0vwv-s7rk" name="Open WebUI 架构">
+    <mxGraphModel dx="883" dy="567" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="1">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=18;fontColor=#263238;fontStyle=1;rounded=1;" value="Open WebUI 系统架构全景图" vertex="1">
+          <mxGeometry height="30" width="300" x="270" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="10" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8F9FA;strokeColor=#B0BEC5;strokeWidth=1.5;dashed=1;verticalAlign=top;align=left;spacingLeft=15;spacingTop=8;fontSize=12;fontColor=#455A64;arcSize=4;" value="前台表现层 (Frontend Presentation Layer - SvelteKit SPA)" vertex="1">
+          <mxGeometry height="95" width="760" x="40" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="11" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;strokeWidth=1.5;fontSize=12;fontColor=#0D47A1;arcSize=12;" value="&lt;b&gt;UI 界面与工作区&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px;&quot;&gt;Chat, Models, Knowledge, Prompts&lt;/font&gt;" vertex="1">
+          <mxGeometry height="55" width="220" x="60" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="12" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;strokeWidth=1.5;fontSize=12;fontColor=#0D47A1;arcSize=12;" value="&lt;b&gt;状态管理与 API 客户端&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px;&quot;&gt;Svelte Stores &amp;amp; REST Client&lt;/font&gt;" vertex="1">
+          <mxGeometry height="55" width="220" x="310" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="13" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;strokeWidth=1.5;fontSize=12;fontColor=#0D47A1;arcSize=12;" value="&lt;b&gt;实时通信与流订阅&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px;&quot;&gt;SSE 流式渲染 &amp;amp; Socket.IO 通道&lt;/font&gt;" vertex="1">
+          <mxGeometry height="55" width="220" x="560" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="20" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8F9FA;strokeColor=#B0BEC5;strokeWidth=1.5;dashed=1;verticalAlign=top;align=left;spacingLeft=15;spacingTop=8;fontSize=12;fontColor=#455A64;arcSize=4;" value="服务端核心应用层 (Backend Core Layer - FastAPI)" vertex="1">
+          <mxGeometry height="170" width="760" x="40" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="21" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#FFA000;strokeWidth=1.5;fontSize=12;fontColor=#E65100;arcSize=10;verticalAlign=top;spacingTop=6;" value="&lt;b&gt;知识检索与权限治理&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;margin:4px 0;&quot;&gt;&lt;font style=&quot;font-size:11px;text-align:left;&quot;&gt;• 认证鉴权: JWT / OAuth / RBAC&lt;br&gt;• RAG 引擎: 文档切片与加载器&lt;br&gt;• 混合重排: BM25 / Reranker&lt;br&gt;• 记忆/通道: Memories &amp;amp; Channels&lt;/font&gt;" vertex="1">
+          <mxGeometry height="130" width="220" x="60" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="22" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#F57C00;strokeWidth=1.5;fontSize=12;fontColor=#BF360C;arcSize=10;verticalAlign=top;spacingTop=6;" value="&lt;b&gt;对话调度与工作流&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;margin:4px 0;&quot;&gt;&lt;font style=&quot;font-size:11px;text-align:left;&quot;&gt;• 会话编排: 上下文组装与管理&lt;br&gt;• 扩展管道: Pipelines &amp;amp; Filters&lt;br&gt;• 外部工具: Tools &amp;amp; Actions 过滤&lt;br&gt;• 异步事件: Socket.IO 广播发射&lt;/font&gt;" vertex="1">
+          <mxGeometry height="130" width="220" x="310" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="23" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#43A047;strokeWidth=1.5;fontSize=12;fontColor=#1B5E20;arcSize=10;verticalAlign=top;spacingTop=6;" value="&lt;b&gt;模型接入与适配网关&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;margin:4px 0;&quot;&gt;&lt;font style=&quot;font-size:11px;text-align:left;&quot;&gt;• 模型路由: 多上游聚合分发&lt;br&gt;• Ollama 驱动: 本地 API 桥接&lt;br&gt;• OpenAI 协议: 统一格式转换&lt;br&gt;• 连接管理: 连接池与负载策略&lt;/font&gt;" vertex="1">
+          <mxGeometry height="130" width="220" x="560" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="30" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8F9FA;strokeColor=#B0BEC5;strokeWidth=1.5;dashed=1;verticalAlign=top;align=left;spacingLeft=15;spacingTop=8;fontSize=12;fontColor=#455A64;arcSize=4;" value="持久化与存储层 (Persistence Layer)" vertex="1">
+          <mxGeometry height="180" width="365" x="40" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="31" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EDE7F6;strokeColor=#512DA8;strokeWidth=1.5;fontSize=12;fontColor=#311B92;arcSize=10;verticalAlign=top;spacingTop=6;" value="&lt;b&gt;关系型数据库 (RDBMS)&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;margin:4px 0;&quot;&gt;&lt;font style=&quot;font-size:11px;text-align:left;&quot;&gt;• SQLite (默认单机)&lt;br&gt;• PostgreSQL (生产级部署)&lt;br&gt;• SQLAlchemy ORM / Alembic&lt;br&gt;• 用户、聊天记录、会话元数据&lt;/font&gt;" vertex="1">
+          <mxGeometry height="135" width="160" x="55" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="32" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EDE7F6;strokeColor=#512DA8;strokeWidth=1.5;fontSize=12;fontColor=#311B92;arcSize=10;verticalAlign=top;spacingTop=6;" value="&lt;b&gt;向量库与资产存储&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;margin:4px 0;&quot;&gt;&lt;font style=&quot;font-size:11px;text-align:left;&quot;&gt;• 向量库: Chroma / Milvus / Qdrant / Pgvector&lt;br&gt;• 本地文件目录 / S3 兼容存储&lt;br&gt;• 知识库文件、音频与图像资产&lt;/font&gt;" vertex="1">
+          <mxGeometry height="135" width="160" x="230" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="40" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8F9FA;strokeColor=#B0BEC5;strokeWidth=1.5;dashed=1;verticalAlign=top;align=left;spacingLeft=15;spacingTop=8;fontSize=12;fontColor=#455A64;arcSize=4;" value="外部模型与生态集成 (Integrations &amp;amp; Providers)" vertex="1">
+          <mxGeometry height="180" width="365" x="435" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="41" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=1.5;fontSize=12;fontColor=#1B5E20;arcSize=10;verticalAlign=top;spacingTop=6;" value="&lt;b&gt;本地推理引擎&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;margin:4px 0;&quot;&gt;&lt;font style=&quot;font-size:11px;text-align:left;&quot;&gt;• Ollama 守护进程&lt;br&gt;• vLLM / LocalAI&lt;br&gt;• 本地 LLM 推理调度&lt;br&gt;• 本地 Embedding 向量计算&lt;/font&gt;" vertex="1">
+          <mxGeometry height="135" width="160" x="450" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="42" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=1.5;fontSize=12;fontColor=#1B5E20;arcSize=10;verticalAlign=top;spacingTop=6;" value="&lt;b&gt;云端模型与生态服务&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;margin:4px 0;&quot;&gt;&lt;font style=&quot;font-size:11px;text-align:left;&quot;&gt;• OpenAI / Anthropic / Gemini&lt;br&gt;• LiteLLM 代理转发网关&lt;br&gt;• 联网搜索: SearXNG / Tavily&lt;br&gt;• MCP (Model Context Protocol)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="135" width="160" x="625" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="51" edge="1" parent="1" source="12" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#1976D2;strokeWidth=2;endArrow=classic;fontSize=11;fontColor=#0D47A1;labelBackgroundColor=#FFFFFF;labelBorderColor=#B0BEC5;dashed=1;flowAnimation=1;" target="22" value="REST API &amp;amp; SSE 流式通信">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="52" edge="1" parent="1" source="22" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#F57C00;strokeWidth=2;endArrow=classic;startArrow=classic;fontSize=11;fontColor=#BF360C;labelBackgroundColor=#FFFFFF;labelBorderColor=#B0BEC5;dashed=1;flowAnimation=1;" target="21" value="鉴权 &amp;amp; 上下文检索">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="53" edge="1" parent="1" source="22" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#43A047;strokeWidth=2;endArrow=classic;fontSize=11;fontColor=#1B5E20;labelBackgroundColor=#FFFFFF;labelBorderColor=#B0BEC5;dashed=1;flowAnimation=1;" target="23" value="模型推理调用">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="54" edge="1" parent="1" source="21" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#512DA8;strokeWidth=2;endArrow=classic;fontSize=11;fontColor=#311B92;labelBackgroundColor=#FFFFFF;labelBorderColor=#B0BEC5;dashed=1;flowAnimation=1;" target="31" value="SQLAlchemy ORM">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="55" edge="1" parent="1" source="21" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#512DA8;strokeWidth=2;endArrow=classic;fontSize=11;fontColor=#311B92;labelBackgroundColor=#FFFFFF;labelBorderColor=#B0BEC5;dashed=1;flowAnimation=1;" target="32" value="向量索引与存储">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="56" edge="1" parent="1" source="23" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#2E7D32;strokeWidth=2;endArrow=classic;fontSize=11;fontColor=#1B5E20;labelBackgroundColor=#FFFFFF;labelBorderColor=#B0BEC5;dashed=1;flowAnimation=1;" target="41" value="Ollama 原生 API">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="57" edge="1" parent="1" source="23" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#2E7D32;strokeWidth=2;endArrow=classic;fontSize=11;fontColor=#1B5E20;labelBackgroundColor=#FFFFFF;labelBorderColor=#B0BEC5;dashed=1;flowAnimation=1;" target="42" value="OpenAI 兼容 / MCP">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
+
+================
+File: doc/diagrams/mcp-gateway-architecture.drawio
+================
+<mxGraphModel>
+  <root>
+    <mxCell id="0"/>
+    <mxCell id="1" parent="0"/>
+    
+    <!-- 标题 -->
+    <mxCell id="2" value="MCP Gateway 系统架构拓扑" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;fontColor=#1E293B;" vertex="1" parent="1">
+      <mxGeometry x="200" y="15" width="400" height="30" as="geometry"/>
+    </mxCell>
+
+    <!-- 1. 外部客户端 -->
+    <mxCell id="3" value="外部客户端 (External Client)&#xa;Open WebUI" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF2FF;strokeColor=#4F46E5;strokeWidth=2;fontStyle=1;fontSize=13;fontColor=#312E81;arcSize=14;" vertex="1" parent="1">
+      <mxGeometry x="250" y="55" width="300" height="50" as="geometry"/>
+    </mxCell>
+
+    <!-- 2. 反向代理网关 -->
+    <mxCell id="4" value="反向代理网关 (Reverse Proxy)&#xa;Caddy (:8444)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FAF5FF;strokeColor=#9333EA;strokeWidth=2;fontStyle=1;fontSize=13;fontColor=#581C87;arcSize=14;" vertex="1" parent="1">
+      <mxGeometry x="250" y="145" width="300" height="50" as="geometry"/>
+    </mxCell>
+
+    <!-- 3. 核心路由与协议转换网关 -->
+    <mxCell id="5" value="核心路由与协议转换网关 (mcp-gateway :9090)&#xa;• OpenAPI 3.1.0 规范生成与路由转换&#xa;• 异步互斥锁 (AsyncMutex) 保障的蓝绿会话池&#xa;• 跨平台 XDG 四大规范路径与环境变量插值引擎" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EFF6FF;strokeColor=#2563EB;strokeWidth=2;fontSize=12;fontColor=#1E3A8A;align=center;spacingTop=4;arcSize=12;" vertex="1" parent="1">
+      <mxGeometry x="175" y="235" width="450" height="90" as="geometry"/>
+    </mxCell>
+
+    <!-- 4.1 底层原生进程 -->
+    <mxCell id="6" value="底层原生进程 (Native Binary)&#xa;codebase_memory&#xa;(C:/Users/root/.local/bin)&#xa;JSON-RPC 通信" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECFDF5;strokeColor=#059669;strokeWidth=2;fontStyle=0;fontSize=12;fontColor=#064E3B;arcSize=14;" vertex="1" parent="1">
+      <mxGeometry x="80" y="380" width="280" height="75" as="geometry"/>
+    </mxCell>
+
+    <!-- 4.2 串流子进程 -->
+    <mxCell id="7" value="串流子进程 (Script Stdio)&#xa;Next AI Draw.io Server&#xa;(${APP_DATA_DIR}/node_modules/...)&#xa;Bun 管道串流" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FDF2F8;strokeColor=#DB2777;strokeWidth=2;fontStyle=0;fontSize=12;fontColor=#831843;arcSize=14;" vertex="1" parent="1">
+      <mxGeometry x="440" y="380" width="280" height="75" as="geometry"/>
+    </mxCell>
+
+    <!-- 5. XDG 四大规范物理隔离层 -->
+    <mxCell id="8" value="XDG 规范物理布局与运行隔离&#xa;Config: %USERPROFILE%\.config\mcp-gateway\ (config.json5) | Data: %USERPROFILE%\.local\share\mcp-gateway\ (独立 npm 仓储)&#xa;State: %USERPROFILE%\.local\state\mcp-gateway\logs\ (运行时日志) | Cache: %USERPROFILE%\.cache\mcp-gateway\ (瞬态缓存)" style="rounded=1;dashed=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#64748B;strokeWidth=1.5;fontSize=11;fontColor=#334155;arcSize=10;" vertex="1" parent="1">
+      <mxGeometry x="50" y="495" width="700" height="70" as="geometry"/>
+    </mxCell>
+
+    <!-- 边 1: 客户端 -> Caddy -->
+    <mxCell id="9" value="HTTP / HTTPS (REST API)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=classic;strokeColor=#4F46E5;strokeWidth=1.5;fontSize=11;fontColor=#312E81;" edge="1" parent="1" source="3" target="4">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+
+    <!-- 边 2: Caddy -> mcp-gateway -->
+    <mxCell id="10" value="HTTP 反向代理转发 (:8444 -&gt; :9090)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=classic;strokeColor=#9333EA;strokeWidth=1.5;fontSize=11;fontColor=#581C87;" edge="1" parent="1" source="4" target="5">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+
+    <!-- 边 3: mcp-gateway -> codebase_memory -->
+    <mxCell id="11" value="JSON-RPC (Native Stdio)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=classic;strokeColor=#059669;strokeWidth=1.5;fontSize=11;fontColor=#064E3B;" edge="1" parent="1" source="5" target="6">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+
+    <!-- 边 4: mcp-gateway -> Next AI Draw.io Server -->
+    <mxCell id="12" value="JSON-RPC (Bun Stdio 串流管道)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=classic;strokeColor=#DB2777;strokeWidth=1.5;fontSize=11;fontColor=#831843;" edge="1" parent="1" source="5" target="7">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+
+  </root>
+</mxGraphModel>
+
+================
+File: ps1_scripts/DeployRefactor.ps1
+================
+# ==============================================================================
+# Script: ps1_scripts/DeployRefactor.ps1
+# Description: 全量原子覆盖部署脚本 (包含 drawio 工程级依赖纳管与全链路规整)
+# ==============================================================================
+
+$ErrorActionPreference = "Stop"
+$ProjectRoot = Split-Path -Parent $PSScriptRoot
+if (-not (Test-Path "$ProjectRoot\package.json")) {
+    $ProjectRoot = Get-Location
+}
+Set-Location $ProjectRoot
+
+Write-Host ">>> [mcp-gateway] 执行全量架构重构与三服务原子部署..." -ForegroundColor Cyan
+
+# 1. 建立工程目录树
+$Directories = @(
+    "$ProjectRoot\logs",
+    "$ProjectRoot\src\config",
+    "$ProjectRoot\src\mcp",
+    "$ProjectRoot\src\openapi",
+    "$ProjectRoot\src\server",
+    "$ProjectRoot\src\utils",
+    "$ProjectRoot\ps1_scripts"
+)
+
+foreach ($dir in $Directories) {
+    if (-not (Test-Path $dir)) {
+        New-Item -ItemType Directory -Path $dir -Force | Out-Null
+        Write-Host "  [+] 创建目录: $dir" -ForegroundColor Green
+    }
+}
+
+# 2. 覆盖 tsconfig.json
+$tsconfigContent = @'
+{
+    "compilerOptions": {
+        "lib": ["ESNext"],
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "moduleDetection": "force",
+
+        "types": ["bun"],
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+
+        "resolveJsonModule": true,
+        "allowImportingTsExtensions": true,
+        "verbatimModuleSyntax": true,
+        "noEmit": true,
+
+        "sourceMap": true,
+        "inlineSources": true,
+
+        "paths": {
+            "@/*": ["./src/*"]
+        }
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts"
+    ]
+}
+'@
+Set-Content -Path "$ProjectRoot\tsconfig.json" -Value $tsconfigContent -Encoding utf8
+
+# 3. 覆盖 package.json (纳管 @next-ai-drawio/mcp-server 为本地依赖)
+$packageJsonContent = @'
+{
+    "$schema": "https://json.schemastore.org/package.json",
+    "name": "mcp-gateway",
+    "version": "0.2.0",
+    "private": true,
+    "type": "module",
+    "author": {
+        "name": "TiancongLi",
+        "email": "tiancong.li@hotmail.com"
+    },
+    "scripts": {
+        "start": "bun run ./src/index.ts",
+        "dev": "bun run ./src/index.ts",
+        "build": "bun build --compile ./src/index.ts --outfile ./build/mcp-gateway.exe"
+    },
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.6.1",
+        "@next-ai-drawio/mcp-server": "^0.1.1",
+        "yoctocolors": "^2.1.1"
+    },
+    "devDependencies": {
+        "@types/bun": "^1.4.2",
+        "typescript": "^7.0.2"
+    }
+}
+'@
+Set-Content -Path "$ProjectRoot\package.json" -Value $packageJsonContent -Encoding utf8
+
+# 4. 覆盖 src/global.d.ts
+$globalDtsContent = @'
+declare module '*.json5' {
+    const value: any;
+    export default value;
+}
+'@
+Set-Content -Path "$ProjectRoot\src\global.d.ts" -Value $globalDtsContent -Encoding utf8
+
+# 5. 写入 src/utils/lock.ts
+$lockTsContent = @'
+export class AsyncMutex {
+    private mutex = Promise.resolve();
+
+    public lock(): Promise<() => void> {
+        let begin: (unlock: () => void) => void = () => {};
+        this.mutex = this.mutex.then(() => {
+            return new Promise(begin);
+        });
+        return new Promise((res) => {
+            begin = res;
+        });
+    }
+
+    public async runExclusive<T>(callback: () => Promise<T> | T): Promise<T> {
+        const unlock = await this.lock();
+        try {
+            return await callback();
+        } finally {
+            unlock();
+        }
+    }
+}
+'@
+Set-Content -Path "$ProjectRoot\src\utils\lock.ts" -Value $lockTsContent -Encoding utf8
+
+# 6. 覆盖 src/utils/logger.ts
+$loggerTsContent = @'
+import { format } from 'node:util';
+import { appendFileSync } from 'node:fs';
+import * as c from 'yoctocolors';
+
+export const LogLevels = {
+    DEBUG:  0,
+    INFO:   1,
+    WARN:   2,
+    ERROR:  3,
+    SILENT: 99,
+} as const;
+
+type LogLevelKey = keyof typeof LogLevels;
+type LogLevelValue = typeof LogLevels[LogLevelKey];
+
+interface LoggerConfig {
+    level: LogLevelValue;
+    showTimestamp: boolean;
+    logFilePath: string | null;
+}
+
+const config: LoggerConfig = {
+    level: LogLevels.DEBUG,
+    showTimestamp: true,
+    logFilePath: null,
+};
+
+export function setLogLevel(level: LogLevelKey): void {
+    config.level = LogLevels[level];
+}
+
+export function initFileLogging(filePath: string): void {
+    config.logFilePath = filePath;
+}
+
+function getTimeStamp(): string {
+    if (!config.showTimestamp) return '';
+    const now = new Date();
+    return `[${now.toLocaleTimeString('en-US', { hour12: false })}] `;
+}
+
+function print(levelVal: LogLevelValue, textBadge: string, coloredBadge: string, message: unknown[]): void {
+    if (levelVal < config.level) return;
+
+    const formattedMessage = format(...message);
+    const time = getTimeStamp();
+
+    process.stderr.write(`${c.gray(time)}${coloredBadge} ${formattedMessage}\n`);
+
+    if (config.logFilePath) {
+        try {
+            const rawLine = `${time}${textBadge} ${formattedMessage}\n`;
+            appendFileSync(config.logFilePath, rawLine, { encoding: 'utf8' });
+        } catch {}
+    }
+}
+
+export function debug(...args: unknown[]): void {
+    print(LogLevels.DEBUG, '[DEBUG]', c.bgBlack(c.white(' DEBUG ')), args);
+}
+
+export function info(...args: unknown[]): void {
+    print(LogLevels.INFO, '[INFO]', c.bgBlue(c.black(' INFO ')), args);
+}
+
+export function warn(...args: unknown[]): void {
+    print(LogLevels.WARN, '[WARN]', c.bgYellow(c.black(' WARN ')), args);
+}
+
+export function error(...args: unknown[]): void {
+    print(LogLevels.ERROR, '[ERROR]', c.bgRed(c.black(' ERROR ')), args);
+}
+'@
+Set-Content -Path "$ProjectRoot\src\utils\logger.ts" -Value $loggerTsContent -Encoding utf8
+
+# 7. 覆盖 src/config/types.ts
+$typesTsContent = @'
+export interface StdioServerConfig {
+    command: string;
+    args?: string[];
+    env?: Record<string, string>;
+    cwd?: string;
+    timeout?: number;
+}
+
+export interface SseServerConfig {
+    url: string;
+    headers?: Record<string, string>;
+    timeout?: number;
+}
+
+export type McpServerConfig = StdioServerConfig | SseServerConfig;
+
+export interface GatewayConfigFile {
+    mcpServers: Record<string, McpServerConfig>;
+    port?: number;
+    host?: string;
+}
+
+export function isStdioConfig(config: McpServerConfig): config is StdioServerConfig {
+    return 'command' in config && typeof (config as StdioServerConfig).command === 'string';
+}
+
+export function isSseConfig(config: McpServerConfig): config is SseServerConfig {
+    return 'url' in config && typeof (config as SseServerConfig).url === 'string';
+}
+'@
+Set-Content -Path "$ProjectRoot\src\config\types.ts" -Value $typesTsContent -Encoding utf8
+
+# 8. 覆盖 src/config/xdg.ts
+$xdgTsContent = @'
+import { join } from 'node:path';
+import { homedir } from 'node:os';
+import { existsSync, mkdirSync } from 'node:fs';
+
+const APP_NAME = 'mcp-gateway';
+
+export interface XdgDirectories {
+    configHome: string;
+    dataHome: string;
+    stateHome: string;
+    cacheHome: string;
+    configFilePath: string;
+    logFilePath: string;
+}
+
+export function resolveXdg(): XdgDirectories {
+    const isWindows = process.platform === 'win32';
+    const home = homedir();
+
+    let baseConfig = process.env.XDG_CONFIG_HOME;
+    if (!baseConfig) {
+        baseConfig = isWindows
+            ? (process.env.APPDATA || join(home, 'AppData', 'Roaming'))
+            : join(home, '.config');
+    }
+    const configHome = join(baseConfig, APP_NAME);
+
+    let baseData = process.env.XDG_DATA_HOME;
+    if (!baseData) {
+        baseData = isWindows
+            ? (process.env.LOCALAPPDATA || join(home, 'AppData', 'Local'))
+            : join(home, '.local', 'share');
+    }
+    const dataHome = join(baseData, APP_NAME);
+
+    let baseState = process.env.XDG_STATE_HOME;
+    if (!baseState) {
+        baseState = isWindows
+            ? (process.env.LOCALAPPDATA || join(home, 'AppData', 'Local'))
+            : join(home, '.local', 'state');
+    }
+    const stateHome = join(baseState, APP_NAME);
+
+    let baseCache = process.env.XDG_CACHE_HOME;
+    if (!baseCache) {
+        baseCache = isWindows
+            ? (process.env.TEMP || join(home, 'AppData', 'Local', 'Temp'))
+            : join(home, '.cache');
+    }
+    const cacheHome = join(baseCache, APP_NAME);
+
+    for (const dir of [configHome, dataHome, stateHome, cacheHome]) {
+        if (!existsSync(dir)) {
+            mkdirSync(dir, { recursive: true });
+        }
+    }
+
+    const candidatePaths = [
+        join(process.cwd(), 'config.json5'),
+        join(process.cwd(), 'config.json'),
+        join(configHome, 'config.json5'),
+        join(configHome, 'config.json'),
+    ];
+
+    let configFilePath = candidatePaths[0];
+    for (const p of candidatePaths) {
+        if (existsSync(p)) {
+            configFilePath = p;
+            break;
+        }
+    }
+
+    const localLogDir = join(process.cwd(), 'logs');
+    if (!existsSync(localLogDir)) {
+        mkdirSync(localLogDir, { recursive: true });
+    }
+    const logFilePath = join(localLogDir, 'gateway.log');
+
+    return {
+        configHome,
+        dataHome,
+        stateHome,
+        cacheHome,
+        configFilePath,
+        logFilePath,
+    };
+}
+'@
+Set-Content -Path "$ProjectRoot\src\config\xdg.ts" -Value $xdgTsContent -Encoding utf8
+
+# 9. 覆盖 src/config/loader.ts
+$loaderTsContent = @'
+import { watch, type FSWatcher } from 'node:fs';
+import { dirname, basename, resolve } from 'node:path';
+import { info, warn, error } from '@/utils/logger';
+import type { GatewayConfigFile } from './types';
+
+export type ConfigChangeCallback = (newConfig: GatewayConfigFile) => Promise<void> | void;
+
+export class ConfigManager {
+    private watcher: FSWatcher | null = null;
+    private debounceTimer: ReturnType<typeof setTimeout> | null = null;
+    private currentConfig: GatewayConfigFile = { mcpServers: {} };
+    private readonly absConfigPath: string;
+
+    constructor(configPath: string) {
+        this.absConfigPath = resolve(configPath);
+    }
+
+    public async load(): Promise<GatewayConfigFile> {
+        const configFile = Bun.file(this.absConfigPath);
+        if (!(await configFile.exists())) {
+            warn(`配置文件不存在: ${this.absConfigPath}，网关以空配置初始化`);
+            this.currentConfig = { mcpServers: {} };
+            return this.currentConfig;
+        }
+
+        let retries = 3;
+        while (retries > 0) {
+            try {
+                const text = await configFile.text();
+                if (!text.trim()) {
+                    throw new Error('配置文件内容为空');
+                }
+                const parsed = Bun.JSON5.parse(text) as GatewayConfigFile;
+
+                if (!parsed.mcpServers || typeof parsed.mcpServers !== 'object') {
+                    warn(`配置中未找到有效的 mcpServers 结构，已自动置空`);
+                    parsed.mcpServers = {};
+                }
+
+                this.currentConfig = parsed;
+                info(`成功载入配置: ${this.absConfigPath} (挂载服务: ${Object.keys(parsed.mcpServers).join(', ') || '无'})`);
+                return this.currentConfig;
+            } catch (err) {
+                retries--;
+                if (retries === 0) {
+                    error(`解析配置文件异常: ${err instanceof Error ? err.message : String(err)}`);
+                    return this.currentConfig;
+                }
+                await Bun.sleep(80);
+            }
+        }
+
+        return this.currentConfig;
+    }
+
+    public watch(onChange: ConfigChangeCallback): void {
+        const watchDir = dirname(this.absConfigPath);
+        const targetFilename = basename(this.absConfigPath);
+
+        try {
+            this.watcher = watch(watchDir, (eventType, triggeredFilename) => {
+                if (!triggeredFilename) return;
+                if (basename(triggeredFilename) === targetFilename) {
+                    if (this.debounceTimer) clearTimeout(this.debounceTimer);
+                    this.debounceTimer = setTimeout(async () => {
+                        info(`检测到配置文件修改，调度热重载...`);
+                        const reloaded = await this.load();
+                        try {
+                            await onChange(reloaded);
+                        } catch (err) {
+                            error(`热重载回调执行异常: ${err instanceof Error ? err.message : String(err)}`);
+                        }
+                    }, 300);
+                }
+            });
+        } catch (err) {
+            warn(`启动目录监视失败: ${err instanceof Error ? err.message : String(err)}`);
+        }
+    }
+
+    public stopWatch(): void {
+        if (this.watcher) {
+            this.watcher.close();
+            this.watcher = null;
+        }
+        if (this.debounceTimer) {
+            clearTimeout(this.debounceTimer);
+            this.debounceTimer = null;
+        }
+    }
+
+    public getConfig(): GatewayConfigFile {
+        return this.currentConfig;
+    }
+}
+'@
+Set-Content -Path "$ProjectRoot\src\config\loader.ts" -Value $loaderTsContent -Encoding utf8
+
+# 10. 覆盖 src/openapi/generator.ts
+$openapiTsContent = @'
+import type { McpSession } from '@/mcp/session';
+
+export interface OpenApiSpec31 {
+    openapi: '3.1.0';
+    info: {
+        title: string;
+        version: string;
+        description: string;
+    };
+    servers: Array<{
+        url: string;
+        description?: string;
+    }>;
+    paths: Record<string, Record<string, unknown>>;
+}
+
+export class OpenApiGenerator {
+    public static generate(session: McpSession, publicOrigin: string): OpenApiSpec31 {
+        const paths: Record<string, Record<string, unknown>> = {};
+
+        for (const [toolName, tool] of session.tools.entries()) {
+            const routePath = `/${toolName}`;
+
+            const inputSchema = tool.inputSchema && typeof tool.inputSchema === 'object'
+                ? tool.inputSchema
+                : { type: 'object', properties: {} };
+
+            paths[routePath] = {
+                post: {
+                    operationId: tool.name,
+                    summary: tool.name,
+                    description: tool.description || `Invoke tool ${tool.name} on server ${session.serverName}`,
+                    requestBody: {
+                        required: true,
+                        description: `Input schema for ${tool.name}`,
+                        content: {
+                            'application/json': {
+                                schema: inputSchema,
+                            },
+                        },
+                    },
+                    responses: {
+                        '200': {
+                            description: 'Tool execution result',
+                            content: {
+                                'application/json': {
+                                    schema: {
+                                        type: 'object',
+                                        properties: {
+                                            content: {
+                                                type: 'array',
+                                                items: { type: 'object' },
+                                            },
+                                            isError: { type: 'boolean' },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                        '400': {
+                            description: 'Invalid JSON request payload',
+                        },
+                        '503': {
+                            description: 'MCP server session not ready',
+                        },
+                        '500': {
+                            description: 'Internal tool execution exception',
+                        },
+                    },
+                },
+            };
+        }
+
+        return {
+            openapi: '3.1.0',
+            info: {
+                title: `MCP Gateway - ${session.serverName}`,
+                version: '1.0.0',
+                description: `Standard OpenAPI 3.1.0 schema for MCP server [${session.serverName}].`,
+            },
+            servers: [
+                {
+                    url: `${publicOrigin}/${session.serverName}`,
+                    description: `Endpoint cluster for ${session.serverName}`,
+                },
+            ],
+            paths,
+        };
+    }
+}
+'@
+Set-Content -Path "$ProjectRoot\src\openapi\generator.ts" -Value $openapiTsContent -Encoding utf8
+
+# 11. 覆盖 src/mcp/session.ts (优先匹配当前工程 node_modules)
+$sessionTsContent = @'
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
+import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
+import type { Tool } from '@modelcontextprotocol/sdk/types.js';
+import { info, error, warn, debug } from '@/utils/logger';
+import { isStdioConfig, isSseConfig, type McpServerConfig } from '@/config/types';
+import { homedir } from 'node:os';
+import { resolve, normalize } from 'node:path';
+import { existsSync } from 'node:fs';
+
+export type SessionState = 'UNINITIALIZED' | 'CONNECTING' | 'READY' | 'FAILED' | 'DISCONNECTING' | 'TERMINATED';
+
+function normalizeCommandPath(rawCommand: string): string {
+    let cmd = rawCommand.trim();
+
+    if (cmd.startsWith('~/') || cmd.startsWith('~\\')) {
+        cmd = resolve(homedir(), cmd.slice(2));
+    }
+
+    if (process.platform === 'win32') {
+        cmd = cmd.replace(/%([^%]+)%/g, (_, n) => process.env[n] || '');
+        cmd = normalize(cmd);
+        if (cmd.toLowerCase() === 'bun' || cmd.toLowerCase() === 'bun.exe') {
+            cmd = process.execPath;
+        }
+    }
+
+    return cmd;
+}
+
+function resolveArgumentPath(rawArg: string): string {
+    let arg = normalizeCommandPath(rawArg);
+
+    if (arg.includes('@next-ai-drawio') && !existsSync(arg)) {
+        const home = homedir();
+        const candidatePaths = [
+            // 优先查找项目本地 node_modules
+            resolve(process.cwd(), 'node_modules/@next-ai-drawio/mcp-server/dist/index.js'),
+            // 全局候选路径
+            resolve(home, '.cache/.bun/install/global/node_modules/@next-ai-drawio/mcp-server/dist/index.js'),
+            resolve(home, '.local/share/mcp-gateway/node_modules/@next-ai-drawio/mcp-server/dist/index.js'),
+            resolve(home, 'AppData/Roaming/npm/node_modules/@next-ai-drawio/mcp-server/dist/index.js'),
+        ];
+        for (const cand of candidatePaths) {
+            if (existsSync(cand)) {
+                debug(`[自适应探测] drawio 模块重定向至: ${cand}`);
+                return cand;
+            }
+        }
+    }
+
+    return arg;
+}
+
+export class McpSession {
+    public state: SessionState = 'UNINITIALIZED';
+    public lastError: string | null = null;
+    public tools: Map<string, Tool> = new Map();
+    private client: Client | null = null;
+    private transport: Transport | null = null;
+
+    constructor(
+        public readonly serverName: string,
+        public readonly config: McpServerConfig
+    ) {}
+
+    public async connect(): Promise<void> {
+        this.state = 'CONNECTING';
+        this.lastError = null;
+        debug(`[${this.serverName}] 开始建立 MCP 传输层连接...`);
+
+        try {
+            if (isStdioConfig(this.config)) {
+                if (process.platform === 'win32' && this.config.env?.PORT) {
+                    const targetPort = this.config.env.PORT;
+                    try {
+                        const netstatOutput = Bun.spawnSync(['cmd.exe', '/c', `netstat -ano | findstr :${targetPort}`]).stdout.toString();
+                        const pids = new Set<string>();
+                        for (const line of netstatOutput.split('\n')) {
+                            const parts = line.trim().split(/\s+/);
+                            if (parts.length >= 5 && parts[1].endsWith(`:${targetPort}`) && parts[3] === 'LISTENING') {
+                                const pid = parts[4];
+                                if (pid && pid !== '0' && pid !== String(process.pid)) {
+                                    pids.add(pid);
+                                }
+                            }
+                        }
+                        for (const pid of pids) {
+                            debug(`[${this.serverName}] 清理残留占用端口 ${targetPort} 的孤儿进程 PID: ${pid}`);
+                            Bun.spawnSync(['taskkill', '/F', '/T', '/PID', pid]);
+                        }
+                    } catch {}
+                }
+
+                const command = normalizeCommandPath(this.config.command);
+                const args = (this.config.args || []).map((arg) => resolveArgumentPath(arg));
+
+                const inheritedEnv: Record<string, string> = {};
+                for (const [k, v] of Object.entries(process.env)) {
+                    if (v !== undefined) {
+                        inheritedEnv[k] = v;
+                    }
+                }
+
+                const env = {
+                    ...inheritedEnv,
+                    ...(this.config.env || {}),
+                };
+
+                this.transport = new StdioClientTransport({
+                    command,
+                    args,
+                    env,
+                    cwd: this.config.cwd ? normalizeCommandPath(this.config.cwd) : process.cwd(),
+                    stderr: 'pipe',
+                });
+
+                const stdioTransport = this.transport as any;
+                if (stdioTransport.stderr && typeof stdioTransport.stderr.on === 'function') {
+                    stdioTransport.stderr.on('data', (chunk: Buffer) => {
+                        const msg = chunk.toString().trim();
+                        debug(`[${this.serverName}:stderr] ${msg}`);
+                        if (this.state !== 'READY') {
+                            this.lastError = msg;
+                        }
+                    });
+                }
+            } else if (isSseConfig(this.config)) {
+                const sseConf = this.config;
+                this.transport = new SSEClientTransport(
+                    new URL(sseConf.url),
+                    sseConf.headers ? { eventSourceInit: { fetch: (url, init) => fetch(url, { ...init, headers: sseConf.headers }) } } : undefined
+                );
+            } else {
+                throw new Error(`不支持的传输协议定义: ${JSON.stringify(this.config)}`);
+            }
+
+            this.client = new Client(
+                { name: `mcp-gateway-${this.serverName}`, version: '0.2.0' },
+                { capabilities: {} }
+            );
+
+            const timeoutMs = this.config.timeout || 10000;
+            let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+            const timeoutPromise = new Promise<never>((_, reject) => {
+                timeoutId = setTimeout(() => {
+                    reject(new Error(`MCP 握手超时 (${timeoutMs}ms)`));
+                }, timeoutMs);
+            });
+
+            const connectPromise = (async () => {
+                await this.client!.connect(this.transport!);
+                await this.refreshTools();
+            })();
+
+            connectPromise.catch((innerErr) => {
+                debug(`[${this.serverName}] 异步握手终止状态通知: ${innerErr instanceof Error ? innerErr.message : String(innerErr)}`);
+            });
+
+            try {
+                await Promise.race([connectPromise, timeoutPromise]);
+            } finally {
+                if (timeoutId) clearTimeout(timeoutId);
+            }
+
+            this.state = 'READY';
+            this.lastError = null;
+            info(`[${this.serverName}] 连接就绪，枚举 ${this.tools.size} 个工具: [${Array.from(this.tools.keys()).join(', ')}]`);
+        } catch (err) {
+            const errorMsg = err instanceof Error ? (err.stack || err.message) : String(err);
+            this.lastError = errorMsg;
+            this.state = 'FAILED';
+            error(`[${this.serverName}] 启动失败: ${errorMsg}`);
+            await this.close();
+            this.state = 'FAILED';
+            throw err;
+        }
+    }
+
+    public async refreshTools(): Promise<void> {
+        if (!this.client) return;
+        const res = await this.client.listTools();
+        this.tools.clear();
+        for (const tool of res.tools) {
+            this.tools.set(tool.name, tool);
+        }
+    }
+
+    public async callTool(name: string, args: Record<string, unknown> = {}): Promise<unknown> {
+        if (this.state !== 'READY' || !this.client) {
+            throw new Error(`MCP 服务 [${this.serverName}] 未就绪 (状态: ${this.state})`);
+        }
+        if (!this.tools.has(name)) {
+            throw new Error(`服务 [${this.serverName}] 中不存在工具 [${name}]`);
+        }
+
+        return await this.client.callTool({
+            name,
+            arguments: args,
+        });
+    }
+
+    public async close(): Promise<void> {
+        const previousState = this.state;
+        this.state = 'DISCONNECTING';
+
+        const stdioTransport = this.transport as any;
+        const childProc = stdioTransport?._process || stdioTransport?.process;
+        const stdioPid = childProc?.pid;
+
+        try {
+            if (this.client) {
+                await this.client.close();
+            }
+        } catch (err) {
+            warn(`[${this.serverName}] 释放 Client 连接异常: ${err instanceof Error ? err.message : String(err)}`);
+        } finally {
+            if (process.platform === 'win32' && stdioPid) {
+                try {
+                    Bun.spawnSync(['taskkill', '/F', '/T', '/PID', String(stdioPid)]);
+                } catch {}
+            }
+            this.client = null;
+            this.transport = null;
+            this.tools.clear();
+            if (previousState === 'FAILED') {
+                this.state = 'FAILED';
+            } else {
+                this.state = 'TERMINATED';
+            }
+            debug(`[${this.serverName}] 传输层连接完全终止`);
+        }
+    }
+}
+'@
+Set-Content -Path "$ProjectRoot\src\mcp\session.ts" -Value $sessionTsContent -Encoding utf8
+
+# 12. 覆盖 src/mcp/pool.ts
+$poolTsContent = @'
+import { info, warn } from '@/utils/logger';
+import { McpSession } from './session';
+import { AsyncMutex } from '@/utils/lock';
+import type { McpServerConfig, GatewayConfigFile } from '@/config/types';
+
+export class McpPool {
+    private sessions: Map<string, McpSession> = new Map();
+    private mutex = new AsyncMutex();
+
+    public async initialize(config: GatewayConfigFile): Promise<void> {
+        return this.mutex.runExclusive(async () => {
+            const entries = Object.entries(config.mcpServers || {});
+            await Promise.allSettled(
+                entries.map(([name, srvConfig]) => this.addServer(name, srvConfig))
+            );
+        });
+    }
+
+    public async addServer(name: string, config: McpServerConfig): Promise<void> {
+        const oldSession = this.sessions.get(name);
+        const nextSession = new McpSession(name, config);
+
+        if (!oldSession) {
+            this.sessions.set(name, nextSession);
+        }
+
+        try {
+            await nextSession.connect();
+            this.sessions.set(name, nextSession);
+            if (oldSession && oldSession !== nextSession) {
+                await oldSession.close();
+            }
+        } catch (err) {
+            warn(`[${name}] 节点连接未能建立: ${err instanceof Error ? err.message : String(err)}`);
+            await nextSession.close();
+            this.sessions.set(name, nextSession);
+        }
+    }
+
+    public async removeServer(name: string): Promise<void> {
+        const session = this.sessions.get(name);
+        if (!session) return;
+        await session.close();
+        this.sessions.delete(name);
+        info(`[${name}] 服务已被安全注销`);
+    }
+
+    public getSession(name: string): McpSession | undefined {
+        return this.sessions.get(name);
+    }
+
+    public getAllSessions(): Map<string, McpSession> {
+        return this.sessions;
+    }
+
+    public async reconcile(newConfig: GatewayConfigFile): Promise<void> {
+        return this.mutex.runExclusive(async () => {
+            const newServers = newConfig.mcpServers || {};
+            const currentNames = new Set(this.sessions.keys());
+            const incomingNames = new Set(Object.keys(newServers));
+
+            for (const name of currentNames) {
+                if (!incomingNames.has(name)) {
+                    info(`热重载：下线服务 [${name}]`);
+                    await this.removeServer(name);
+                }
+            }
+
+            for (const [name, conf] of Object.entries(newServers)) {
+                const existing = this.sessions.get(name);
+                if (!existing || existing.state !== 'READY') {
+                    info(`热重载：挂载服务 [${name}]`);
+                    await this.addServer(name, conf);
+                } else if (JSON.stringify(existing.config) !== JSON.stringify(conf)) {
+                    info(`热重载：平滑重载已修改的服务 [${name}]`);
+                    await this.addServer(name, conf);
+                }
+            }
+        });
+    }
+
+    public async shutdown(): Promise<void> {
+        return this.mutex.runExclusive(async () => {
+            info('正在注销全部活动 MCP 会话...');
+            const promises = Array.from(this.sessions.values()).map((s) => s.close());
+            await Promise.allSettled(promises);
+            this.sessions.clear();
+            info('所有 MCP 会话已平稳停机');
+        });
+    }
+}
+'@
+Set-Content -Path "$ProjectRoot\src\mcp\pool.ts" -Value $poolTsContent -Encoding utf8
+
+# 13. 覆盖 src/server/gateway.ts
+$gatewayTsContent = @'
+import { info, error, warn, debug } from '@/utils/logger';
+import { McpPool } from '@/mcp/pool';
+import { OpenApiGenerator } from '@/openapi/generator';
+
+export interface GatewayServerOptions {
+    port: number;
+    host: string;
+}
+
+export class GatewayServer {
+    private server: ReturnType<typeof Bun.serve> | null = null;
+    private isPoolReady = false;
+
+    constructor(
+        private readonly pool: McpPool,
+        private readonly options: GatewayServerOptions
+    ) {}
+
+    public setPoolReady(ready: boolean): void {
+        this.isPoolReady = ready;
+    }
+
+    private resolvePublicOrigin(req: Request): string {
+        const proto = req.headers.get('x-forwarded-proto') || 'http';
+        const host = req.headers.get('x-forwarded-host') || req.headers.get('host') || `${this.options.host}:${this.options.port}`;
+        const prefix = req.headers.get('x-forwarded-prefix') || '';
+        return `${proto}://${host}${prefix}`.replace(/\/+$/, '');
+    }
+
+    public start(): void {
+        const { port, host } = this.options;
+
+        this.server = Bun.serve({
+            port,
+            hostname: host,
+            fetch: async (req: Request) => {
+                const url = new URL(req.url);
+                const path = url.pathname;
+                const method = req.method.toUpperCase();
+
+                const corsHeaders = {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Forwarded-Host, X-Forwarded-Proto',
+                };
+
+                if (method === 'OPTIONS') {
+                    return new Response(null, { status: 204, headers: corsHeaders });
+                }
+
+                try {
+                    info(`[HTTP] ${method} ${path}`);
+
+                    // 1. 就绪与健康检查
+                    if (path === '/health' && method === 'GET') {
+                        return Response.json({
+                            status: 'ok',
+                            uptime: process.uptime(),
+                            poolReady: this.isPoolReady,
+                        }, { headers: corsHeaders });
+                    }
+
+                    // 2. 枚举所有挂载服务状态
+                    if (path === '/servers' && method === 'GET') {
+                        const all = this.pool.getAllSessions();
+                        const summary: Record<string, unknown> = {};
+                        for (const [name, sess] of all.entries()) {
+                            summary[name] = {
+                                state: sess.state,
+                                lastError: sess.lastError,
+                                toolCount: sess.tools.size,
+                                tools: Array.from(sess.tools.keys()),
+                            };
+                        }
+                        return Response.json({ servers: summary }, { headers: corsHeaders });
+                    }
+
+                    const normalizedPath = path.replace(/\/+$/, '');
+                    const publicOrigin = this.resolvePublicOrigin(req);
+
+                    // 3. OpenAPI 规范路由
+                    let openApiServerName: string | null = null;
+                    const openApiMatch = normalizedPath.match(/^\/([^/]+)\/openapi\.json$/);
+                    if (openApiMatch && method === 'GET') {
+                        openApiServerName = openApiMatch[1];
+                    } else {
+                        const directMatch = normalizedPath.match(/^\/([^/]+)$/);
+                        if (directMatch && method === 'GET') {
+                            const candidate = directMatch[1];
+                            if (candidate !== 'health' && candidate !== 'servers') {
+                                openApiServerName = candidate;
+                            }
+                        }
+                    }
+
+                    if (openApiServerName) {
+                        const session = this.pool.getSession(openApiServerName);
+                        if (!session) {
+                            warn(`[HTTP 404] 服务 [${openApiServerName}] 不存在`);
+                            return Response.json({ error: `Server [${openApiServerName}] not found` }, { status: 404, headers: corsHeaders });
+                        }
+
+                        if (session.state !== 'READY') {
+                            warn(`[HTTP 503] 服务 [${openApiServerName}] 尚未就绪 (当前状态: ${session.state})`);
+                            return Response.json({
+                                error: `Server [${openApiServerName}] not ready`,
+                                state: session.state,
+                                lastError: session.lastError,
+                            }, {
+                                status: 503,
+                                headers: {
+                                    ...corsHeaders,
+                                    ...(session.state === 'CONNECTING' ? { 'Retry-After': '2' } : {}),
+                                },
+                            });
+                        }
+
+                        const spec = OpenApiGenerator.generate(session, publicOrigin);
+                        return Response.json(spec, {
+                            headers: {
+                                ...corsHeaders,
+                                'Content-Type': 'application/json; charset=utf-8',
+                            },
+                        });
+                    }
+
+                    // 4. 工具调用路由
+                    let matchedServer: string | null = null;
+                    let matchedTool: string | null = null;
+
+                    const singleMatch = normalizedPath.match(/^\/([^/]+)\/([^/]+)$/);
+                    const doubleMatch = normalizedPath.match(/^\/([^/]+)\/\1\/([^/]+)$/);
+
+                    if (doubleMatch) {
+                        matchedServer = doubleMatch[1];
+                        matchedTool = doubleMatch[2];
+                    } else if (singleMatch) {
+                        matchedServer = singleMatch[1];
+                        matchedTool = singleMatch[2];
+                    }
+
+                    if (matchedServer && matchedTool && method === 'POST') {
+                        if (matchedTool === 'openapi.json') {
+                            return Response.json({ error: 'Method Not Allowed' }, { status: 405, headers: corsHeaders });
+                        }
+
+                        const session = this.pool.getSession(matchedServer);
+                        if (!session) {
+                            warn(`[HTTP 404] 服务 [${matchedServer}] 未注册`);
+                            return Response.json({ error: `Server [${matchedServer}] not found` }, { status: 404, headers: corsHeaders });
+                        }
+
+                        if (session.state !== 'READY') {
+                            warn(`[HTTP 503] 服务 [${matchedServer}] 未就绪 (当前状态: ${session.state})`);
+                            return Response.json({
+                                error: `Server [${matchedServer}] not ready`,
+                                state: session.state,
+                                lastError: session.lastError,
+                            }, {
+                                status: 503,
+                                headers: {
+                                    ...corsHeaders,
+                                    ...(session.state === 'CONNECTING' ? { 'Retry-After': '2' } : {}),
+                                },
+                            });
+                        }
+
+                        let body: Record<string, unknown> = {};
+                        try {
+                            const rawText = await req.text();
+                            if (rawText.trim().length > 0) {
+                                body = JSON.parse(rawText);
+                            }
+                        } catch {
+                            return Response.json({ error: 'Invalid JSON request payload' }, { status: 400, headers: corsHeaders });
+                        }
+
+                        info(`[工具执行] 服务: [${matchedServer}], 工具: [${matchedTool}]`);
+                        const executionResult = await session.callTool(matchedTool, body);
+
+                        return Response.json(executionResult, {
+                            headers: {
+                                ...corsHeaders,
+                                'Content-Type': 'application/json; charset=utf-8',
+                            },
+                        });
+                    }
+
+                    warn(`[HTTP 404] 路由未匹配: ${method} ${path}`);
+                    return Response.json({ error: 'Not Found' }, { status: 404, headers: corsHeaders });
+                } catch (err) {
+                    error(`[HTTP 500] 处理异常: ${err instanceof Error ? err.message : String(err)}`);
+                    return Response.json({
+                        error: 'Gateway Error',
+                        message: err instanceof Error ? err.message : String(err),
+                    }, { status: 500, headers: corsHeaders });
+                }
+            },
+        });
+
+        info(`mcp-gateway 已成功监听在: http://${host}:${port}`);
+    }
+
+    public stop(): void {
+        if (this.server) {
+            this.server.stop(true);
+            this.server = null;
+            info('HTTP 监听网关已安全停机');
+        }
+    }
+}
+'@
+Set-Content -Path "$ProjectRoot\src\server\gateway.ts" -Value $gatewayTsContent -Encoding utf8
+
+# 14. 覆盖 src/index.ts
+$indexTsContent = @'
+import { resolveXdg } from '@/config/xdg';
+import { ConfigManager } from '@/config/loader';
+import { McpPool } from '@/mcp/pool';
+import { GatewayServer } from '@/server/gateway';
+import { info, error, warn, initFileLogging } from '@/utils/logger';
+
+async function main() {
+    const xdg = resolveXdg();
+    initFileLogging(xdg.logFilePath);
+
+    info(`「mcp-gateway」启动中 (Bun ${Bun.version})...`);
+    info(`日志记录文件: ${xdg.logFilePath}`);
+    info(`配置文件解析路径: ${xdg.configFilePath}`);
+
+    const configManager = new ConfigManager(xdg.configFilePath);
+    const initialConfig = await configManager.load();
+
+    const pool = new McpPool();
+
+    const port = Number(process.env.PORT) || initialConfig.port || 9090;
+    const host = process.env.HOST || initialConfig.host || '127.0.0.1';
+
+    const gateway = new GatewayServer(pool, { port, host });
+    gateway.start();
+
+    configManager.watch(async (newConfig) => {
+        await pool.reconcile(newConfig);
+    });
+
+    info('正在初始化 MCP 服务连接池...');
+    try {
+        await pool.initialize(initialConfig);
+        gateway.setPoolReady(true);
+        info('MCP 服务连接池初始化完毕，网关全面就绪');
+    } catch (err) {
+        warn(`MCP 服务池存在未就绪节点: ${err instanceof Error ? err.message : String(err)}`);
+    }
+
+    let isShuttingDown = false;
+    const shutdown = async () => {
+        if (isShuttingDown) return;
+        isShuttingDown = true;
+
+        info('收到停机信号，正在释放资源...');
+        const watchdog = setTimeout(() => {
+            warn('强制超时退出看门狗触发');
+            process.exit(1);
+        }, 5000);
+        watchdog.unref();
+
+        configManager.stopWatch();
+        gateway.stop();
+        await pool.shutdown();
+
+        info('mcp-gateway 已安全退出');
+        process.exit(0);
+    };
+
+    process.on('SIGINT', shutdown);
+    process.on('SIGTERM', shutdown);
+    process.on('unhandledRejection', (reason) => {
+        warn(`[未捕获 Promise 异常] ${reason instanceof Error ? (reason.stack || reason.message) : String(reason)}`);
+    });
+}
+
+main().catch((err) => {
+    error(`网关遭遇致命错误: ${err instanceof Error ? (err.stack || err.message) : String(err)}`);
+    process.exit(1);
+});
+'@
+Set-Content -Path "$ProjectRoot\src\index.ts" -Value $indexTsContent -Encoding utf8
+
+# 15. 覆盖 config.json5 (将 drawio 对齐至工程本地 node_modules 相对路径)
+$configJson5Content = @'
+{
+    // mcp-gateway 核心配置文件 (JSON5 规范，Bun.JSON5 原生解析)
+
+    mcpServers: {
+        // 1. 本地原生二进制 Codebase Memory 服务节点
+        codebase_memory: {
+            command: "C:/Users/root/.local/bin/codebase-memory-mcp.exe",
+            args: [],
+            env: {},
+        },
+
+        // 2. Next AI Draw.io stdio 串流 MCP 服务节点 (采用本地工程 node_modules)
+        drawio: {
+            command: "bun",
+            args: [
+                "run",
+                "./node_modules/@next-ai-drawio/mcp-server/dist/index.js",
+            ],
+            env: {
+                PORT: "6002",
+            },
+        },
+
+        // 3. Microsoft Edge 扩展桥接 MCP 节点 (SSE 协议)
+        chrome: {
+            url: "http://127.0.0.1:12306/sse",
+        },
+    },
+
+    // 网关监听端口与地址
+    host: "127.0.0.1",
+    port: 9090,
+}
+'@
+Set-Content -Path "$ProjectRoot\config.json5" -Value $configJson5Content -Encoding utf8
+
+# 16. 覆盖测试脚本 ps1_scripts/test-gateway.ps1
+$testPs1Content = @'
+# ==============================================================================
+# Script: ps1_scripts/test-gateway.ps1
+# Description: 自动化回归测试 (智能轮询核心服务 / 多服务状态呈现 / Tailscale 头断言)
+# ==============================================================================
+
+$ErrorActionPreference = "Stop"
+$ProjectRoot = Split-Path -Parent $PSScriptRoot
+Set-Location $ProjectRoot
+
+$env:NO_PROXY = "127.0.0.1,localhost,100.81.173.80"
+
+Write-Host "======================================================================" -ForegroundColor Cyan
+Write-Host ">>> [mcp-gateway] 多服务与 Caddy 反向代理自动化断言测试" -ForegroundColor Cyan
+Write-Host "======================================================================" -ForegroundColor Cyan
+
+# 1. 清理 9090 端口占用
+Get-NetTCPConnection -LocalPort 9090 -ErrorAction SilentlyContinue | ForEach-Object {
+    Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue
+}
+
+# 2. 启动网关主进程
+Write-Host "`n[阶段 1] 启动网关主进程..." -ForegroundColor Yellow
+$processInfo = New-Object System.Diagnostics.ProcessStartInfo
+$processInfo.FileName = "bun"
+$processInfo.Arguments = "run ./src/index.ts"
+$processInfo.WorkingDirectory = $ProjectRoot
+$processInfo.RedirectStandardOutput = $false
+$processInfo.RedirectStandardError = $false
+$processInfo.UseShellExecute = $true
+
+$gatewayProcess = [System.Diagnostics.Process]::Start($processInfo)
+
+try {
+    # 3. 轮询健康探针
+    Write-Host "`n[阶段 2] 探测健康检查接口 GET /health..." -ForegroundColor Yellow
+    $healthOk = $false
+    for ($i = 1; $i -le 10; $i++) {
+        try {
+            $healthResp = Invoke-RestMethod -Uri "http://127.0.0.1:9090/health" -Method Get -TimeoutSec 2 -NoProxy
+            if ($healthResp.status -eq "ok") {
+                $healthOk = $true
+                Write-Host "  [✓] /health 探针就绪: $($healthResp | ConvertTo-Json -Compress)" -ForegroundColor Green
+                break
+            }
+        } catch {
+            Start-Sleep -Seconds 1
+        }
+    }
+
+    if (-not $healthOk) {
+        Write-Host "  [✗] 健康检查超时未通过" -ForegroundColor Red
+        exit 1
+    }
+
+    # 4. 智能轮询等待核心服务 codebase_memory 握手就绪 (最多等待 15 秒)
+    Write-Host "`n[阶段 3] 轮询等待核心服务 codebase_memory 就绪..." -ForegroundColor Yellow
+    $serverReady = $false
+    for ($i = 1; $i -le 15; $i++) {
+        try {
+            $serversResp = Invoke-RestMethod -Uri "http://127.0.0.1:9090/servers" -Method Get -TimeoutSec 2 -NoProxy
+            $cb = $serversResp.servers.codebase_memory
+            if ($cb -and $cb.state -eq "READY") {
+                $serverReady = $true
+                Write-Host "  [✓] 服务 codebase_memory 成功就绪！枚举 $($cb.toolCount) 个工具 (耗时 $i 秒)" -ForegroundColor Green
+                break
+            } else {
+                $st = if ($cb) { $cb.state } else { "未登记" }
+                Write-Host "  [-] 服务 codebase_memory 握手中 (状态: $st, 第 $i 秒)..." -ForegroundColor Gray
+            }
+        } catch {}
+        Start-Sleep -Seconds 1
+    }
+
+    # 打印全部挂载服务全景状态
+    Write-Host "`n[诊断] 当前挂载服务全景状态:" -ForegroundColor Cyan
+    $serversResp = Invoke-RestMethod -Uri "http://127.0.0.1:9090/servers" -Method Get -TimeoutSec 2 -NoProxy
+    foreach ($srvName in @("codebase_memory", "drawio", "chrome")) {
+        $srv = $serversResp.servers.$srvName
+        if ($srv) {
+            $color = if ($srv.state -eq "READY") { "Green" } elseif ($srv.state -eq "CONNECTING") { "Yellow" } else { "Magenta" }
+            $errDetail = if ($srv.lastError) { " (异常: $($srv.lastError.Split([char]10)[0]))" } else { "" }
+            Write-Host "  [*] 服务 [$srvName] -> 状态: $($srv.state), 工具数: $($srv.toolCount)$errDetail" -ForegroundColor $color
+        }
+    }
+
+    if (-not $serverReady) {
+        Write-Host "  [✗] 核心服务 codebase_memory 超时未能就绪" -ForegroundColor Red
+        exit 1
+    }
+
+    # 5. 模拟来自 Caddy (通过 Tailscale IP:8444) 的反向代理调用
+    Write-Host "`n[阶段 4] 模拟 Tailscale + Caddy 反向代理调用 GET /codebase_memory/openapi.json..." -ForegroundColor Yellow
+    $headers = @{
+        "X-Forwarded-Proto" = "http"
+        "X-Forwarded-Host"  = "100.81.173.80:8444"
+    }
+
+    $openApiResp = Invoke-RestMethod -Uri "http://127.0.0.1:9090/codebase_memory/openapi.json" -Headers $headers -Method Get -TimeoutSec 5 -NoProxy
+
+    $expectedServerUrl = "http://100.81.173.80:8444/codebase_memory"
+    $actualServerUrl = $openApiResp.servers[0].url
+    if ($actualServerUrl -eq $expectedServerUrl) {
+        Write-Host "  [✓] Tailscale 反向代理 Origin 正确注入: $actualServerUrl" -ForegroundColor Green
+    } else {
+        Write-Host "  [✗] Origin 漂移！期望: $expectedServerUrl, 实际: $actualServerUrl" -ForegroundColor Red
+    }
+
+    Write-Host "`n>>> [通过] 自动化断言验证全部完成！" -ForegroundColor Green
+} finally {
+    Write-Host "`n[阶段 5] 正在回收测试主进程与子进程树..." -ForegroundColor Yellow
+    if ($gatewayProcess -and -not $gatewayProcess.HasExited) {
+        $gatewayProcess.Kill($true)
+        $gatewayProcess.WaitForExit()
+        Write-Host "  [✓] 测试进程已彻底释放" -ForegroundColor Green
+    }
+}
+'@
+Set-Content -Path "$ProjectRoot\ps1_scripts\test-gateway.ps1" -Value $testPs1Content -Encoding utf8
+
+# 17. 触发 bun install 自动安装本地依赖包（包含 @next-ai-drawio/mcp-server）
+Write-Host "`n>>> [mcp-gateway] 校验并执行依赖安装 (含 @next-ai-drawio/mcp-server)..." -ForegroundColor Cyan
+bun install
+
+Write-Host "`n>>> [成功] 三服务架构全量部署完毕！" -ForegroundColor Green
+Write-Host ">>> 执行测试:  .\ps1_scripts\test-gateway.ps1" -ForegroundColor Yellow
+
+================
+File: ps1_scripts/RollbackAndDeployXDG.ps1
+================
+# ==============================================================================
+# Script: ps1_scripts/RollbackAndDeployXDG.ps1
+# Description: 全量回滚临时修改，基于系统四大标准 XDG 规范重构并部署 mcp-gateway
+# ==============================================================================
+
+$ErrorActionPreference = "Stop"
+$ProjectRoot = Split-Path -Parent $PSScriptRoot
+if (-not (Test-Path "$ProjectRoot\package.json")) {
+    $ProjectRoot = Get-Location
+}
+Set-Location $ProjectRoot
+
+Write-Host "======================================================================" -ForegroundColor Cyan
+Write-Host ">>> [mcp-gateway] 执行系统痕迹回滚与通用 XDG 规范架构重构..." -ForegroundColor Cyan
+Write-Host "======================================================================" -ForegroundColor Cyan
+
+# ------------------------------------------------------------------------------
+# 阶段 1: 回滚与清理之前的临时改动
+# ------------------------------------------------------------------------------
+Write-Host "`n[阶段 1] 回滚系统临时改动与注册表痕迹..." -ForegroundColor Yellow
+
+# 1. 移除临时注册表项
+$RegEdge = "HKCU:\Software\Microsoft\Edge\NativeMessagingHosts\com.chromemcp.nativehost"
+$RegChrome = "HKCU:\Software\Google\Chrome\NativeMessagingHosts\com.chromemcp.nativehost"
+
+if (Test-Path $RegEdge) {
+    Remove-Item -Path $RegEdge -Recurse -Force -ErrorAction SilentlyContinue
+    Write-Host "  [-] 清理 Edge NativeMessagingHosts 注册表项" -ForegroundColor Gray
+}
+if (Test-Path $RegChrome) {
+    Remove-Item -Path $RegChrome -Recurse -Force -ErrorAction SilentlyContinue
+}
+
+# 2. 移除临时目录与临时环境变量
+$TempBridgeDir = "$env:LOCALAPPDATA\mcp-chrome-bridge"
+if (Test-Path $TempBridgeDir) {
+    Remove-Item -Path $TempBridgeDir -Recurse -Force -ErrorAction SilentlyContinue
+    Write-Host "  [-] 删除临时目录: $TempBridgeDir" -ForegroundColor Gray
+}
+[Environment]::SetEnvironmentVariable("CHROME_MCP_NODE_PATH", $null, "User")
+
+# 3. 规范化还原 Scoop Shim（移除伪 node 垫片，确保 Scoop 原生机制纯净）
+if (Get-Command scoop -ErrorAction SilentlyContinue) {
+    scoop shim rm node -ErrorAction SilentlyContinue | Out-Null
+    scoop shim rm npm -ErrorAction SilentlyContinue | Out-Null
+    scoop shim rm npx -ErrorAction SilentlyContinue | Out-Null
+    Write-Host "  [-] 移除 Scoop 临时注入的 node / npm 兼容垫片" -ForegroundColor Gray
+}
+
+# 4. 清理实验性扩展与本地旧构建
+$LegacyDirs = @(
+    "$ProjectRoot\browser_extension",
+    "$ProjectRoot\src\browser",
+    "$ProjectRoot\logs"
+)
+foreach ($ld in $LegacyDirs) {
+    if (Test-Path $ld) {
+        Remove-Item -Path $ld -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+
+# ------------------------------------------------------------------------------
+# 阶段 2: 校验并初始化标准 XDG 四大物理目录
+# ------------------------------------------------------------------------------
+Write-Host "`n[阶段 2] 校验并初始化 XDG 规范物理路径..." -ForegroundColor Yellow
+
+# 读取系统已声明的 4 个环境变量
+$XdgConfig = $env:XDG_CONFIG_HOME
+$XdgData   = $env:XDG_DATA_HOME
+$XdgState  = $env:XDG_STATE_HOME
+$XdgCache  = $env:XDG_CACHE_HOME
+
+# 严格保障路径就绪
+$AppConfigDir = if ($XdgConfig) { Join-Path $XdgConfig "mcp-gateway" } else { "$env:APPDATA\mcp-gateway" }
+$AppDataDir   = if ($XdgData)   { Join-Path $XdgData "mcp-gateway" }   else { "$env:LOCALAPPDATA\mcp-gateway\data" }
+$AppStateDir  = if ($XdgState)  { Join-Path $XdgState "mcp-gateway" }  else { "$env:LOCALAPPDATA\mcp-gateway\state" }
+$AppCacheDir  = if ($XdgCache)  { Join-Path $XdgCache "mcp-gateway" }  else { "$env:TEMP\mcp-gateway" }
+
+$XdgAppDirs = @(
+    $AppConfigDir,
+    $AppDataDir,
+    (Join-Path $AppStateDir "logs"),
+    $AppCacheDir
+)
+
+foreach ($dir in $XdgAppDirs) {
+    if (-not (Test-Path $dir)) {
+        New-Item -ItemType Directory -Path $dir -Force | Out-Null
+        Write-Host "  [+] 初始化 XDG 物理目录: $dir" -ForegroundColor Green
+    } else {
+        Write-Host "  [✓] 发现 XDG 物理目录: $dir" -ForegroundColor Gray
+    }
+}
+
+# ------------------------------------------------------------------------------
+# 阶段 3: 覆盖纯净依赖与规范工程配置
+# ------------------------------------------------------------------------------
+Write-Host "`n[阶段 3] 写入工程基础配置文件..." -ForegroundColor Yellow
+
+# 1. 覆盖 package.json (剔除所有临时包，仅保留生产级 SDK 与本地 drawio)
+$packageJsonContent = @'
+{
+    "$schema": "https://json.schemastore.org/package.json",
+    "name": "mcp-gateway",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "author": {
+        "name": "TiancongLi",
+        "email": "tiancong.li@hotmail.com"
+    },
+    "scripts": {
+        "start": "bun run ./src/index.ts",
+        "dev": "bun run ./src/index.ts",
+        "build": "bun build --compile ./src/index.ts --outfile ./build/mcp-gateway.exe"
+    },
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.6.1",
+        "@next-ai-drawio/mcp-server": "^0.1.1",
+        "yoctocolors": "^2.1.1"
+    },
+    "devDependencies": {
+        "@types/bun": "^1.4.2",
+        "typescript": "^7.0.2"
+    }
+}
+'@
+Set-Content -Path "$ProjectRoot\package.json" -Value $packageJsonContent -Encoding utf8
+
+# 2. 覆盖 tsconfig.json
+$tsconfigContent = @'
+{
+    "compilerOptions": {
+        "lib": ["ESNext"],
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "moduleDetection": "force",
+
+        "types": ["bun"],
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+
+        "resolveJsonModule": true,
+        "allowImportingTsExtensions": true,
+        "verbatimModuleSyntax": true,
+        "noEmit": true,
+
+        "sourceMap": true,
+        "inlineSources": true,
+
+        "paths": {
+            "@/*": ["./src/*"]
+        }
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts"
+    ]
+}
+'@
+Set-Content -Path "$ProjectRoot\tsconfig.json" -Value $tsconfigContent -Encoding utf8
+
+# 3. 覆盖 src/global.d.ts
+$globalDtsContent = @'
+declare module '*.json5' {
+    const value: any;
+    export default value;
+}
+'@
+Set-Content -Path "$ProjectRoot\src\global.d.ts" -Value $globalDtsContent -Encoding utf8
+
+# ------------------------------------------------------------------------------
+# 阶段 4: 写入模块化核心源码
+# ------------------------------------------------------------------------------
+Write-Host "`n[阶段 4] 写入模块化、可扩展源码..." -ForegroundColor Yellow
+
+# 1. src/utils/lock.ts
+$lockTsContent = @'
+export class AsyncMutex {
+    private mutex = Promise.resolve();
+
+    public lock(): Promise<() => void> {
+        let begin: (unlock: () => void) => void = () => {};
+        this.mutex = this.mutex.then(() => {
+            return new Promise(begin);
+        });
+        return new Promise((res) => {
+            begin = res;
+        });
+    }
+
+    public async runExclusive<T>(callback: () => Promise<T> | T): Promise<T> {
+        const unlock = await this.lock();
+        try {
+            return await callback();
+        } finally {
+            unlock();
+        }
+    }
+}
+'@
+Set-Content -Path "$ProjectRoot\src\utils\lock.ts" -Value $lockTsContent -Encoding utf8
+
+# 2. src/utils/logger.ts (支持 XDG_STATE_HOME 动态定向落盘)
+$loggerTsContent = @'
+import { format } from 'node:util';
+import { appendFileSync } from 'node:fs';
+import * as c from 'yoctocolors';
+
+export const LogLevels = {
+    DEBUG:  0,
+    INFO:   1,
+    WARN:   2,
+    ERROR:  3,
+    SILENT: 99,
+} as const;
+
+type LogLevelKey = keyof typeof LogLevels;
+type LogLevelValue = typeof LogLevels[LogLevelKey];
+
+interface LoggerConfig {
+    level: LogLevelValue;
+    showTimestamp: boolean;
+    logFilePath: string | null;
+}
+
+const config: LoggerConfig = {
+    level: LogLevels.DEBUG,
+    showTimestamp: true,
+    logFilePath: null,
+};
+
+export function setLogLevel(level: LogLevelKey): void {
+    config.level = LogLevels[level];
+}
+
+export function initFileLogging(filePath: string): void {
+    config.logFilePath = filePath;
+}
+
+function getTimeStamp(): string {
+    if (!config.showTimestamp) return '';
+    const now = new Date();
+    return `[${now.toLocaleTimeString('en-US', { hour12: false })}] `;
+}
+
+function print(levelVal: LogLevelValue, textBadge: string, coloredBadge: string, message: unknown[]): void {
+    if (levelVal < config.level) return;
+
+    const formattedMessage = format(...message);
+    const time = getTimeStamp();
+
+    process.stderr.write(`${c.gray(time)}${coloredBadge} ${formattedMessage}\n`);
+
+    if (config.logFilePath) {
+        try {
+            const rawLine = `${time}${textBadge} ${formattedMessage}\n`;
+            appendFileSync(config.logFilePath, rawLine, { encoding: 'utf8' });
+        } catch {}
+    }
+}
+
+export function debug(...args: unknown[]): void {
+    print(LogLevels.DEBUG, '[DEBUG]', c.bgBlack(c.white(' DEBUG ')), args);
+}
+
+export function info(...args: unknown[]): void {
+    print(LogLevels.INFO, '[INFO]', c.bgBlue(c.black(' INFO ')), args);
+}
+
+export function warn(...args: unknown[]): void {
+    print(LogLevels.WARN, '[WARN]', c.bgYellow(c.black(' WARN ')), args);
+}
+
+export function error(...args: unknown[]): void {
+    print(LogLevels.ERROR, '[ERROR]', c.bgRed(c.black(' ERROR ')), args);
+}
+'@
+Set-Content -Path "$ProjectRoot\src\utils\logger.ts" -Value $loggerTsContent -Encoding utf8
+
+# 3. src/config/types.ts
+$typesTsContent = @'
+export interface StdioServerConfig {
+    command: string;
+    args?: string[];
+    env?: Record<string, string>;
+    cwd?: string;
+    timeout?: number;
+}
+
+export interface SseServerConfig {
+    url: string;
+    headers?: Record<string, string>;
+    timeout?: number;
+}
+
+export type McpServerConfig = StdioServerConfig | SseServerConfig;
+
+export interface GatewayConfigFile {
+    mcpServers: Record<string, McpServerConfig>;
+    port?: number;
+    host?: string;
+}
+
+export function isStdioConfig(config: McpServerConfig): config is StdioServerConfig {
+    return 'command' in config && typeof (config as StdioServerConfig).command === 'string';
+}
+
+export function isSseConfig(config: McpServerConfig): config is SseServerConfig {
+    return 'url' in config && typeof (config as SseServerConfig).url === 'string';
+}
+'@
+Set-Content -Path "$ProjectRoot\src\config\types.ts" -Value $typesTsContent -Encoding utf8
+
+# 4. src/config/xdg.ts (核心 XDG 解析与环境路径展开器)
+$xdgTsContent = @'
+import { join, resolve } from 'node:path';
+import { homedir } from 'node:os';
+import { existsSync, mkdirSync } from 'node:fs';
+
+const APP_NAME = 'mcp-gateway';
+
+export interface XdgEnvironment {
+    configHome: string;
+    dataHome: string;
+    stateHome: string;
+    cacheHome: string;
+    activeConfigFile: string;
+    logFilePath: string;
+}
+
+/**
+ * 跨平台解析系统四大 XDG 规范物理路径
+ */
+export function resolveXdg(): XdgEnvironment {
+    const isWindows = process.platform === 'win32';
+    const home = homedir();
+
+    // 1. XDG_CONFIG_HOME
+    let baseConfig = process.env.XDG_CONFIG_HOME;
+    if (!baseConfig) {
+        baseConfig = isWindows ? (process.env.APPDATA || join(home, 'AppData', 'Roaming')) : join(home, '.config');
+    }
+    const configHome = join(baseConfig, APP_NAME);
+
+    // 2. XDG_DATA_HOME
+    let baseData = process.env.XDG_DATA_HOME;
+    if (!baseData) {
+        baseData = isWindows ? (process.env.LOCALAPPDATA || join(home, 'AppData', 'Local')) : join(home, '.local', 'share');
+    }
+    const dataHome = join(baseData, APP_NAME);
+
+    // 3. XDG_STATE_HOME
+    let baseState = process.env.XDG_STATE_HOME;
+    if (!baseState) {
+        baseState = isWindows ? (process.env.LOCALAPPDATA || join(home, 'AppData', 'Local')) : join(home, '.local', 'state');
+    }
+    const stateHome = join(baseState, APP_NAME);
+
+    // 4. XDG_CACHE_HOME
+    let baseCache = process.env.XDG_CACHE_HOME;
+    if (!baseCache) {
+        baseCache = isWindows ? (process.env.TEMP || join(home, 'AppData', 'Local', 'Temp')) : join(home, '.cache');
+    }
+    const cacheHome = join(baseCache, APP_NAME);
+
+    // 确保物理目录就绪
+    const logDir = join(stateHome, 'logs');
+    for (const dir of [configHome, dataHome, stateHome, logDir, cacheHome]) {
+        if (!existsSync(dir)) {
+            mkdirSync(dir, { recursive: true });
+        }
+    }
+
+    // 确定优先加载的配置文件路径 (CLI 指定 > 工程目录优先 > XDG 规范目录)
+    const candidatePaths = [
+        process.env.MCP_GATEWAY_CONFIG,
+        join(process.cwd(), 'config.json5'),
+        join(configHome, 'config.json5'),
+        join(configHome, 'config.json'),
+    ].filter(Boolean) as string[];
+
+    let activeConfigFile = candidatePaths[candidatePaths.length - 1];
+    for (const p of candidatePaths) {
+        if (existsSync(p)) {
+            activeConfigFile = p;
+            break;
+        }
+    }
+
+    const logFilePath = join(logDir, 'gateway.log');
+
+    return {
+        configHome,
+        dataHome,
+        stateHome,
+        cacheHome,
+        activeConfigFile: resolve(activeConfigFile),
+        logFilePath: resolve(logFilePath),
+    };
+}
+
+/**
+ * 通用环境变量与相对路径解析插值引擎
+ */
+export function interpolateVariables(rawText: string, xdg: XdgEnvironment): string {
+    let result = rawText.trim();
+
+    // 规范化家目录
+    if (result.startsWith('~/') || result.startsWith('~\\')) {
+        result = join(homedir(), result.slice(2));
+    }
+
+    // 展开标准 XDG 变量
+    result = result.replace(/\$\{XDG_CONFIG_HOME\}/g, xdg.configHome);
+    result = result.replace(/\$\{XDG_DATA_HOME\}/g, xdg.dataHome);
+    result = result.replace(/\$\{XDG_STATE_HOME\}/g, xdg.stateHome);
+    result = result.replace(/\$\{XDG_CACHE_HOME\}/g, xdg.cacheHome);
+
+    // 展开操作系统通用环境变量 (%VAR% 或 ${VAR})
+    if (process.platform === 'win32') {
+        result = result.replace(/%([^%]+)%/g, (_, name) => process.env[name] || '');
+    }
+    result = result.replace(/\$\{([^}]+)\}/g, (_, name) => process.env[name] || '');
+
+    return result;
+}
+'@
+Set-Content -Path "$ProjectRoot\src\config\xdg.ts" -Value $xdgTsContent -Encoding utf8
+
+# 5. src/config/loader.ts (基于 Bun 原生 JSON5 的防抖热重载解析器)
+$loaderTsContent = @'
+import { watch, type FSWatcher } from 'node:fs';
+import { dirname, basename, resolve } from 'node:path';
+import { info, warn, error } from '@/utils/logger';
+import { interpolateVariables, type XdgEnvironment } from './xdg';
+import type { GatewayConfigFile } from './types';
+
+export type ConfigChangeCallback = (newConfig: GatewayConfigFile) => Promise<void> | void;
+
+export class ConfigManager {
+    private watcher: FSWatcher | null = null;
+    private debounceTimer: ReturnType<typeof setTimeout> | null = null;
+    private currentConfig: GatewayConfigFile = { mcpServers: {} };
+    private readonly absConfigPath: string;
+
+    constructor(
+        configPath: string,
+        private readonly xdg: XdgEnvironment
+    ) {
+        this.absConfigPath = resolve(configPath);
+    }
+
+    public async load(): Promise<GatewayConfigFile> {
+        const configFile = Bun.file(this.absConfigPath);
+        if (!(await configFile.exists())) {
+            warn(`配置文件未就绪: ${this.absConfigPath}，网关以空状态初始化`);
+            this.currentConfig = { mcpServers: {} };
+            return this.currentConfig;
+        }
+
+        let retries = 3;
+        while (retries > 0) {
+            try {
+                const text = await configFile.text();
+                if (!text.trim()) throw new Error('配置文本为空');
+
+                const parsed = Bun.JSON5.parse(text) as GatewayConfigFile;
+                if (!parsed.mcpServers || typeof parsed.mcpServers !== 'object') {
+                    parsed.mcpServers = {};
+                }
+
+                // 对每一个节点参数执行 XDG 变量解构
+                for (const [srvName, srvConf] of Object.entries(parsed.mcpServers)) {
+                    if ('command' in srvConf && typeof srvConf.command === 'string') {
+                        srvConf.command = interpolateVariables(srvConf.command, this.xdg);
+                        if (Array.isArray(srvConf.args)) {
+                            srvConf.args = srvConf.args.map((a) => interpolateVariables(a, this.xdg));
+                        }
+                        if (srvConf.cwd) {
+                            srvConf.cwd = interpolateVariables(srvConf.cwd, this.xdg);
+                        }
+                    } else if ('url' in srvConf && typeof srvConf.url === 'string') {
+                        srvConf.url = interpolateVariables(srvConf.url, this.xdg);
+                    }
+                }
+
+                this.currentConfig = parsed;
+                info(`已成功加载配置: ${this.absConfigPath} (生效服务: ${Object.keys(parsed.mcpServers).join(', ') || '无'})`);
+                return this.currentConfig;
+            } catch (err) {
+                retries--;
+                if (retries === 0) {
+                    error(`解析配置文件异常: ${err instanceof Error ? err.message : String(err)}`);
+                    return this.currentConfig;
+                }
+                await Bun.sleep(80);
+            }
+        }
+
+        return this.currentConfig;
+    }
+
+    public watch(onChange: ConfigChangeCallback): void {
+        const watchDir = dirname(this.absConfigPath);
+        const targetFilename = basename(this.absConfigPath);
+
+        try {
+            this.watcher = watch(watchDir, (eventType, triggeredFilename) => {
+                if (!triggeredFilename) return;
+                if (basename(triggeredFilename) === targetFilename) {
+                    if (this.debounceTimer) clearTimeout(this.debounceTimer);
+                    this.debounceTimer = setTimeout(async () => {
+                        info(`检测到配置文件变动，执行热重载调度...`);
+                        const reloaded = await this.load();
+                        try {
+                            await onChange(reloaded);
+                        } catch (err) {
+                            error(`热重载回调执行异常: ${err instanceof Error ? err.message : String(err)}`);
+                        }
+                    }, 300);
+                }
+            });
+        } catch (err) {
+            warn(`注册配置文件监视器失败: ${err instanceof Error ? err.message : String(err)}`);
+        }
+    }
+
+    public stopWatch(): void {
+        if (this.watcher) {
+            this.watcher.close();
+            this.watcher = null;
+        }
+        if (this.debounceTimer) {
+            clearTimeout(this.debounceTimer);
+            this.debounceTimer = null;
+        }
+    }
+
+    public getConfig(): GatewayConfigFile {
+        return this.currentConfig;
+    }
+}
+'@
+Set-Content -Path "$ProjectRoot\src\config\loader.ts" -Value $loaderTsContent -Encoding utf8
+
+# 6. src/openapi/generator.ts (纯净 OpenAPI 3.1.0 契约文档生成器)
+$openapiTsContent = @'
+import type { McpSession } from '@/mcp/session';
+
+export interface OpenApiSpec31 {
+    openapi: '3.1.0';
+    info: {
+        title: string;
+        version: string;
+        description: string;
+    };
+    servers: Array<{
+        url: string;
+        description?: string;
+    }>;
+    paths: Record<string, Record<string, unknown>>;
+}
+
+export class OpenApiGenerator {
+    public static generate(session: McpSession, publicOrigin: string): OpenApiSpec31 {
+        const paths: Record<string, Record<string, unknown>> = {};
+
+        for (const [toolName, tool] of session.tools.entries()) {
+            const routePath = `/${toolName}`;
+
+            const inputSchema = tool.inputSchema && typeof tool.inputSchema === 'object'
+                ? tool.inputSchema
+                : { type: 'object', properties: {} };
+
+            paths[routePath] = {
+                post: {
+                    operationId: tool.name,
+                    summary: tool.name,
+                    description: tool.description || `Invoke tool ${tool.name} on server ${session.serverName}`,
+                    requestBody: {
+                        required: true,
+                        description: `Input schema for ${tool.name}`,
+                        content: {
+                            'application/json': {
+                                schema: inputSchema,
+                            },
+                        },
+                    },
+                    responses: {
+                        '200': {
+                            description: 'Tool execution result',
+                            content: {
+                                'application/json': {
+                                    schema: {
+                                        type: 'object',
+                                        properties: {
+                                            content: {
+                                                type: 'array',
+                                                items: { type: 'object' },
+                                            },
+                                            isError: { type: 'boolean' },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                        '400': {
+                            description: 'Invalid JSON request payload',
+                        },
+                        '503': {
+                            description: 'MCP server session not ready',
+                        },
+                        '500': {
+                            description: 'Internal tool execution exception',
+                        },
+                    },
+                },
+            };
+        }
+
+        return {
+            openapi: '3.1.0',
+            info: {
+                title: `MCP Gateway - ${session.serverName}`,
+                version: '1.0.0',
+                description: `Standard OpenAPI 3.1.0 schema for MCP server [${session.serverName}].`,
+            },
+            servers: [
+                {
+                    url: `${publicOrigin}/${session.serverName}`,
+                    description: `Endpoint cluster for ${session.serverName}`,
+                },
+            ],
+            paths,
+        };
+    }
+}
+'@
+Set-Content -Path "$ProjectRoot\src\openapi\generator.ts" -Value $openapiTsContent -Encoding utf8
+
+# 7. src/mcp/session.ts (纯粹通用的会话封装，去除所有定制硬编码)
+$sessionTsContent = @'
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
+import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
+import type { Tool } from '@modelcontextprotocol/sdk/types.js';
+import { info, error, warn, debug } from '@/utils/logger';
+import { isStdioConfig, isSseConfig, type McpServerConfig } from '@/config/types';
+import { resolve, normalize } from 'node:path';
+
+export type SessionState = 'UNINITIALIZED' | 'CONNECTING' | 'READY' | 'FAILED' | 'DISCONNECTING' | 'TERMINATED';
+
+function normalizeExecutable(cmd: string): string {
+    let executable = cmd.trim();
+    if (process.platform === 'win32') {
+        executable = normalize(executable);
+        if (executable.toLowerCase() === 'bun' || executable.toLowerCase() === 'bun.exe') {
+            executable = process.execPath;
+        }
+    }
+    return executable;
+}
+
+export class McpSession {
+    public state: SessionState = 'UNINITIALIZED';
+    public lastError: string | null = null;
+    public tools: Map<string, Tool> = new Map();
+    private client: Client | null = null;
+    private transport: Transport | null = null;
+
+    constructor(
+        public readonly serverName: string,
+        public readonly config: McpServerConfig
+    ) {}
+
+    public async connect(): Promise<void> {
+        this.state = 'CONNECTING';
+        this.lastError = null;
+        debug(`[${this.serverName}] 开始建立通用 MCP 传输连接...`);
+
+        try {
+            if (isStdioConfig(this.config)) {
+                const command = normalizeExecutable(this.config.command);
+                const args = (this.config.args || []).map((arg) => arg.trim());
+
+                const inheritedEnv: Record<string, string> = {};
+                for (const [k, v] of Object.entries(process.env)) {
+                    if (v !== undefined) {
+                        inheritedEnv[k] = v;
+                    }
+                }
+
+                const env = {
+                    ...inheritedEnv,
+                    ...(this.config.env || {}),
+                };
+
+                this.transport = new StdioClientTransport({
+                    command,
+                    args,
+                    env,
+                    cwd: this.config.cwd ? resolve(this.config.cwd) : process.cwd(),
+                    stderr: 'pipe',
+                });
+
+                const stdioTransport = this.transport as any;
+                if (stdioTransport.stderr && typeof stdioTransport.stderr.on === 'function') {
+                    stdioTransport.stderr.on('data', (chunk: Buffer) => {
+                        const msg = chunk.toString().trim();
+                        debug(`[${this.serverName}:stderr] ${msg}`);
+                        if (this.state !== 'READY') {
+                            this.lastError = msg;
+                        }
+                    });
+                }
+            } else if (isSseConfig(this.config)) {
+                const sseConf = this.config;
+                this.transport = new SSEClientTransport(
+                    new URL(sseConf.url),
+                    sseConf.headers ? { eventSourceInit: { fetch: (url, init) => fetch(url, { ...init, headers: sseConf.headers }) } } : undefined
+                );
+            } else {
+                throw new Error(`未定义的传输协议配置: ${JSON.stringify(this.config)}`);
+            }
+
+            this.client = new Client(
+                { name: `mcp-gateway-${this.serverName}`, version: '1.0.0' },
+                { capabilities: {} }
+            );
+
+            const timeoutMs = this.config.timeout || 10000;
+            let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+            const timeoutPromise = new Promise<never>((_, reject) => {
+                timeoutId = setTimeout(() => {
+                    reject(new Error(`MCP 节点握手超时 (${timeoutMs}ms)`));
+                }, timeoutMs);
+            });
+
+            const connectPromise = (async () => {
+                await this.client!.connect(this.transport!);
+                await this.refreshTools();
+            })();
+
+            connectPromise.catch((innerErr) => {
+                debug(`[${this.serverName}] 异步握手终止通知: ${innerErr instanceof Error ? innerErr.message : String(innerErr)}`);
+            });
+
+            try {
+                await Promise.race([connectPromise, timeoutPromise]);
+            } finally {
+                if (timeoutId) clearTimeout(timeoutId);
+            }
+
+            this.state = 'READY';
+            this.lastError = null;
+            info(`[${this.serverName}] 节点就绪，成功注册 ${this.tools.size} 个工具: [${Array.from(this.tools.keys()).join(', ')}]`);
+        } catch (err) {
+            const errorMsg = err instanceof Error ? (err.stack || err.message) : String(err);
+            this.lastError = errorMsg;
+            this.state = 'FAILED';
+            error(`[${this.serverName}] 节点拉起失败: ${errorMsg}`);
+            await this.close();
+            this.state = 'FAILED';
+            throw err;
+        }
+    }
+
+    public async refreshTools(): Promise<void> {
+        if (!this.client) return;
+        const res = await this.client.listTools();
+        this.tools.clear();
+        for (const tool of res.tools) {
+            this.tools.set(tool.name, tool);
+        }
+    }
+
+    public async callTool(name: string, args: Record<string, unknown> = {}): Promise<unknown> {
+        if (this.state !== 'READY' || !this.client) {
+            throw new Error(`MCP 服务 [${this.serverName}] 未就绪 (状态: ${this.state})`);
+        }
+        if (!this.tools.has(name)) {
+            throw new Error(`服务 [${this.serverName}] 不包含工具 [${name}]`);
+        }
+
+        return await this.client.callTool({
+            name,
+            arguments: args,
+        });
+    }
+
+    public async close(): Promise<void> {
+        const previousState = this.state;
+        this.state = 'DISCONNECTING';
+
+        const stdioTransport = this.transport as any;
+        const childProc = stdioTransport?._process || stdioTransport?.process;
+        const stdioPid = childProc?.pid;
+
+        try {
+            if (this.client) {
+                await this.client.close();
+            }
+        } catch (err) {
+            warn(`[${this.serverName}] 释放 Client 产生告警: ${err instanceof Error ? err.message : String(err)}`);
+        } finally {
+            if (process.platform === 'win32' && stdioPid) {
+                try {
+                    Bun.spawnSync(['taskkill', '/F', '/T', '/PID', String(stdioPid)]);
+                } catch {}
+            }
+            this.client = null;
+            this.transport = null;
+            this.tools.clear();
+            this.state = (previousState === 'FAILED') ? 'FAILED' : 'TERMINATED';
+            debug(`[${this.serverName}] 资源已安全释放`);
+        }
+    }
+}
+'@
+Set-Content -Path "$ProjectRoot\src\mcp\session.ts" -Value $sessionTsContent -Encoding utf8
+
+# 8. src/mcp/pool.ts (蓝绿重载池与异步排队保护)
+$poolTsContent = @'
+import { info, warn } from '@/utils/logger';
+import { McpSession } from './session';
+import { AsyncMutex } from '@/utils/lock';
+import type { McpServerConfig, GatewayConfigFile } from '@/config/types';
+
+export class McpPool {
+    private sessions: Map<string, McpSession> = new Map();
+    private mutex = new AsyncMutex();
+
+    public async initialize(config: GatewayConfigFile): Promise<void> {
+        return this.mutex.runExclusive(async () => {
+            const entries = Object.entries(config.mcpServers || {});
+            await Promise.allSettled(
+                entries.map(([name, srvConfig]) => this.addServer(name, srvConfig))
+            );
+        });
+    }
+
+    public async addServer(name: string, config: McpServerConfig): Promise<void> {
+        const oldSession = this.sessions.get(name);
+        const nextSession = new McpSession(name, config);
+
+        if (!oldSession) {
+            this.sessions.set(name, nextSession);
+        }
+
+        try {
+            await nextSession.connect();
+            this.sessions.set(name, nextSession);
+            if (oldSession && oldSession !== nextSession) {
+                await oldSession.close();
+            }
+        } catch (err) {
+            warn(`[${name}] 会话连接未能建立: ${err instanceof Error ? err.message : String(err)}`);
+            await nextSession.close();
+            this.sessions.set(name, nextSession);
+        }
+    }
+
+    public async removeServer(name: string): Promise<void> {
+        const session = this.sessions.get(name);
+        if (!session) return;
+        await session.close();
+        this.sessions.delete(name);
+        info(`[${name}] 服务已被安全下线`);
+    }
+
+    public getSession(name: string): McpSession | undefined {
+        return this.sessions.get(name);
+    }
+
+    public getAllSessions(): Map<string, McpSession> {
+        return this.sessions;
+    }
+
+    public async reconcile(newConfig: GatewayConfigFile): Promise<void> {
+        return this.mutex.runExclusive(async () => {
+            const newServers = newConfig.mcpServers || {};
+            const currentNames = new Set(this.sessions.keys());
+            const incomingNames = new Set(Object.keys(newServers));
+
+            for (const name of currentNames) {
+                if (!incomingNames.has(name)) {
+                    info(`热重载：下线服务 [${name}]`);
+                    await this.removeServer(name);
+                }
+            }
+
+            for (const [name, conf] of Object.entries(newServers)) {
+                const existing = this.sessions.get(name);
+                if (!existing || existing.state !== 'READY') {
+                    info(`热重载：挂载服务 [${name}]`);
+                    await this.addServer(name, conf);
+                } else if (JSON.stringify(existing.config) !== JSON.stringify(conf)) {
+                    info(`热重载：平滑重载已变更的服务 [${name}]`);
+                    await this.addServer(name, conf);
+                }
+            }
+        });
+    }
+
+    public async shutdown(): Promise<void> {
+        return this.mutex.runExclusive(async () => {
+            info('正在平稳释放所有活动 MCP 会话...');
+            const promises = Array.from(this.sessions.values()).map((s) => s.close());
+            await Promise.allSettled(promises);
+            this.sessions.clear();
+            info('所有活动 MCP 会话已完全释放');
+        });
+    }
+}
+'@
+Set-Content -Path "$ProjectRoot\src\mcp\pool.ts" -Value $poolTsContent -Encoding utf8
+
+# 9. src/server/gateway.ts
+$gatewayTsContent = @'
+import { info, error, warn } from '@/utils/logger';
+import { McpPool } from '@/mcp/pool';
+import { OpenApiGenerator } from '@/openapi/generator';
+
+export interface GatewayServerOptions {
+    port: number;
+    host: string;
+}
+
+export class GatewayServer {
+    private server: ReturnType<typeof Bun.serve> | null = null;
+    private isPoolReady = false;
+
+    constructor(
+        private readonly pool: McpPool,
+        private readonly options: GatewayServerOptions
+    ) {}
+
+    public setPoolReady(ready: boolean): void {
+        this.isPoolReady = ready;
+    }
+
+    private resolvePublicOrigin(req: Request): string {
+        const proto = req.headers.get('x-forwarded-proto') || 'http';
+        const host = req.headers.get('x-forwarded-host') || req.headers.get('host') || `${this.options.host}:${this.options.port}`;
+        const prefix = req.headers.get('x-forwarded-prefix') || '';
+        return `${proto}://${host}${prefix}`.replace(/\/+$/, '');
+    }
+
+    public start(): void {
+        const { port, host } = this.options;
+
+        this.server = Bun.serve({
+            port,
+            hostname: host,
+            fetch: async (req: Request) => {
+                const url = new URL(req.url);
+                const path = url.pathname;
+                const method = req.method.toUpperCase();
+
+                const corsHeaders = {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Forwarded-Host, X-Forwarded-Proto',
+                };
+
+                if (method === 'OPTIONS') {
+                    return new Response(null, { status: 204, headers: corsHeaders });
+                }
+
+                try {
+                    info(`[HTTP] ${method} ${path}`);
+
+                    // 1. 就绪探针
+                    if (path === '/health' && method === 'GET') {
+                        return Response.json({
+                            status: 'ok',
+                            uptime: process.uptime(),
+                            poolReady: this.isPoolReady,
+                        }, { headers: corsHeaders });
+                    }
+
+                    // 2. 服务注册表查询
+                    if (path === '/servers' && method === 'GET') {
+                        const all = this.pool.getAllSessions();
+                        const summary: Record<string, unknown> = {};
+                        for (const [name, sess] of all.entries()) {
+                            summary[name] = {
+                                state: sess.state,
+                                lastError: sess.lastError,
+                                toolCount: sess.tools.size,
+                                tools: Array.from(sess.tools.keys()),
+                            };
+                        }
+                        return Response.json({ servers: summary }, { headers: corsHeaders });
+                    }
+
+                    const normalizedPath = path.replace(/\/+$/, '');
+                    const publicOrigin = this.resolvePublicOrigin(req);
+
+                    // 3. OpenAPI 规范端点
+                    let openApiServerName: string | null = null;
+                    const openApiMatch = normalizedPath.match(/^\/([^/]+)\/openapi\.json$/);
+                    if (openApiMatch && method === 'GET') {
+                        openApiServerName = openApiMatch[1];
+                    } else {
+                        const directMatch = normalizedPath.match(/^\/([^/]+)$/);
+                        if (directMatch && method === 'GET') {
+                            const candidate = directMatch[1];
+                            if (candidate !== 'health' && candidate !== 'servers') {
+                                openApiServerName = candidate;
+                            }
+                        }
+                    }
+
+                    if (openApiServerName) {
+                        const session = this.pool.getSession(openApiServerName);
+                        if (!session) {
+                            warn(`[HTTP 404] 服务 [${openApiServerName}] 不存在`);
+                            return Response.json({ error: `Server [${openApiServerName}] not found` }, { status: 404, headers: corsHeaders });
+                        }
+
+                        if (session.state !== 'READY') {
+                            warn(`[HTTP 503] 服务 [${openApiServerName}] 尚未就绪 (当前状态: ${session.state})`);
+                            return Response.json({
+                                error: `Server [${openApiServerName}] not ready`,
+                                state: session.state,
+                                lastError: session.lastError,
+                            }, {
+                                status: 503,
+                                headers: {
+                                    ...corsHeaders,
+                                    ...(session.state === 'CONNECTING' ? { 'Retry-After': '2' } : {}),
+                                },
+                            });
+                        }
+
+                        const spec = OpenApiGenerator.generate(session, publicOrigin);
+                        return Response.json(spec, {
+                            headers: {
+                                ...corsHeaders,
+                                'Content-Type': 'application/json; charset=utf-8',
+                            },
+                        });
+                    }
+
+                    // 4. 工具调用路由
+                    let matchedServer: string | null = null;
+                    let matchedTool: string | null = null;
+
+                    const singleMatch = normalizedPath.match(/^\/([^/]+)\/([^/]+)$/);
+                    const doubleMatch = normalizedPath.match(/^\/([^/]+)\/\1\/([^/]+)$/);
+
+                    if (doubleMatch) {
+                        matchedServer = doubleMatch[1];
+                        matchedTool = doubleMatch[2];
+                    } else if (singleMatch) {
+                        matchedServer = singleMatch[1];
+                        matchedTool = singleMatch[2];
+                    }
+
+                    if (matchedServer && matchedTool && method === 'POST') {
+                        if (matchedTool === 'openapi.json') {
+                            return Response.json({ error: 'Method Not Allowed' }, { status: 405, headers: corsHeaders });
+                        }
+
+                        const session = this.pool.getSession(matchedServer);
+                        if (!session) {
+                            warn(`[HTTP 404] 服务 [${matchedServer}] 未注册`);
+                            return Response.json({ error: `Server [${matchedServer}] not found` }, { status: 404, headers: corsHeaders });
+                        }
+
+                        if (session.state !== 'READY') {
+                            warn(`[HTTP 503] 服务 [${matchedServer}] 未就绪 (当前状态: ${session.state})`);
+                            return Response.json({
+                                error: `Server [${matchedServer}] not ready`,
+                                state: session.state,
+                                lastError: session.lastError,
+                            }, {
+                                status: 503,
+                                headers: {
+                                    ...corsHeaders,
+                                    ...(session.state === 'CONNECTING' ? { 'Retry-After': '2' } : {}),
+                                },
+                            });
+                        }
+
+                        let body: Record<string, unknown> = {};
+                        try {
+                            const rawText = await req.text();
+                            if (rawText.trim().length > 0) {
+                                body = JSON.parse(rawText);
+                            }
+                        } catch {
+                            return Response.json({ error: 'Invalid JSON request payload' }, { status: 400, headers: corsHeaders });
+                        }
+
+                        info(`[工具执行] 服务: [${matchedServer}], 工具: [${matchedTool}]`);
+                        const executionResult = await session.callTool(matchedTool, body);
+
+                        return Response.json(executionResult, {
+                            headers: {
+                                ...corsHeaders,
+                                'Content-Type': 'application/json; charset=utf-8',
+                            },
+                        });
+                    }
+
+                    warn(`[HTTP 404] 路由未匹配: ${method} ${path}`);
+                    return Response.json({ error: 'Not Found' }, { status: 404, headers: corsHeaders });
+                } catch (err) {
+                    error(`[HTTP 500] 处理异常: ${err instanceof Error ? err.message : String(err)}`);
+                    return Response.json({
+                        error: 'Gateway Error',
+                        message: err instanceof Error ? err.message : String(err),
+                    }, { status: 500, headers: corsHeaders });
+                }
+            },
+        });
+
+        info(`mcp-gateway 已成功监听在: http://${host}:${port}`);
+    }
+
+    public stop(): void {
+        if (this.server) {
+            this.server.stop(true);
+            this.server = null;
+            info('HTTP 监听网关已安全停机');
+        }
+    }
+}
+'@
+Set-Content -Path "$ProjectRoot\src\server\gateway.ts" -Value $gatewayTsContent -Encoding utf8
+
+# 10. src/index.ts (XDG 驱动的优雅启停主入口)
+$indexTsContent = @'
+import { resolveXdg } from '@/config/xdg';
+import { ConfigManager } from '@/config/loader';
+import { McpPool } from '@/mcp/pool';
+import { GatewayServer } from '@/server/gateway';
+import { info, error, warn, initFileLogging } from '@/utils/logger';
+
+async function main() {
+    // 1. 初始化标准 XDG 物理环境并接入日志持久化
+    const xdg = resolveXdg();
+    initFileLogging(xdg.logFilePath);
+
+    info(`「mcp-gateway」启动中 (Bun ${Bun.version})...`);
+    info(`[XDG Config] 配置文件路径: ${xdg.activeConfigFile}`);
+    info(`[XDG State]  运行时日志文件: ${xdg.logFilePath}`);
+    info(`[XDG Data]   共享数据存储区: ${xdg.dataHome}`);
+    info(`[XDG Cache]  高速缓存存储区: ${xdg.cacheHome}`);
+
+    // 2. 加载核心配置
+    const configManager = new ConfigManager(xdg.activeConfigFile, xdg);
+    const initialConfig = await configManager.load();
+
+    // 3. 构建连接池与网关
+    const pool = new McpPool();
+
+    const port = Number(process.env.PORT) || initialConfig.port || 9090;
+    const host = process.env.HOST || initialConfig.host || '127.0.0.1';
+
+    const gateway = new GatewayServer(pool, { port, host });
+    gateway.start();
+
+    // 4. 注册文件监控与热重载
+    configManager.watch(async (newConfig) => {
+        await pool.reconcile(newConfig);
+    });
+
+    // 5. 初始化已有 MCP 服务池
+    info('正在初始化 MCP 服务连接池...');
+    try {
+        await pool.initialize(initialConfig);
+        gateway.setPoolReady(true);
+        info('MCP 服务池初始化完毕，网关全面就绪');
+    } catch (err) {
+        warn(`MCP 服务池存在未就绪节点: ${err instanceof Error ? err.message : String(err)}`);
+    }
+
+    // 6. 优雅停机托管
+    let isShuttingDown = false;
+    const shutdown = async () => {
+        if (isShuttingDown) return;
+        isShuttingDown = true;
+
+        info('收到停机信号，正在平稳释放网络与子进程资源...');
+        const watchdog = setTimeout(() => {
+            warn('强制退出看门狗触发');
+            process.exit(1);
+        }, 5000);
+        watchdog.unref();
+
+        configManager.stopWatch();
+        gateway.stop();
+        await pool.shutdown();
+
+        info('mcp-gateway 已安全退出');
+        process.exit(0);
+    };
+
+    process.on('SIGINT', shutdown);
+    process.on('SIGTERM', shutdown);
+    process.on('unhandledRejection', (reason) => {
+        warn(`[未捕获 Promise 异常] ${reason instanceof Error ? (reason.stack || reason.message) : String(reason)}`);
+    });
+}
+
+main().catch((err) => {
+    error(`网关遭遇致命错误: ${err instanceof Error ? (err.stack || err.message) : String(err)}`);
+    process.exit(1);
+});
+'@
+Set-Content -Path "$ProjectRoot\src\index.ts" -Value $indexTsContent -Encoding utf8
+
+# ------------------------------------------------------------------------------
+# 阶段 5: 同步标准配置至 XDG_CONFIG_HOME
+# ------------------------------------------------------------------------------
+Write-Host "`n[阶段 5] 部署标准无污染的 config.json5..." -ForegroundColor Yellow
+
+$cleanConfigContent = @'
+{
+    // mcp-gateway 核心配置文件 (遵循 XDG 规范，支持 ${VAR} 环境变量自动插值)
+
+    mcpServers: {
+        // 1. 本地原生二进制 Codebase Memory 节点
+        codebase_memory: {
+            command: "%USERPROFILE%/.local/bin/codebase-memory-mcp.exe",
+            args: [],
+            env: {},
+        },
+
+        // 2. Next AI Draw.io stdio 串流 MCP 节点
+        drawio: {
+            command: "bun",
+            args: [
+                "run",
+                "./node_modules/@next-ai-drawio/mcp-server/dist/index.js",
+            ],
+            env: {
+                PORT: "6002",
+            },
+        },
+    },
+
+    // 网关监听端口与地址
+    host: "127.0.0.1",
+    port: 9090,
+}
+'@
+
+# 同时在项目根目录和 XDG_CONFIG_HOME 中建立标准配置
+Set-Content -Path "$ProjectRoot\config.json5" -Value $cleanConfigContent -Encoding utf8
+$XdgConfigFilePath = Join-Path $AppConfigDir "config.json5"
+Set-Content -Path $XdgConfigFilePath -Value $cleanConfigContent -Encoding utf8
+Write-Host "  [✓] 写入根目录配置: $ProjectRoot\config.json5" -ForegroundColor Green
+Write-Host "  [✓] 同步 XDG 配置: $XdgConfigFilePath" -ForegroundColor Green
+
+# ------------------------------------------------------------------------------
+# 阶段 6: 覆盖自动化回归测试用例 (对齐全 XDG 规范)
+# ------------------------------------------------------------------------------
+Write-Host "`n[阶段 6] 覆盖自动化断言脚本 ps1_scripts/test-gateway.ps1..." -ForegroundColor Yellow
+
+$testPs1Content = @'
+# ==============================================================================
+# Script: ps1_scripts/test-gateway.ps1
+# Description: XDG 规范下 mcp-gateway 自动化断言回归测试
+# ==============================================================================
+
+$ErrorActionPreference = "Stop"
+$ProjectRoot = Split-Path -Parent $PSScriptRoot
+Set-Location $ProjectRoot
+
+$env:NO_PROXY = "127.0.0.1,localhost,100.81.173.80"
+
+Write-Host "======================================================================" -ForegroundColor Cyan
+Write-Host ">>> [mcp-gateway] XDG 规范化回归测试套件" -ForegroundColor Cyan
+Write-Host "======================================================================" -ForegroundColor Cyan
+
+# 1. 清理 9090 端口
+Get-NetTCPConnection -LocalPort 9090 -ErrorAction SilentlyContinue | ForEach-Object {
+    Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue
+}
+
+# 2. 启动网关主进程
+Write-Host "`n[阶段 1] 启动网关主进程..." -ForegroundColor Yellow
+$processInfo = New-Object System.Diagnostics.ProcessStartInfo
+$processInfo.FileName = "bun"
+$processInfo.Arguments = "run ./src/index.ts"
+$processInfo.WorkingDirectory = $ProjectRoot
+$processInfo.RedirectStandardOutput = $false
+$processInfo.RedirectStandardError = $false
+$processInfo.UseShellExecute = $true
+
+$gatewayProcess = [System.Diagnostics.Process]::Start($processInfo)
+
+try {
+    # 3. 轮询健康检查
+    Write-Host "`n[阶段 2] 探测健康检查接口 GET /health..." -ForegroundColor Yellow
+    $healthOk = $false
+    for ($i = 1; $i -le 10; $i++) {
+        try {
+            $healthResp = Invoke-RestMethod -Uri "http://127.0.0.1:9090/health" -Method Get -TimeoutSec 2 -NoProxy
+            if ($healthResp.status -eq "ok") {
+                $healthOk = $true
+                Write-Host "  [✓] /health 响应正常 (耗时 $i 秒): $($healthResp | ConvertTo-Json -Compress)" -ForegroundColor Green
+                break
+            }
+        } catch {
+            Start-Sleep -Seconds 1
+        }
+    }
+
+    if (-not $healthOk) {
+        Write-Host "  [✗] 健康检查超时未通过" -ForegroundColor Red
+        exit 1
+    }
+
+    # 4. 轮询各服务建立状态
+    Write-Host "`n[阶段 3] 轮询等待所有标准服务完成建立..." -ForegroundColor Yellow
+    $allReady = $false
+    for ($i = 1; $i -le 15; $i++) {
+        try {
+            $serversResp = Invoke-RestMethod -Uri "http://127.0.0.1:9090/servers" -Method Get -TimeoutSec 2 -NoProxy
+            $cb = $serversResp.servers.codebase_memory
+            $dw = $serversResp.servers.drawio
+
+            if ($cb -and $cb.state -eq "READY" -and $dw -and $dw.state -eq "READY") {
+                $allReady = $true
+                Write-Host "  [✓] codebase_memory ($($cb.toolCount) 工具) 与 drawio ($($dw.toolCount) 工具) 已全部就绪 (耗时 $i 秒)" -ForegroundColor Green
+                break
+            }
+        } catch {}
+        Start-Sleep -Seconds 1
+    }
+
+    # 5. 断言 Caddy 反向代理 Origin
+    Write-Host "`n[阶段 4] 模拟 Caddy 反向代理调用断言..." -ForegroundColor Yellow
+    $headers = @{
+        "X-Forwarded-Proto" = "http"
+        "X-Forwarded-Host"  = "100.81.173.80:8444"
+    }
+
+    foreach ($srvName in @("codebase_memory", "drawio")) {
+        $openApiResp = Invoke-RestMethod -Uri "http://127.0.0.1:9090/$srvName/openapi.json" -Headers $headers -Method Get -TimeoutSec 5 -NoProxy
+        $expected = "http://100.81.173.80:8444/$srvName"
+        $actual = $openApiResp.servers[0].url
+        if ($actual -eq $expected) {
+            Write-Host "  [✓] [$srvName] 反向代理 Origin 对齐通过: $actual" -ForegroundColor Green
+        } else {
+            Write-Host "  [✗] [$srvName] Origin 漂移！期望: $expected, 实际: $actual" -ForegroundColor Red
+        }
+    }
+
+    Write-Host "`n>>> [通过] XDG 纯净重构全链路断言验证通过！" -ForegroundColor Green
+} finally {
+    Write-Host "`n[阶段 5] 正在回收测试主进程与子进程树..." -ForegroundColor Yellow
+    if ($gatewayProcess -and -not $gatewayProcess.HasExited) {
+        $gatewayProcess.Kill($true)
+        $gatewayProcess.WaitForExit()
+        Write-Host "  [✓] 测试进程已彻底释放" -ForegroundColor Green
+    }
+}
+'@
+Set-Content -Path "$ProjectRoot\ps1_scripts\test-gateway.ps1" -Value $testPs1Content -Encoding utf8
+
+# ------------------------------------------------------------------------------
+# 阶段 7: 依赖干净重装
+# ------------------------------------------------------------------------------
+Write-Host "`n[阶段 7] 执行纯净依赖构建: bun install..." -ForegroundColor Cyan
+bun install
+
+Write-Host "`n======================================================================" -ForegroundColor Green
+Write-Host ">>> [成功] 回滚与全量 XDG 规范架构重构已完成！" -ForegroundColor Green
+Write-Host "  - 系统临时垫片与注册表项已干净回收" -ForegroundColor White
+Write-Host "  - 配置文件已托管至 XDG_CONFIG_HOME: $XdgConfigFilePath" -ForegroundColor White
+Write-Host "  - 运行时日志将统一落盘至 XDG_STATE_HOME: $(Join-Path $AppStateDir 'logs\gateway.log')" -ForegroundColor White
+Write-Host "  - 执行测试验证: .\ps1_scripts\test-gateway.ps1" -ForegroundColor Yellow
+Write-Host "======================================================================" -ForegroundColor Green
+
+================
+File: ps1_scripts/Setup-ChromeMcpBun.ps1
+================
+# ==============================================================================
+# Script: ps1_scripts/Setup-ChromeMcpBun.ps1
+# Description: 纯 Bun 环境适配 mcp-chrome 桥接服务 (消除 20 秒握手挂起与 Fastify 流截断)
+# ==============================================================================
+
+$ErrorActionPreference = "Stop"
+
+$ProjectRoot = Split-Path -Parent $PSScriptRoot
+if (-not (Test-Path "$ProjectRoot\package.json")) {
+    $ProjectRoot = Get-Location
+}
+Set-Location $ProjectRoot
+
+Write-Host ">>> [mcp-chrome] 开始配置纯 Bun 运行时环境 (基于 Scoop 原生机制)..." -ForegroundColor Cyan
+
+# 1. 释放当前 12306 端口残留进程，以便热加载最新修补代码
+Get-NetTCPConnection -LocalPort 12306 -ErrorAction SilentlyContinue | ForEach-Object {
+    Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue
+}
+
+# 2. 锁定 Scoop Bun 路径与 Shim
+$ScoopBunCurrent = "$env:USERPROFILE\scoop\apps\bun\current\bun.exe"
+$ScoopShimDir = "$env:USERPROFILE\scoop\shims"
+
+if (-not (Test-Path $ScoopBunCurrent)) {
+    $ScoopBunCurrent = (Get-Command bun -ErrorAction Stop).Source
+}
+Write-Host "  [✓] 锁定 Scoop Bun 实体路径: $ScoopBunCurrent" -ForegroundColor Green
+
+if (Get-Command scoop -ErrorAction SilentlyContinue) {
+    scoop shim add node $ScoopBunCurrent
+    scoop shim add npm $ScoopBunCurrent
+    scoop shim add npx $ScoopBunCurrent
+    Write-Host "  [✓] 已通过 scoop shim 将 node / npm 映射至 Bun" -ForegroundColor Green
+} else {
+    Set-Content -Path "$ScoopShimDir\node.shim" -Value "path = `"$ScoopBunCurrent`"" -Encoding ascii
+    Write-Host "  [✓] 手动对齐 Scoop Shims 目录下的 node.shim" -ForegroundColor Green
+}
+
+# 3. 安装与落盘校验
+bun add --ignore-scripts mcp-chrome-bridge
+$BridgeDir = "$ProjectRoot\node_modules\mcp-chrome-bridge"
+Write-Host "  [✓] 成功落盘桥接程序目录: $BridgeDir" -ForegroundColor Green
+
+# 4. 注入 bun:sqlite 驱动层
+$BetterSqliteDir = "$ProjectRoot\node_modules\better-sqlite3"
+if (Test-Path $BetterSqliteDir) {
+    $ShimContent = @'
+const { Database } = require('bun:sqlite');
+
+function BetterSqlite3Shim(filename, options) {
+    return new Database(filename, options);
+}
+
+BetterSqlite3Shim.prototype = Database.prototype;
+module.exports = BetterSqlite3Shim;
+'@
+    Set-Content -Path "$BetterSqliteDir\index.js" -Value $ShimContent -Encoding utf8
+    if (Test-Path "$BetterSqliteDir\lib") {
+        Set-Content -Path "$BetterSqliteDir\lib\index.js" -Value $ShimContent -Encoding utf8
+    }
+    Write-Host "  [✓] 已将 better-sqlite3 映射至高性能 bun:sqlite" -ForegroundColor Green
+}
+
+# 5. 修补 mcp-server.js 多会话工厂模式
+$McpServerJsPath = "$BridgeDir\dist\mcp\mcp-server.js"
+if (Test-Path $McpServerJsPath) {
+    $McpServerJsContent = @'
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getMcpServer = exports.mcpServer = void 0;
+const index_js_1 = require("@modelcontextprotocol/sdk/server/index.js");
+const register_tools_1 = require("./register-tools");
+
+exports.mcpServer = null;
+
+const getMcpServer = () => {
+    const server = new index_js_1.Server({
+        name: 'ChromeMcpServer',
+        version: '1.0.0',
+    }, {
+        capabilities: {
+            tools: {},
+        },
+    });
+    (0, register_tools_1.setupTools)(server);
+    return server;
+};
+exports.getMcpServer = getMcpServer;
+'@
+    Set-Content -Path $McpServerJsPath -Value $McpServerJsContent -Encoding utf8
+    Write-Host "  [✓] 已修补 mcp-server.js 多会话工厂模式" -ForegroundColor Green
+}
+
+# 6. 核心修补：压降 register-tools.js 的 20 秒死等超时至 1.5 秒
+$RegToolsPath = "$BridgeDir\dist\mcp\register-tools.js"
+if (Test-Path $RegToolsPath) {
+    $regContent = Get-Content $RegToolsPath -Raw -Encoding utf8
+    $regContent = $regContent.Replace(", 20000)", ", 1500)")
+    Set-Content -Path $RegToolsPath -Value $regContent -Encoding utf8
+    Write-Host "  [✓] 已压降动态流程探测超时 (20000ms -> 1500ms)，消除握手阻塞" -ForegroundColor Green
+}
+
+# 7. 核心修补：为 server/index.js 中的 /sse 补充 reply.hijack()
+$ServerIndexPath = "$BridgeDir\dist\server\index.js"
+if (Test-Path $ServerIndexPath) {
+    $serverContent = Get-Content $ServerIndexPath -Raw -Encoding utf8
+    if (-not $serverContent.Contains("reply.raw.write(':\n\n');\n            reply.hijack();")) {
+        $serverContent = $serverContent.Replace(
+            "reply.raw.write(':\n\n');",
+            "reply.raw.write(':\n\n');`n            if (!reply.sent) { reply.hijack(); }"
+        )
+        Set-Content -Path $ServerIndexPath -Value $serverContent -Encoding utf8
+        Write-Host "  [✓] 已修补 Fastify /sse 路由挂死隐患 (注入 reply.hijack)" -ForegroundColor Green
+    }
+}
+
+# 8. 生成专用 run_host.bat 与 Native 清单
+$LogDir = "$env:LOCALAPPDATA\mcp-chrome-bridge\logs"
+if (-not (Test-Path $LogDir)) {
+    New-Item -ItemType Directory -Path $LogDir -Force | Out-Null
+}
+
+$HostBatPath = "$env:LOCALAPPDATA\mcp-chrome-bridge\run_host.bat"
+$IndexJsPath = "$BridgeDir\dist\index.js"
+$HostBatContent = @"
+@echo off
+set "CHROME_MCP_NODE_PATH=$ScoopBunCurrent"
+"$ScoopBunCurrent" run "$IndexJsPath"
+"@
+Set-Content -Path $HostBatPath -Value $HostBatContent -Encoding ascii
+
+$ManifestPath = "$env:LOCALAPPDATA\mcp-chrome-bridge\com.chromemcp.nativehost.json"
+$ManifestContent = @"
+{
+  "name": "com.chromemcp.nativehost",
+  "description": "Chrome MCP Bridge Native Host (Powered by Bun)",
+  "path": "$($HostBatPath -replace '\\', '\\')",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://hbdgbgagpkpjffpklnamcljpakneikee/",
+    "chrome-extension://mnchdcikbochaacmcfohjibjkhdbaahe/",
+    "chrome-extension://mhipkdochajohklmmjinmicahanmldbj/"
+  ]
+}
+"@
+Set-Content -Path $ManifestPath -Value $ManifestContent -Encoding utf8
+
+$RegTargets = @(
+    "HKCU:\Software\Microsoft\Edge\NativeMessagingHosts\com.chromemcp.nativehost",
+    "HKCU:\Software\Google\Chrome\NativeMessagingHosts\com.chromemcp.nativehost"
+)
+
+foreach ($regPath in $RegTargets) {
+    if (-not (Test-Path $regPath)) {
+        New-Item -Path $regPath -Force | Out-Null
+    }
+    Set-ItemProperty -Path $regPath -Name "(Default)" -Value $ManifestPath
+}
+Write-Host "  [✓] 注册表通道校验完成" -ForegroundColor Green
+
+[Environment]::SetEnvironmentVariable("CHROME_MCP_NODE_PATH", $ScoopBunCurrent, "User")
+Write-Host "`n>>> [完成] 适配与热修补部署成功！" -ForegroundColor Cyan
+
+================
+File: ps1_scripts/SetupDataMcp.ps1
+================
+# ==============================================================================
+# Script: ps1_scripts/SetupDataMcp.ps1
+# Description: 解耦外部 npm MCP 插件至 XDG_DATA_HOME，恢复源码核心轻量化
+# ==============================================================================
+
+$ErrorActionPreference = "Stop"
+$ProjectRoot = Split-Path -Parent $PSScriptRoot
+if (-not (Test-Path "$ProjectRoot\package.json")) {
+    $ProjectRoot = Get-Location
+}
+Set-Location $ProjectRoot
+
+Write-Host ">>> [mcp-gateway] 开始执行插件资产解耦与数据层独立纳管..." -ForegroundColor Cyan
+
+# 1. 锁定 XDG_DATA_HOME 物理目录
+$XdgData = $env:XDG_DATA_HOME
+if (-not $XdgData) {
+    $XdgData = "$env:USERPROFILE\.local\share"
+}
+$DataPluginDir = Join-Path $XdgData "mcp-gateway"
+
+if (-not (Test-Path $DataPluginDir)) {
+    New-Item -ItemType Directory -Path $DataPluginDir -Force | Out-Null
+}
+Write-Host "  [✓] 锁定插件管理物理目录: $DataPluginDir" -ForegroundColor Green
+
+# 2. 在 XDG_DATA_HOME 建立独立的插件 package.json
+$pluginPackageJson = @'
+{
+    "$schema": "https://json.schemastore.org/package.json",
+    "name": "mcp-gateway-plugins",
+    "version": "1.0.0",
+    "private": true,
+    "description": "External npm-based MCP servers managed under XDG_DATA_HOME",
+    "dependencies": {
+        "@next-ai-drawio/mcp-server": "^0.1.1"
+    }
+}
+'@
+Set-Content -Path (Join-Path $DataPluginDir "package.json") -Value $pluginPackageJson -Encoding utf8
+Write-Host "  [✓] 初始化插件独立清单: $(Join-Path $DataPluginDir 'package.json')" -ForegroundColor Green
+
+# 3. 在 XDG_DATA_HOME 执行独立依赖安装
+Write-Host "`n[步骤 1] 在 XDG_DATA_HOME 目录执行插件安装 (bun install)..." -ForegroundColor Yellow
+Push-Location $DataPluginDir
+try {
+    bun install
+    Write-Host "  [✓] 插件 @next-ai-drawio/mcp-server 已就绪于数据层" -ForegroundColor Green
+} finally {
+    Pop-Location
+}
+
+# 4. 彻底精简源码工程的 package.json (剔除业务 MCP)
+Write-Host "`n[步骤 2] 清理源码级 package.json 依赖..." -ForegroundColor Yellow
+$cleanCorePackageJson = @'
+{
+    "$schema": "https://json.schemastore.org/package.json",
+    "name": "mcp-gateway",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "author": {
+        "name": "TiancongLi",
+        "email": "tiancong.li@hotmail.com"
+    },
+    "scripts": {
+        "start": "bun run ./src/index.ts",
+        "dev": "bun run ./src/index.ts",
+        "build": "bun build --compile ./src/index.ts --outfile ./build/mcp-gateway.exe"
+    },
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.6.1",
+        "yoctocolors": "^2.1.1"
+    },
+    "devDependencies": {
+        "@types/bun": "^1.4.2",
+        "typescript": "^7.0.2"
+    }
+}
+'@
+Set-Content -Path "$ProjectRoot\package.json" -Value $cleanCorePackageJson -Encoding utf8
+
+# 重新在核心工程执行依赖精简
+bun install
+
+# 5. 增强 src/config/xdg.ts 变量插值引擎 (支持 ${APP_DATA_DIR} 与 ${XDG_DATA_HOME})
+Write-Host "`n[步骤 3] 升级路径插值解析器 (src/config/xdg.ts)..." -ForegroundColor Yellow
+$xdgTsContent = @'
+import { join, resolve } from 'node:path';
+import { homedir } from 'node:os';
+import { existsSync, mkdirSync } from 'node:fs';
+
+const APP_NAME = 'mcp-gateway';
+
+export interface XdgEnvironment {
+    configBase: string;
+    dataBase: string;
+    stateBase: string;
+    cacheBase: string;
+    configHome: string;
+    dataHome: string;
+    stateHome: string;
+    cacheHome: string;
+    activeConfigFile: string;
+    logFilePath: string;
+}
+
+export function resolveXdg(): XdgEnvironment {
+    const isWindows = process.platform === 'win32';
+    const home = homedir();
+
+    // 基础根目录解析
+    let configBase = process.env.XDG_CONFIG_HOME || (isWindows ? (process.env.APPDATA || join(home, 'AppData', 'Roaming')) : join(home, '.config'));
+    let dataBase   = process.env.XDG_DATA_HOME   || (isWindows ? (process.env.LOCALAPPDATA || join(home, 'AppData', 'Local')) : join(home, '.local', 'share'));
+    let stateBase  = process.env.XDG_STATE_HOME  || (isWindows ? (process.env.LOCALAPPDATA || join(home, 'AppData', 'Local')) : join(home, '.local', 'state'));
+    let cacheBase  = process.env.XDG_CACHE_HOME  || (isWindows ? (process.env.TEMP || join(home, 'AppData', 'Local', 'Temp')) : join(home, '.cache'));
+
+    // 应用级专属目录
+    const configHome = join(configBase, APP_NAME);
+    const dataHome   = join(dataBase, APP_NAME);
+    const stateHome  = join(stateBase, APP_NAME);
+    const cacheHome  = join(cacheBase, APP_NAME);
+    const logDir     = join(stateHome, 'logs');
+
+    for (const dir of [configHome, dataHome, stateHome, logDir, cacheHome]) {
+        if (!existsSync(dir)) {
+            mkdirSync(dir, { recursive: true });
+        }
+    }
+
+    const candidatePaths = [
+        process.env.MCP_GATEWAY_CONFIG,
+        join(process.cwd(), 'config.json5'),
+        join(configHome, 'config.json5'),
+        join(configHome, 'config.json'),
+    ].filter(Boolean) as string[];
+
+    let activeConfigFile = candidatePaths[candidatePaths.length - 1];
+    for (const p of candidatePaths) {
+        if (existsSync(p)) {
+            activeConfigFile = p;
+            break;
+        }
+    }
+
+    const logFilePath = join(logDir, 'gateway.log');
+
+    return {
+        configBase,
+        dataBase,
+        stateBase,
+        cacheBase,
+        configHome,
+        dataHome,
+        stateHome,
+        cacheHome,
+        activeConfigFile: resolve(activeConfigFile),
+        logFilePath: resolve(logFilePath),
+    };
+}
+
+export function interpolateVariables(rawText: string, xdg: XdgEnvironment): string {
+    let result = rawText.trim();
+
+    if (result.startsWith('~/') || result.startsWith('~\\')) {
+        result = join(homedir(), result.slice(2));
+    }
+
+    // 1. 标准 XDG 根目录替换
+    result = result.replace(/\$\{XDG_CONFIG_HOME\}/g, xdg.configBase);
+    result = result.replace(/\$\{XDG_DATA_HOME\}/g, xdg.dataBase);
+    result = result.replace(/\$\{XDG_STATE_HOME\}/g, xdg.stateBase);
+    result = result.replace(/\$\{XDG_CACHE_HOME\}/g, xdg.cacheBase);
+
+    // 2. 应用专属实体目录替换
+    result = result.replace(/\$\{APP_CONFIG_DIR\}/g, xdg.configHome);
+    result = result.replace(/\$\{APP_DATA_DIR\}/g, xdg.dataHome);
+    result = result.replace(/\$\{APP_STATE_DIR\}/g, xdg.stateHome);
+    result = result.replace(/\$\{APP_CACHE_DIR\}/g, xdg.cacheHome);
+
+    // 3. 通用环境变量替换
+    if (process.platform === 'win32') {
+        result = result.replace(/%([^%]+)%/g, (_, name) => process.env[name] || '');
+    }
+    result = result.replace(/\$\{([^}]+)\}/g, (_, name) => process.env[name] || '');
+
+    return result;
+}
+'@
+Set-Content -Path "$ProjectRoot\src\config\xdg.ts" -Value $xdgTsContent -Encoding utf8
+
+# 6. 更新 config.json5，引用 ${APP_DATA_DIR} 下的 Draw.io
+Write-Host "`n[步骤 4] 规整 config.json5 配置..." -ForegroundColor Yellow
+$decoupledConfig = @'
+{
+    // mcp-gateway 核心配置文件 (JSON5 规范，支持 XDG 环境变量插值)
+
+    mcpServers: {
+        // 1. 本地原生二进制 Codebase Memory 节点
+        codebase_memory: {
+            command: "%USERPROFILE%/.local/bin/codebase-memory-mcp.exe",
+            args: [],
+            env: {},
+        },
+
+        // 2. Next AI Draw.io stdio 串流 MCP 节点 (从 XDG_DATA_HOME 独立加载)
+        drawio: {
+            command: "bun",
+            args: [
+                "run",
+                "${APP_DATA_DIR}/node_modules/@next-ai-drawio/mcp-server/dist/index.js",
+            ],
+            env: {
+                PORT: "6002",
+            },
+        },
+    },
+
+    // 网关监听端口与地址
+    host: "127.0.0.1",
+    port: 9090,
+}
+'@
+
+Set-Content -Path "$ProjectRoot\config.json5" -Value $decoupledConfig -Encoding utf8
+$XdgConfigDir = if ($env:XDG_CONFIG_HOME) { Join-Path $env:XDG_CONFIG_HOME "mcp-gateway" } else { "$env:APPDATA\mcp-gateway" }
+if (-not (Test-Path $XdgConfigDir)) { New-Item -ItemType Directory -Path $XdgConfigDir -Force | Out-Null }
+Set-Content -Path (Join-Path $XdgConfigDir "config.json5") -Value $decoupledConfig -Encoding utf8
+
+Write-Host "  [✓] 配置文件已更新，Draw.io 已对齐至数据层物理路径" -ForegroundColor Green
+Write-Host "`n>>> [完成] 解耦部署完成！请执行 .\ps1_scripts\test-gateway.ps1 验证。" -ForegroundColor Cyan
+
+================
+File: ps1_scripts/test-gateway.ps1
+================
+# ==============================================================================
+# Script: ps1_scripts/test-gateway.ps1
+# Description: XDG 规范下 mcp-gateway 自动化断言回归测试
+# ==============================================================================
+
+$ErrorActionPreference = "Stop"
+$ProjectRoot = Split-Path -Parent $PSScriptRoot
+Set-Location $ProjectRoot
+
+$env:NO_PROXY = "127.0.0.1,localhost,100.81.173.80"
+
+Write-Host "======================================================================" -ForegroundColor Cyan
+Write-Host ">>> [mcp-gateway] XDG 规范化回归测试套件" -ForegroundColor Cyan
+Write-Host "======================================================================" -ForegroundColor Cyan
+
+# 1. 清理 9090 端口
+Get-NetTCPConnection -LocalPort 9090 -ErrorAction SilentlyContinue | ForEach-Object {
+    Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue
+}
+
+# 2. 启动网关主进程
+Write-Host "`n[阶段 1] 启动网关主进程..." -ForegroundColor Yellow
+$processInfo = New-Object System.Diagnostics.ProcessStartInfo
+$processInfo.FileName = "bun"
+$processInfo.Arguments = "run ./src/index.ts"
+$processInfo.WorkingDirectory = $ProjectRoot
+$processInfo.RedirectStandardOutput = $false
+$processInfo.RedirectStandardError = $false
+$processInfo.UseShellExecute = $true
+
+$gatewayProcess = [System.Diagnostics.Process]::Start($processInfo)
+
+try {
+    # 3. 轮询健康检查
+    Write-Host "`n[阶段 2] 探测健康检查接口 GET /health..." -ForegroundColor Yellow
+    $healthOk = $false
+    for ($i = 1; $i -le 10; $i++) {
+        try {
+            $healthResp = Invoke-RestMethod -Uri "http://127.0.0.1:9090/health" -Method Get -TimeoutSec 2 -NoProxy
+            if ($healthResp.status -eq "ok") {
+                $healthOk = $true
+                Write-Host "  [✓] /health 响应正常 (耗时 $i 秒): $($healthResp | ConvertTo-Json -Compress)" -ForegroundColor Green
+                break
+            }
+        } catch {
+            Start-Sleep -Seconds 1
+        }
+    }
+
+    if (-not $healthOk) {
+        Write-Host "  [✗] 健康检查超时未通过" -ForegroundColor Red
+        exit 1
+    }
+
+    # 4. 轮询各服务建立状态
+    Write-Host "`n[阶段 3] 轮询等待所有标准服务完成建立..." -ForegroundColor Yellow
+    $allReady = $false
+    for ($i = 1; $i -le 15; $i++) {
+        try {
+            $serversResp = Invoke-RestMethod -Uri "http://127.0.0.1:9090/servers" -Method Get -TimeoutSec 2 -NoProxy
+            $cb = $serversResp.servers.codebase_memory
+            $dw = $serversResp.servers.drawio
+
+            if ($cb -and $cb.state -eq "READY" -and $dw -and $dw.state -eq "READY") {
+                $allReady = $true
+                Write-Host "  [✓] codebase_memory ($($cb.toolCount) 工具) 与 drawio ($($dw.toolCount) 工具) 已全部就绪 (耗时 $i 秒)" -ForegroundColor Green
+                break
+            }
+        } catch {}
+        Start-Sleep -Seconds 1
+    }
+
+    # 5. 断言 Caddy 反向代理 Origin
+    Write-Host "`n[阶段 4] 模拟 Caddy 反向代理调用断言..." -ForegroundColor Yellow
+    $headers = @{
+        "X-Forwarded-Proto" = "http"
+        "X-Forwarded-Host"  = "100.81.173.80:8444"
+    }
+
+    foreach ($srvName in @("codebase_memory", "drawio")) {
+        $openApiResp = Invoke-RestMethod -Uri "http://127.0.0.1:9090/$srvName/openapi.json" -Headers $headers -Method Get -TimeoutSec 5 -NoProxy
+        $expected = "http://100.81.173.80:8444/$srvName"
+        $actual = $openApiResp.servers[0].url
+        if ($actual -eq $expected) {
+            Write-Host "  [✓] [$srvName] 反向代理 Origin 对齐通过: $actual" -ForegroundColor Green
+        } else {
+            Write-Host "  [✗] [$srvName] Origin 漂移！期望: $expected, 实际: $actual" -ForegroundColor Red
+        }
+    }
+
+    Write-Host "`n>>> [通过] XDG 纯净重构全链路断言验证通过！" -ForegroundColor Green
+} finally {
+    Write-Host "`n[阶段 5] 正在回收测试主进程与子进程树..." -ForegroundColor Yellow
+    if ($gatewayProcess -and -not $gatewayProcess.HasExited) {
+        $gatewayProcess.Kill($true)
+        $gatewayProcess.WaitForExit()
+        Write-Host "  [✓] 测试进程已彻底释放" -ForegroundColor Green
+    }
+}
+
+================
+File: ps1_scripts/test-gateway.ts
+================
+import * as c from 'yoctocolors';
+
+const BASE_URL = 'http://127.0.0.1:9090';
+
+console.log(c.cyan('======================================================================'));
+console.log(c.cyan('>>> [mcp-gateway] 自动化断言回归套件 (Bun TypeScript)'));
+console.log(c.cyan('======================================================================\n'));
+
+async function delay(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function run() {
+    console.log(c.yellow('[1/4] 启动测试子进程...'));
+    const proc = Bun.spawn(['bun', 'run', './src/index.ts'], {
+        cwd: process.cwd(),
+        stdout: 'inherit',
+        stderr: 'inherit',
+    });
+
+    await delay(2000);
+
+    try {
+        console.log(c.yellow('\n[2/4] 测试 GET /health...'));
+        const healthRes = await fetch(`${BASE_URL}/health`);
+        const health = await healthRes.json();
+        console.log(c.green(`  [✓] /health: ${JSON.stringify(health)}`));
+
+        console.log(c.yellow('\n[3/4] 验证带反向代理头部的 OpenAPI 契约...'));
+        const openApiRes = await fetch(`${BASE_URL}/codebase_memory/openapi.json`, {
+            headers: {
+                'X-Forwarded-Proto': 'https',
+                'X-Forwarded-Host': 'mcp.local:8444',
+            },
+        });
+        const spec = (await openApiRes.json()) as any;
+
+        if (spec.openapi !== '3.1.0') {
+            throw new Error(`OpenAPI 规范版本错误: ${spec.openapi}`);
+        }
+        if (spec.servers[0]?.url !== 'https://mcp.local:8444/codebase_memory') {
+            throw new Error(`反向代理 Origin 注入异常: ${spec.servers[0]?.url}`);
+        }
+        console.log(c.green(`  [✓] 反向代理与 OpenAPI 规范验证完全通过`));
+
+        console.log(c.green('\n>>> [4/4] 全部断言无误通过！'));
+    } finally {
+        proc.kill();
+        console.log(c.gray('\n测试进程已释放'));
+    }
+}
+
+await run();
+
+================
+File: src/config/loader.ts
+================
+import { watch, type FSWatcher } from 'node:fs';
+import { dirname, basename, resolve } from 'node:path';
+import { info, warn, error } from '@/utils/logger';
+import { interpolateVariables, type XdgEnvironment } from './xdg';
+import type { GatewayConfigFile } from './types';
+
+export type ConfigChangeCallback = (newConfig: GatewayConfigFile) => Promise<void> | void;
+
+export class ConfigManager {
+    private watcher: FSWatcher | null = null;
+    private debounceTimer: ReturnType<typeof setTimeout> | null = null;
+    private currentConfig: GatewayConfigFile = { mcpServers: {} };
+    private readonly absConfigPath: string;
+
+    constructor(
+        configPath: string,
+        private readonly xdg: XdgEnvironment
+    ) {
+        this.absConfigPath = resolve(configPath);
+    }
+
+    public async load(): Promise<GatewayConfigFile> {
+        const configFile = Bun.file(this.absConfigPath);
+        if (!(await configFile.exists())) {
+            warn(`配置文件未就绪: ${this.absConfigPath}，网关以空状态初始化`);
+            this.currentConfig = { mcpServers: {} };
+            return this.currentConfig;
+        }
+
+        let retries = 3;
+        while (retries > 0) {
+            try {
+                const text = await configFile.text();
+                if (!text.trim()) throw new Error('配置文本为空');
+
+                const parsed = Bun.JSON5.parse(text) as GatewayConfigFile;
+                if (!parsed.mcpServers || typeof parsed.mcpServers !== 'object') {
+                    parsed.mcpServers = {};
+                }
+
+                // 对每一个节点参数执行 XDG 变量解构
+                for (const [srvName, srvConf] of Object.entries(parsed.mcpServers)) {
+                    if ('command' in srvConf && typeof srvConf.command === 'string') {
+                        srvConf.command = interpolateVariables(srvConf.command, this.xdg);
+                        if (Array.isArray(srvConf.args)) {
+                            srvConf.args = srvConf.args.map((a) => interpolateVariables(a, this.xdg));
+                        }
+                        if (srvConf.cwd) {
+                            srvConf.cwd = interpolateVariables(srvConf.cwd, this.xdg);
+                        }
+                    } else if ('url' in srvConf && typeof srvConf.url === 'string') {
+                        srvConf.url = interpolateVariables(srvConf.url, this.xdg);
+                    }
+                }
+
+                this.currentConfig = parsed;
+                info(`已成功加载配置: ${this.absConfigPath} (生效服务: ${Object.keys(parsed.mcpServers).join(', ') || '无'})`);
+                return this.currentConfig;
+            } catch (err) {
+                retries--;
+                if (retries === 0) {
+                    error(`解析配置文件异常: ${err instanceof Error ? err.message : String(err)}`);
+                    return this.currentConfig;
+                }
+                await Bun.sleep(80);
+            }
+        }
+
+        return this.currentConfig;
+    }
+
+    public watch(onChange: ConfigChangeCallback): void {
+        const watchDir = dirname(this.absConfigPath);
+        const targetFilename = basename(this.absConfigPath);
+
+        try {
+            this.watcher = watch(watchDir, (eventType, triggeredFilename) => {
+                if (!triggeredFilename) return;
+                if (basename(triggeredFilename) === targetFilename) {
+                    if (this.debounceTimer) clearTimeout(this.debounceTimer);
+                    this.debounceTimer = setTimeout(async () => {
+                        info(`检测到配置文件变动，执行热重载调度...`);
+                        const reloaded = await this.load();
+                        try {
+                            await onChange(reloaded);
+                        } catch (err) {
+                            error(`热重载回调执行异常: ${err instanceof Error ? err.message : String(err)}`);
+                        }
+                    }, 300);
+                }
+            });
+        } catch (err) {
+            warn(`注册配置文件监视器失败: ${err instanceof Error ? err.message : String(err)}`);
+        }
+    }
+
+    public stopWatch(): void {
+        if (this.watcher) {
+            this.watcher.close();
+            this.watcher = null;
+        }
+        if (this.debounceTimer) {
+            clearTimeout(this.debounceTimer);
+            this.debounceTimer = null;
+        }
+    }
+
+    public getConfig(): GatewayConfigFile {
+        return this.currentConfig;
+    }
+}
+
+================
+File: src/config/types.ts
+================
+export interface StdioServerConfig {
+    command: string;
+    args?: string[];
+    env?: Record<string, string>;
+    cwd?: string;
+    timeout?: number;
+}
+
+export interface SseServerConfig {
+    url: string;
+    headers?: Record<string, string>;
+    timeout?: number;
+}
+
+export type McpServerConfig = StdioServerConfig | SseServerConfig;
+
+export interface GatewayConfigFile {
+    mcpServers: Record<string, McpServerConfig>;
+    port?: number;
+    host?: string;
+}
+
+export function isStdioConfig(config: McpServerConfig): config is StdioServerConfig {
+    return 'command' in config && typeof (config as StdioServerConfig).command === 'string';
+}
+
+export function isSseConfig(config: McpServerConfig): config is SseServerConfig {
+    return 'url' in config && typeof (config as SseServerConfig).url === 'string';
+}
+
+================
+File: src/config/xdg.ts
+================
+import { join, resolve } from 'node:path';
+import { homedir } from 'node:os';
+import { existsSync, mkdirSync } from 'node:fs';
+
+const APP_NAME = 'mcp-gateway';
+
+export interface XdgEnvironment {
+    configBase: string;
+    dataBase: string;
+    stateBase: string;
+    cacheBase: string;
+    configHome: string;
+    dataHome: string;
+    stateHome: string;
+    cacheHome: string;
+    activeConfigFile: string;
+    logFilePath: string;
+}
+
+export function resolveXdg(): XdgEnvironment {
+    const isWindows = process.platform === 'win32';
+    const home = homedir();
+
+    // 基础根目录解析
+    let configBase = process.env.XDG_CONFIG_HOME || (isWindows ? (process.env.APPDATA || join(home, 'AppData', 'Roaming')) : join(home, '.config'));
+    let dataBase   = process.env.XDG_DATA_HOME   || (isWindows ? (process.env.LOCALAPPDATA || join(home, 'AppData', 'Local')) : join(home, '.local', 'share'));
+    let stateBase  = process.env.XDG_STATE_HOME  || (isWindows ? (process.env.LOCALAPPDATA || join(home, 'AppData', 'Local')) : join(home, '.local', 'state'));
+    let cacheBase  = process.env.XDG_CACHE_HOME  || (isWindows ? (process.env.TEMP || join(home, 'AppData', 'Local', 'Temp')) : join(home, '.cache'));
+
+    // 应用级专属目录
+    const configHome = join(configBase, APP_NAME);
+    const dataHome   = join(dataBase, APP_NAME);
+    const stateHome  = join(stateBase, APP_NAME);
+    const cacheHome  = join(cacheBase, APP_NAME);
+    const logDir     = join(stateHome, 'logs');
+
+    for (const dir of [configHome, dataHome, stateHome, logDir, cacheHome]) {
+        if (!existsSync(dir)) {
+            mkdirSync(dir, { recursive: true });
+        }
+    }
+
+    const candidatePaths = [
+        process.env.MCP_GATEWAY_CONFIG,
+        join(process.cwd(), 'config.json5'),
+        join(configHome, 'config.json5'),
+        join(configHome, 'config.json'),
+    ].filter(Boolean) as string[];
+
+    let activeConfigFile = candidatePaths[candidatePaths.length - 1];
+    for (const p of candidatePaths) {
+        if (existsSync(p)) {
+            activeConfigFile = p;
+            break;
+        }
+    }
+
+    const logFilePath = join(logDir, 'gateway.log');
+
+    return {
+        configBase,
+        dataBase,
+        stateBase,
+        cacheBase,
+        configHome,
+        dataHome,
+        stateHome,
+        cacheHome,
+        activeConfigFile: resolve(activeConfigFile),
+        logFilePath: resolve(logFilePath),
+    };
+}
+
+export function interpolateVariables(rawText: string, xdg: XdgEnvironment): string {
+    let result = rawText.trim();
+
+    if (result.startsWith('~/') || result.startsWith('~\\')) {
+        result = join(homedir(), result.slice(2));
+    }
+
+    // 1. 标准 XDG 根目录替换
+    result = result.replace(/\$\{XDG_CONFIG_HOME\}/g, xdg.configBase);
+    result = result.replace(/\$\{XDG_DATA_HOME\}/g, xdg.dataBase);
+    result = result.replace(/\$\{XDG_STATE_HOME\}/g, xdg.stateBase);
+    result = result.replace(/\$\{XDG_CACHE_HOME\}/g, xdg.cacheBase);
+
+    // 2. 应用专属实体目录替换
+    result = result.replace(/\$\{APP_CONFIG_DIR\}/g, xdg.configHome);
+    result = result.replace(/\$\{APP_DATA_DIR\}/g, xdg.dataHome);
+    result = result.replace(/\$\{APP_STATE_DIR\}/g, xdg.stateHome);
+    result = result.replace(/\$\{APP_CACHE_DIR\}/g, xdg.cacheHome);
+
+    // 3. 通用环境变量替换
+    if (process.platform === 'win32') {
+        result = result.replace(/%([^%]+)%/g, (_, name) => process.env[name] || '');
+    }
+    result = result.replace(/\$\{([^}]+)\}/g, (_, name) => process.env[name] || '');
+
+    return result;
+}
+
+================
+File: src/mcp/pool.ts
+================
+import { info, warn } from '@/utils/logger';
+import { McpSession } from './session';
+import { AsyncMutex } from '@/utils/lock';
+import type { McpServerConfig, GatewayConfigFile } from '@/config/types';
+
+export class McpPool {
+    private sessions: Map<string, McpSession> = new Map();
+    private mutex = new AsyncMutex();
+
+    public async initialize(config: GatewayConfigFile): Promise<void> {
+        return this.mutex.runExclusive(async () => {
+            const entries = Object.entries(config.mcpServers || {});
+            await Promise.allSettled(
+                entries.map(([name, srvConfig]) => this.addServer(name, srvConfig))
+            );
+        });
+    }
+
+    public async addServer(name: string, config: McpServerConfig): Promise<void> {
+        const oldSession = this.sessions.get(name);
+        const nextSession = new McpSession(name, config);
+
+        if (!oldSession) {
+            this.sessions.set(name, nextSession);
+        }
+
+        try {
+            await nextSession.connect();
+            this.sessions.set(name, nextSession);
+            if (oldSession && oldSession !== nextSession) {
+                await oldSession.close();
+            }
+        } catch (err) {
+            warn(`[${name}] 会话连接未能建立: ${err instanceof Error ? err.message : String(err)}`);
+            await nextSession.close();
+            this.sessions.set(name, nextSession);
+        }
+    }
+
+    public async removeServer(name: string): Promise<void> {
+        const session = this.sessions.get(name);
+        if (!session) return;
+        await session.close();
+        this.sessions.delete(name);
+        info(`[${name}] 服务已被安全下线`);
+    }
+
+    public getSession(name: string): McpSession | undefined {
+        return this.sessions.get(name);
+    }
+
+    public getAllSessions(): Map<string, McpSession> {
+        return this.sessions;
+    }
+
+    public async reconcile(newConfig: GatewayConfigFile): Promise<void> {
+        return this.mutex.runExclusive(async () => {
+            const newServers = newConfig.mcpServers || {};
+            const currentNames = new Set(this.sessions.keys());
+            const incomingNames = new Set(Object.keys(newServers));
+
+            for (const name of currentNames) {
+                if (!incomingNames.has(name)) {
+                    info(`热重载：下线服务 [${name}]`);
+                    await this.removeServer(name);
+                }
+            }
+
+            for (const [name, conf] of Object.entries(newServers)) {
+                const existing = this.sessions.get(name);
+                if (!existing || existing.state !== 'READY') {
+                    info(`热重载：挂载服务 [${name}]`);
+                    await this.addServer(name, conf);
+                } else if (JSON.stringify(existing.config) !== JSON.stringify(conf)) {
+                    info(`热重载：平滑重载已变更的服务 [${name}]`);
+                    await this.addServer(name, conf);
+                }
+            }
+        });
+    }
+
+    public async shutdown(): Promise<void> {
+        return this.mutex.runExclusive(async () => {
+            info('正在平稳释放所有活动 MCP 会话...');
+            const promises = Array.from(this.sessions.values()).map((s) => s.close());
+            await Promise.allSettled(promises);
+            this.sessions.clear();
+            info('所有活动 MCP 会话已完全释放');
+        });
+    }
+}
+
+================
+File: src/mcp/session.ts
+================
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
+import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
+import type { Tool } from '@modelcontextprotocol/sdk/types.js';
+import { info, error, warn, debug } from '@/utils/logger';
+import { isStdioConfig, isSseConfig, type McpServerConfig } from '@/config/types';
+import { resolve, normalize } from 'node:path';
+
+export type SessionState = 'UNINITIALIZED' | 'CONNECTING' | 'READY' | 'FAILED' | 'DISCONNECTING' | 'TERMINATED';
+
+function normalizeExecutable(cmd: string): string {
+    let executable = cmd.trim();
+    if (process.platform === 'win32') {
+        executable = normalize(executable);
+        if (executable.toLowerCase() === 'bun' || executable.toLowerCase() === 'bun.exe') {
+            executable = process.execPath;
+        }
+    }
+    return executable;
+}
+
+export class McpSession {
+    public state: SessionState = 'UNINITIALIZED';
+    public lastError: string | null = null;
+    public tools: Map<string, Tool> = new Map();
+    private client: Client | null = null;
+    private transport: Transport | null = null;
+
+    constructor(
+        public readonly serverName: string,
+        public readonly config: McpServerConfig
+    ) {}
+
+    public async connect(): Promise<void> {
+        this.state = 'CONNECTING';
+        this.lastError = null;
+        debug(`[${this.serverName}] 开始建立通用 MCP 传输连接...`);
+
+        try {
+            if (isStdioConfig(this.config)) {
+                const command = normalizeExecutable(this.config.command);
+                const args = (this.config.args || []).map((arg) => arg.trim());
+
+                const inheritedEnv: Record<string, string> = {};
+                for (const [k, v] of Object.entries(process.env)) {
+                    if (v !== undefined) {
+                        inheritedEnv[k] = v;
+                    }
+                }
+
+                const env = {
+                    ...inheritedEnv,
+                    ...(this.config.env || {}),
+                };
+
+                this.transport = new StdioClientTransport({
+                    command,
+                    args,
+                    env,
+                    cwd: this.config.cwd ? resolve(this.config.cwd) : process.cwd(),
+                    stderr: 'pipe',
+                });
+
+                const stdioTransport = this.transport as any;
+                if (stdioTransport.stderr && typeof stdioTransport.stderr.on === 'function') {
+                    stdioTransport.stderr.on('data', (chunk: Buffer) => {
+                        const msg = chunk.toString().trim();
+                        debug(`[${this.serverName}:stderr] ${msg}`);
+                        if (this.state !== 'READY') {
+                            this.lastError = msg;
+                        }
+                    });
+                }
+            } else if (isSseConfig(this.config)) {
+                const sseConf = this.config;
+                this.transport = new SSEClientTransport(
+                    new URL(sseConf.url),
+                    sseConf.headers ? { eventSourceInit: { fetch: (url, init) => fetch(url, { ...init, headers: sseConf.headers }) } } : undefined
+                );
+            } else {
+                throw new Error(`未定义的传输协议配置: ${JSON.stringify(this.config)}`);
+            }
+
+            this.client = new Client(
+                { name: `mcp-gateway-${this.serverName}`, version: '1.0.0' },
+                { capabilities: {} }
+            );
+
+            const timeoutMs = this.config.timeout || 10000;
+            let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+            const timeoutPromise = new Promise<never>((_, reject) => {
+                timeoutId = setTimeout(() => {
+                    reject(new Error(`MCP 节点握手超时 (${timeoutMs}ms)`));
+                }, timeoutMs);
+            });
+
+            const connectPromise = (async () => {
+                await this.client!.connect(this.transport!);
+                await this.refreshTools();
+            })();
+
+            connectPromise.catch((innerErr) => {
+                debug(`[${this.serverName}] 异步握手终止通知: ${innerErr instanceof Error ? innerErr.message : String(innerErr)}`);
+            });
+
+            try {
+                await Promise.race([connectPromise, timeoutPromise]);
+            } finally {
+                if (timeoutId) clearTimeout(timeoutId);
+            }
+
+            this.state = 'READY';
+            this.lastError = null;
+            info(`[${this.serverName}] 节点就绪，成功注册 ${this.tools.size} 个工具: [${Array.from(this.tools.keys()).join(', ')}]`);
+        } catch (err) {
+            const errorMsg = err instanceof Error ? (err.stack || err.message) : String(err);
+            this.lastError = errorMsg;
+            this.state = 'FAILED';
+            error(`[${this.serverName}] 节点拉起失败: ${errorMsg}`);
+            await this.close();
+            this.state = 'FAILED';
+            throw err;
+        }
+    }
+
+    public async refreshTools(): Promise<void> {
+        if (!this.client) return;
+        const res = await this.client.listTools();
+        this.tools.clear();
+        for (const tool of res.tools) {
+            this.tools.set(tool.name, tool);
+        }
+    }
+
+    public async callTool(name: string, args: Record<string, unknown> = {}): Promise<unknown> {
+        if (this.state !== 'READY' || !this.client) {
+            throw new Error(`MCP 服务 [${this.serverName}] 未就绪 (状态: ${this.state})`);
+        }
+        if (!this.tools.has(name)) {
+            throw new Error(`服务 [${this.serverName}] 不包含工具 [${name}]`);
+        }
+
+        return await this.client.callTool({
+            name,
+            arguments: args,
+        });
+    }
+
+    public async close(): Promise<void> {
+        const previousState = this.state;
+        this.state = 'DISCONNECTING';
+
+        const stdioTransport = this.transport as any;
+        const childProc = stdioTransport?._process || stdioTransport?.process;
+        const stdioPid = childProc?.pid;
+
+        try {
+            if (this.client) {
+                await this.client.close();
+            }
+        } catch (err) {
+            warn(`[${this.serverName}] 释放 Client 产生告警: ${err instanceof Error ? err.message : String(err)}`);
+        } finally {
+            if (process.platform === 'win32' && stdioPid) {
+                try {
+                    Bun.spawnSync(['taskkill', '/F', '/T', '/PID', String(stdioPid)]);
+                } catch {}
+            }
+            this.client = null;
+            this.transport = null;
+            this.tools.clear();
+            this.state = (previousState === 'FAILED') ? 'FAILED' : 'TERMINATED';
+            debug(`[${this.serverName}] 资源已安全释放`);
+        }
+    }
+}
+
+================
+File: src/openapi/generator.ts
+================
+import type { McpSession } from '@/mcp/session';
+
+export interface OpenApiSpec31 {
+    openapi: '3.1.0';
+    info: {
+        title: string;
+        version: string;
+        description: string;
+    };
+    servers: Array<{
+        url: string;
+        description?: string;
+    }>;
+    paths: Record<string, Record<string, unknown>>;
+}
+
+export class OpenApiGenerator {
+    public static generate(session: McpSession, publicOrigin: string): OpenApiSpec31 {
+        const paths: Record<string, Record<string, unknown>> = {};
+
+        for (const [toolName, tool] of session.tools.entries()) {
+            const routePath = `/${toolName}`;
+
+            const inputSchema = tool.inputSchema && typeof tool.inputSchema === 'object'
+                ? tool.inputSchema
+                : { type: 'object', properties: {} };
+
+            paths[routePath] = {
+                post: {
+                    operationId: tool.name,
+                    summary: tool.name,
+                    description: tool.description || `Invoke tool ${tool.name} on server ${session.serverName}`,
+                    requestBody: {
+                        required: true,
+                        description: `Input schema for ${tool.name}`,
+                        content: {
+                            'application/json': {
+                                schema: inputSchema,
+                            },
+                        },
+                    },
+                    responses: {
+                        '200': {
+                            description: 'Tool execution result',
+                            content: {
+                                'application/json': {
+                                    schema: {
+                                        type: 'object',
+                                        properties: {
+                                            content: {
+                                                type: 'array',
+                                                items: { type: 'object' },
+                                            },
+                                            isError: { type: 'boolean' },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                        '400': {
+                            description: 'Invalid JSON request payload',
+                        },
+                        '503': {
+                            description: 'MCP server session not ready',
+                        },
+                        '500': {
+                            description: 'Internal tool execution exception',
+                        },
+                    },
+                },
+            };
+        }
+
+        return {
+            openapi: '3.1.0',
+            info: {
+                title: `MCP Gateway - ${session.serverName}`,
+                version: '1.0.0',
+                description: `Standard OpenAPI 3.1.0 schema for MCP server [${session.serverName}].`,
+            },
+            servers: [
+                {
+                    url: `${publicOrigin}/${session.serverName}`,
+                    description: `Endpoint cluster for ${session.serverName}`,
+                },
+            ],
+            paths,
+        };
+    }
+}
+
+================
+File: src/server/gateway.ts
+================
+import { info, error, warn } from '@/utils/logger';
+import { McpPool } from '@/mcp/pool';
+import { OpenApiGenerator } from '@/openapi/generator';
+
+export interface GatewayServerOptions {
+    port: number;
+    host: string;
+}
+
+export class GatewayServer {
+    private server: ReturnType<typeof Bun.serve> | null = null;
+    private isPoolReady = false;
+
+    constructor(
+        private readonly pool: McpPool,
+        private readonly options: GatewayServerOptions
+    ) {}
+
+    public setPoolReady(ready: boolean): void {
+        this.isPoolReady = ready;
+    }
+
+    private resolvePublicOrigin(req: Request): string {
+        const proto = req.headers.get('x-forwarded-proto') || 'http';
+        const host = req.headers.get('x-forwarded-host') || req.headers.get('host') || `${this.options.host}:${this.options.port}`;
+        const prefix = req.headers.get('x-forwarded-prefix') || '';
+        return `${proto}://${host}${prefix}`.replace(/\/+$/, '');
+    }
+
+    public start(): void {
+        const { port, host } = this.options;
+
+        this.server = Bun.serve({
+            port,
+            hostname: host,
+            fetch: async (req: Request) => {
+                const url = new URL(req.url);
+                const path = url.pathname;
+                const method = req.method.toUpperCase();
+
+                const corsHeaders = {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Forwarded-Host, X-Forwarded-Proto',
+                };
+
+                if (method === 'OPTIONS') {
+                    return new Response(null, { status: 204, headers: corsHeaders });
+                }
+
+                try {
+                    info(`[HTTP] ${method} ${path}`);
+
+                    // 1. 就绪探针
+                    if (path === '/health' && method === 'GET') {
+                        return Response.json({
+                            status: 'ok',
+                            uptime: process.uptime(),
+                            poolReady: this.isPoolReady,
+                        }, { headers: corsHeaders });
+                    }
+
+                    // 2. 服务注册表查询
+                    if (path === '/servers' && method === 'GET') {
+                        const all = this.pool.getAllSessions();
+                        const summary: Record<string, unknown> = {};
+                        for (const [name, sess] of all.entries()) {
+                            summary[name] = {
+                                state: sess.state,
+                                lastError: sess.lastError,
+                                toolCount: sess.tools.size,
+                                tools: Array.from(sess.tools.keys()),
+                            };
+                        }
+                        return Response.json({ servers: summary }, { headers: corsHeaders });
+                    }
+
+                    const normalizedPath = path.replace(/\/+$/, '');
+                    const publicOrigin = this.resolvePublicOrigin(req);
+
+                    // 3. OpenAPI 规范端点
+                    let openApiServerName: string | null = null;
+                    const openApiMatch = normalizedPath.match(/^\/([^/]+)\/openapi\.json$/);
+                    if (openApiMatch && method === 'GET') {
+                        openApiServerName = openApiMatch[1];
+                    } else {
+                        const directMatch = normalizedPath.match(/^\/([^/]+)$/);
+                        if (directMatch && method === 'GET') {
+                            const candidate = directMatch[1];
+                            if (candidate !== 'health' && candidate !== 'servers') {
+                                openApiServerName = candidate;
+                            }
+                        }
+                    }
+
+                    if (openApiServerName) {
+                        const session = this.pool.getSession(openApiServerName);
+                        if (!session) {
+                            warn(`[HTTP 404] 服务 [${openApiServerName}] 不存在`);
+                            return Response.json({ error: `Server [${openApiServerName}] not found` }, { status: 404, headers: corsHeaders });
+                        }
+
+                        if (session.state !== 'READY') {
+                            warn(`[HTTP 503] 服务 [${openApiServerName}] 尚未就绪 (当前状态: ${session.state})`);
+                            return Response.json({
+                                error: `Server [${openApiServerName}] not ready`,
+                                state: session.state,
+                                lastError: session.lastError,
+                            }, {
+                                status: 503,
+                                headers: {
+                                    ...corsHeaders,
+                                    ...(session.state === 'CONNECTING' ? { 'Retry-After': '2' } : {}),
+                                },
+                            });
+                        }
+
+                        const spec = OpenApiGenerator.generate(session, publicOrigin);
+                        return Response.json(spec, {
+                            headers: {
+                                ...corsHeaders,
+                                'Content-Type': 'application/json; charset=utf-8',
+                            },
+                        });
+                    }
+
+                    // 4. 工具调用路由
+                    let matchedServer: string | null = null;
+                    let matchedTool: string | null = null;
+
+                    const singleMatch = normalizedPath.match(/^\/([^/]+)\/([^/]+)$/);
+                    const doubleMatch = normalizedPath.match(/^\/([^/]+)\/\1\/([^/]+)$/);
+
+                    if (doubleMatch) {
+                        matchedServer = doubleMatch[1];
+                        matchedTool = doubleMatch[2];
+                    } else if (singleMatch) {
+                        matchedServer = singleMatch[1];
+                        matchedTool = singleMatch[2];
+                    }
+
+                    if (matchedServer && matchedTool && method === 'POST') {
+                        if (matchedTool === 'openapi.json') {
+                            return Response.json({ error: 'Method Not Allowed' }, { status: 405, headers: corsHeaders });
+                        }
+
+                        const session = this.pool.getSession(matchedServer);
+                        if (!session) {
+                            warn(`[HTTP 404] 服务 [${matchedServer}] 未注册`);
+                            return Response.json({ error: `Server [${matchedServer}] not found` }, { status: 404, headers: corsHeaders });
+                        }
+
+                        if (session.state !== 'READY') {
+                            warn(`[HTTP 503] 服务 [${matchedServer}] 未就绪 (当前状态: ${session.state})`);
+                            return Response.json({
+                                error: `Server [${matchedServer}] not ready`,
+                                state: session.state,
+                                lastError: session.lastError,
+                            }, {
+                                status: 503,
+                                headers: {
+                                    ...corsHeaders,
+                                    ...(session.state === 'CONNECTING' ? { 'Retry-After': '2' } : {}),
+                                },
+                            });
+                        }
+
+                        let body: Record<string, unknown> = {};
+                        try {
+                            const rawText = await req.text();
+                            if (rawText.trim().length > 0) {
+                                body = JSON.parse(rawText);
+                            }
+                        } catch {
+                            return Response.json({ error: 'Invalid JSON request payload' }, { status: 400, headers: corsHeaders });
+                        }
+
+                        info(`[工具执行] 服务: [${matchedServer}], 工具: [${matchedTool}]`);
+                        const executionResult = await session.callTool(matchedTool, body);
+
+                        return Response.json(executionResult, {
+                            headers: {
+                                ...corsHeaders,
+                                'Content-Type': 'application/json; charset=utf-8',
+                            },
+                        });
+                    }
+
+                    warn(`[HTTP 404] 路由未匹配: ${method} ${path}`);
+                    return Response.json({ error: 'Not Found' }, { status: 404, headers: corsHeaders });
+                } catch (err) {
+                    error(`[HTTP 500] 处理异常: ${err instanceof Error ? err.message : String(err)}`);
+                    return Response.json({
+                        error: 'Gateway Error',
+                        message: err instanceof Error ? err.message : String(err),
+                    }, { status: 500, headers: corsHeaders });
+                }
+            },
+        });
+
+        info(`mcp-gateway 已成功监听在: http://${host}:${port}`);
+    }
+
+    public stop(): void {
+        if (this.server) {
+            this.server.stop(true);
+            this.server = null;
+            info('HTTP 监听网关已安全停机');
+        }
+    }
+}
+
+================
+File: src/utils/lock.ts
+================
+export class AsyncMutex {
+    private mutex = Promise.resolve();
+
+    public lock(): Promise<() => void> {
+        let begin: (unlock: () => void) => void = () => {};
+        this.mutex = this.mutex.then(() => {
+            return new Promise(begin);
+        });
+        return new Promise((res) => {
+            begin = res;
+        });
+    }
+
+    public async runExclusive<T>(callback: () => Promise<T> | T): Promise<T> {
+        const unlock = await this.lock();
+        try {
+            return await callback();
+        } finally {
+            unlock();
+        }
+    }
+}
+
+================
+File: src/utils/logger.ts
+================
+import { format } from 'node:util';
+import { appendFileSync } from 'node:fs';
+import * as c from 'yoctocolors';
+
+export const LogLevels = {
+    DEBUG:  0,
+    INFO:   1,
+    WARN:   2,
+    ERROR:  3,
+    SILENT: 99,
+} as const;
+
+type LogLevelKey = keyof typeof LogLevels;
+type LogLevelValue = typeof LogLevels[LogLevelKey];
+
+interface LoggerConfig {
+    level: LogLevelValue;
+    showTimestamp: boolean;
+    logFilePath: string | null;
+}
+
+const config: LoggerConfig = {
+    level: LogLevels.DEBUG,
+    showTimestamp: true,
+    logFilePath: null,
+};
+
+export function setLogLevel(level: LogLevelKey): void {
+    config.level = LogLevels[level];
+}
+
+export function initFileLogging(filePath: string): void {
+    config.logFilePath = filePath;
+}
+
+function getTimeStamp(): string {
+    if (!config.showTimestamp) return '';
+    const now = new Date();
+    return `[${now.toLocaleTimeString('en-US', { hour12: false })}] `;
+}
+
+function print(levelVal: LogLevelValue, textBadge: string, coloredBadge: string, message: unknown[]): void {
+    if (levelVal < config.level) return;
+
+    const formattedMessage = format(...message);
+    const time = getTimeStamp();
+
+    process.stderr.write(`${c.gray(time)}${coloredBadge} ${formattedMessage}\n`);
+
+    if (config.logFilePath) {
+        try {
+            const rawLine = `${time}${textBadge} ${formattedMessage}\n`;
+            appendFileSync(config.logFilePath, rawLine, { encoding: 'utf8' });
+        } catch {}
+    }
+}
+
+export function debug(...args: unknown[]): void {
+    print(LogLevels.DEBUG, '[DEBUG]', c.bgBlack(c.white(' DEBUG ')), args);
+}
+
+export function info(...args: unknown[]): void {
+    print(LogLevels.INFO, '[INFO]', c.bgBlue(c.black(' INFO ')), args);
+}
+
+export function warn(...args: unknown[]): void {
+    print(LogLevels.WARN, '[WARN]', c.bgYellow(c.black(' WARN ')), args);
+}
+
+export function error(...args: unknown[]): void {
+    print(LogLevels.ERROR, '[ERROR]', c.bgRed(c.black(' ERROR ')), args);
+}
+
+================
+File: src/global.d.ts
+================
+declare module '*.json5' {
+    const value: any;
+    export default value;
+}
+
+================
+File: src/index.ts
+================
+import { resolveXdg } from '@/config/xdg';
+import { ConfigManager } from '@/config/loader';
+import { McpPool } from '@/mcp/pool';
+import { GatewayServer } from '@/server/gateway';
+import { info, error, warn, initFileLogging } from '@/utils/logger';
+
+async function main() {
+    // 1. 初始化标准 XDG 物理环境并接入日志持久化
+    const xdg = resolveXdg();
+    initFileLogging(xdg.logFilePath);
+
+    info(`「mcp-gateway」启动中 (Bun ${Bun.version})...`);
+    info(`[XDG Config] 配置文件路径: ${xdg.activeConfigFile}`);
+    info(`[XDG State]  运行时日志文件: ${xdg.logFilePath}`);
+    info(`[XDG Data]   共享数据存储区: ${xdg.dataHome}`);
+    info(`[XDG Cache]  高速缓存存储区: ${xdg.cacheHome}`);
+
+    // 2. 加载核心配置
+    const configManager = new ConfigManager(xdg.activeConfigFile, xdg);
+    const initialConfig = await configManager.load();
+
+    // 3. 构建连接池与网关
+    const pool = new McpPool();
+
+    const port = Number(process.env.PORT) || initialConfig.port || 9090;
+    const host = process.env.HOST || initialConfig.host || '127.0.0.1';
+
+    const gateway = new GatewayServer(pool, { port, host });
+    gateway.start();
+
+    // 4. 注册文件监控与热重载
+    configManager.watch(async (newConfig) => {
+        await pool.reconcile(newConfig);
+    });
+
+    // 5. 初始化已有 MCP 服务池
+    info('正在初始化 MCP 服务连接池...');
+    try {
+        await pool.initialize(initialConfig);
+        gateway.setPoolReady(true);
+        info('MCP 服务池初始化完毕，网关全面就绪');
+    } catch (err) {
+        warn(`MCP 服务池存在未就绪节点: ${err instanceof Error ? err.message : String(err)}`);
+    }
+
+    // 6. 优雅停机托管
+    let isShuttingDown = false;
+    const shutdown = async () => {
+        if (isShuttingDown) return;
+        isShuttingDown = true;
+
+        info('收到停机信号，正在平稳释放网络与子进程资源...');
+        const watchdog = setTimeout(() => {
+            warn('强制退出看门狗触发');
+            process.exit(1);
+        }, 5000);
+        watchdog.unref();
+
+        configManager.stopWatch();
+        gateway.stop();
+        await pool.shutdown();
+
+        info('mcp-gateway 已安全退出');
+        process.exit(0);
+    };
+
+    process.on('SIGINT', shutdown);
+    process.on('SIGTERM', shutdown);
+    process.on('unhandledRejection', (reason) => {
+        warn(`[未捕获 Promise 异常] ${reason instanceof Error ? (reason.stack || reason.message) : String(reason)}`);
+    });
+}
+
+main().catch((err) => {
+    error(`网关遭遇致命错误: ${err instanceof Error ? (err.stack || err.message) : String(err)}`);
+    process.exit(1);
+});
+
+================
+File: .cbmignore
+================
+# Dependencies
+node_modules/
+
+# Build & Distribution
+build/
+dist/
+
+# Scratch & Helper Scripts
+ps1_scripts/
+
+# Lockfiles and reports
+bun.lock
+bun.lockb
+repomix-output.xml
+repomix.xml
+*.log
+
+================
+File: .env.example
+================
+# LLMs
+# GEMINI
+GENAI_BASE_URL=""
+GENAI_API_KEY=""
+
+# OPENAI
+OPENAI_BASE_URL=""
+OPENAI_API_KEY=""
+
+================
+File: package.json
+================
+{
+    "$schema": "https://json.schemastore.org/package.json",
+    "name": "mcp-gateway",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "author": {
+        "name": "TiancongLi",
+        "email": "tiancong.li@hotmail.com"
+    },
+    "scripts": {
+        "start": "bun run ./src/index.ts",
+        "dev":   "bun run ./src/index.ts",
+        "build": "bun build --compile ./src/index.ts --outfile ./build/mcp-gateway.exe"
+    },
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.30.0",
+        "yoctocolors": "^2.1.1"
+    },
+    "devDependencies": {
+        "@types/bun": "^1.4.2",
+        "typescript": "^7.0.2"
+    }
+}
+
+================
+File: README.md
+================
+# MCP Gateway (Model Context Protocol 网关)
+
+基于 **Bun 1.4.2** 与 **TypeScript 7** 构建的高性能、高可用 Model Context Protocol 网关服务。
+
+网关核心职责：负责统一聚合下游通过原生二进制（Native Binary Stdio）、Node/Bun 串流管道（Script Stdio）或网络协议（SSE / HTTP）启动的各类 MCP 服务节点，完成协议封装、生命周期自愈与热重载，并对外提供严格对齐 **OpenAPI 3.1.0** 标准规范的 HTTP RESTful 路由中枢，供外部客户端（如 Open WebUI）通过 Caddy 反向代理安全调用。
+
+---
+
+## 一、 系统架构拓扑
+
+```txt
+┌────────────────────────────────────────────────────────┐
+│                      外部客户端                        │
+│                     Open WebUI                         │
+└──────────────────────────┬─────────────────────────────┘
+                           │ HTTP / HTTPS (REST API)
+                           ▼
+┌────────────────────────────────────────────────────────┐
+│                    反向代理网关                        │
+│                   Caddy (:8444)                        │
+└──────────────────────────┬─────────────────────────────┘
+                           │ HTTP 反向代理转发 (:8444 -> :9090)
+                           ▼
+┌────────────────────────────────────────────────────────┐
+│               核心路由与协议转换网关                   │
+│                mcp-gateway (:9090)                     │
+│  - OpenAPI 3.1.0 规范生成                              │
+│  - 异步互斥锁 (AsyncMutex) 保障的蓝绿会话池             │
+│  - 跨平台 XDG 四大规范路径与环境变量插值引擎           │
+└──────────────┬──────────────────────────┬──────────────┘
+               │                          │
+   JSON-RPC (Native Stdio)    JSON-RPC (Bun Stdio 串流管道)
+               │                          │
+               ▼                          ▼
+┌─────────────────────────────┐ ┌─────────────────────────────────────────┐
+│        底层原生进程         │ │               串流子进程                │
+│       codebase_memory       │ │          Next AI Draw.io Server         │
+│ (C:/Users/root/.local/bin)  │ │ (C:/Users/root/.local/share/mcp-gateway)│
+└─────────────────────────────┘ └─────────────────────────────────────────┘
+```
+
+---
+
+## 二、 严格遵循 XDG 四大规范的物理布局
+
+为了消除项目源码目录与运行时数据、配置的混杂，本项目严格按照操作系统环境变量（`XDG_*`）分离运行资产：
+
+| 规范目录 | 环境变量 | 默认物理路径 (Windows) | 职能定义 |
+| :--- | :--- | :--- | :--- |
+| **Config** | `XDG_CONFIG_HOME` | `C:\Users\root\.config\mcp-gateway\` | 静态主配置文件 `config.json5` |
+| **Data** | `XDG_DATA_HOME` | `C:\Users\root\.local\share\mcp-gateway\` | 从 npm 安装的外部 MCP 插件仓储（拥有独立的 `package.json`） |
+| **State** | `XDG_STATE_HOME` | `C:\Users\root\.local\state\mcp-gateway\` | 动态状态与运行时持久化日志 `logs\gateway.log` |
+| **Cache** | `XDG_CACHE_HOME` | `C:\Users\root\.cache\mcp-gateway\` | 规范文档缓存与瞬态运行时数据 |
+
+---
+
+## 三、 配置体系与变量插值引擎
+
+配置文件采用 **JSON5** 格式，由 Bun 原生引擎解析，原生支持注释、尾随逗号与单引号。
+
+### 1. 动态插值语法
+配置文件中的路径参数支持环境变量动态插值，提升跨机可移植性：
+- `${APP_DATA_DIR}`：直接指向当前应用的专属数据区（即 `XDG_DATA_HOME\mcp-gateway`）。
+- `${XDG_DATA_HOME}`、`${XDG_CONFIG_HOME}` 等：指向系统标准 XDG 根路径。
+- `%USERPROFILE%`、`${HOME}`：展开为操作系统用户家目录。
+
+### 2. 标准配置样例 (`config.json5`)
+```json5
+{
+    mcpServers: {
+        // 1. 本地原生二进制 MCP 节点
+        codebase_memory: {
+            command: "%USERPROFILE%/.local/bin/codebase-memory-mcp.exe",
+            args: [],
+            env: {},
+        },
+
+        // 2. 独立纳管于 XDG_DATA_HOME 的串流 MCP 节点
+        drawio: {
+            command: "bun",
+            args: [
+                "run",
+                "${APP_DATA_DIR}/node_modules/@next-ai-drawio/mcp-server/dist/index.js",
+            ],
+            env: {
+                PORT: "6002",
+            },
+        },
+    },
+
+    // 网关监听端口与地址
+    host: "127.0.0.1",
+    port: 9090,
+}
+```
+
+---
+
+## 四、 外部 npm MCP 插件管理指南
+
+本工程代码库内**严禁直接安装业务型 MCP 扩展包**。所有通过 npm / bun 下载的外部 MCP 统一在数据层集中管理。
+
+### 1. 物理位置
+`C:\Users\root\.local\share\mcp-gateway\`
+
+### 2. 插件安装与更新命令
+在 PowerShell 中切换至该目录进行操作：
+```powershell
+# 切换至数据层物理目录
+cd $env:XDG_DATA_HOME\mcp-gateway
+
+# 安装新的 MCP 服务包
+bun add <mcp-package-name>
+
+# 升级已有 MCP 服务包
+bun update @next-ai-drawio/mcp-server
+```
+
+---
+
+## 五、 工程启动、构建与验证
+
+### 1. 启动命令
+```powershell
+# 开发热执行模式
+bun run dev
+
+# 生产常驻启动模式
+bun run start
+
+# 编译为单文件原生 Windows 可执行文件
+bun run build
+# 产物生成于: build/mcp-gateway.exe
+```
+
+### 2. 自动化端到端测试
+运行内置的断言测试脚本，验证健康检查、服务握手与反向代理 Origin 对齐：
+```powershell
+.\ps1_scripts\test-gateway.ps1
+```
+
+### 3. 持久化日志观测
+日志自动落盘至 XDG 规范的状态目录中：
+```powershell
+Get-Content "$env:XDG_STATE_HOME\mcp-gateway\logs\gateway.log" -Tail 30 -Wait
+```
+
+---
+
+## 六、 外部客户端对接指南 (Open WebUI)
+
+### 1. 网络接入路由
+当外部客户端通过 Caddy（`:8444`）反向代理接入时，网关会自动解析 `X-Forwarded-*` 请求头，确保 OpenAPI 文档中的 `servers.url` 准确生成为外部访问基准地址。
+
+在 Open WebUI「管理面板」->「函数 / 工具 / OpenAPI」中注册：
+- **Codebase Memory 接口**：
+  `http://100.81.173.80:8444/codebase_memory/openapi.json`
+- **Next AI Draw.io 接口**：
+  `http://100.81.173.80:8444/drawio/openapi.json`
+
+### 2. 契约规范特性
+- **无命名污染**：生成的 `operationId` 严格与原始工具名完全一致（消除 `tool_*_post` 前后缀污染）。
+- **参数标准挂载**：所有工具入参准确挂载在 `requestBody.content['application/json'].schema` 下，满足 OpenAPI 3.1.0 标准。
+```
+
+---
+
+### 四、 快速生效步骤
+
+1. 执行解耦部署脚本：
+   ```powershell
+   .\ps1_scripts\SetupDataMcp.ps1
+   ```
+2. 执行端到端测试断言：
+   ```powershell
+   .\ps1_scripts\test-gateway.ps1
+   ```
+
+
+
+
+
+================================================================
+End of Codebase
+================================================================

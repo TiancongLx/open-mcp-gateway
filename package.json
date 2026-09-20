@@ -1,0 +1,23 @@
+{
+    "$schema": "https://json.schemastore.org/package.json",
+    "name": "mcp-gateway",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "author": {
+        "name": "TiancongLi",
+        "email": "tiancong.li@hotmail.com"
+    },
+    "scripts": {
+        "start": "bun run ./src/index.ts",
+        "build": "bun build --compile --minify --sourcemap --bytecode --target=bun-windows-x64 ./src/index.ts --outfile ./build/mcp-gateway.exe"
+    },
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.30.0",
+        "yoctocolors": "^2.1.1"
+    },
+    "devDependencies": {
+        "@types/bun": "^1.4.2",
+        "typescript": "^7.0.2"
+    }
+}
