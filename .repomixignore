@@ -1,0 +1,12 @@
+# vim: ft=gitignore
+
+.gitignore
+.repomixignore
+
+LICENSE.txt
+tsconfig.json
+
+bun.lock
+bun.lockb
+
+/build

@@ -1,0 +1,18 @@
+# Ignore Node.js modules
+node_modules/
+
+# Ignore environment variables (contains sensitive data)
+.env
+
+# Ignore repomix's output file
+repomix-output.xml
+repomix.xml
+
+# Build output
+build/
+dist/
+
+# Logs
+*.log
+
+

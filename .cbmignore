@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Build & Distribution
+build/
+dist/
+
+# Scratch & Helper Scripts
+ps1_scripts/
+
+# Lockfiles and reports
+bun.lock
+bun.lockb
+repomix-output.xml
+repomix.xml
+*.log
