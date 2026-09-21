@@ -7,6 +7,7 @@ node_modules/
 # Ignore repomix's output file
 repomix-output.xml
 repomix.xml
+repomix.txt
 
 # Build output
 build/
