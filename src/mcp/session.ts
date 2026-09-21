@@ -85,7 +85,7 @@ export class McpSession {
             }
 
             this.client = new Client(
-                { name: `mcp-gateway-${this.serverName}`, version: '1.0.0' },
+                { name: `open-mcp-gateway-${this.serverName}`, version: '1.0.0' },
                 { capabilities: {} }
             );
 

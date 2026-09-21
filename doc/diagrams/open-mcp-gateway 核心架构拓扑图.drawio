@@ -4,7 +4,7 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="2" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=18;fontColor=#263238;fontStyle=1;rounded=1;sketch=1;curveFitting=1;jiggle=2;" value="mcp-gateway 核心架构拓扑图" vertex="1">
+        <mxCell id="2" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=18;fontColor=#263238;fontStyle=1;rounded=1;sketch=1;curveFitting=1;jiggle=2;" value="open-mcp-gateway 核心架构拓扑图" vertex="1">
           <mxGeometry height="30" width="260" x="270" y="20" as="geometry" />
         </mxCell>
         <mxCell id="8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8F9FA;strokeColor=#CFD8DC;strokeWidth=1.5;dashed=1;verticalAlign=top;align=left;spacingLeft=15;spacingTop=10;fontSize=12;fontColor=#546E7A;arcSize=4;sketch=1;curveFitting=1;jiggle=2;" value="本地 / 宿主服务端环境 (Host Environment)" vertex="1">
@@ -16,7 +16,7 @@
         <mxCell id="4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#388E3C;strokeWidth=2;fontSize=14;fontColor=#1B5E20;arcSize=15;sketch=1;curveFitting=1;jiggle=2;" value="&lt;b&gt;反向代理网关&lt;/b&gt;&lt;br&gt;Caddy (:8444)" vertex="1">
           <mxGeometry height="60" width="240" x="280" y="195" as="geometry" />
         </mxCell>
-        <mxCell id="5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#F57C00;strokeWidth=2;fontSize=14;fontColor=#E65100;arcSize=15;sketch=1;curveFitting=1;jiggle=2;" value="&lt;b&gt;核心路由与协议转换&lt;/b&gt;&lt;br&gt;mcp-gateway (:9090)" vertex="1">
+        <mxCell id="5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#F57C00;strokeWidth=2;fontSize=14;fontColor=#E65100;arcSize=15;sketch=1;curveFitting=1;jiggle=2;" value="&lt;b&gt;核心路由与协议转换&lt;/b&gt;&lt;br&gt;open-mcp-gateway (:9090)" vertex="1">
           <mxGeometry height="65" width="240" x="280" y="315" as="geometry" />
         </mxCell>
         <mxCell id="6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EDE7F6;strokeColor=#512DA8;strokeWidth=2;fontSize=13;fontColor=#311B92;arcSize=15;sketch=1;curveFitting=1;jiggle=2;" value="&lt;b&gt;底层原生进程&lt;/b&gt;&lt;br&gt;codebase_memory&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;(Native Binary 守护进程)&lt;/font&gt;" vertex="1">

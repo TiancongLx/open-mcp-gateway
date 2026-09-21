@@ -50,12 +50,12 @@ bun install
 bun run dev
 
 # 或编译为单文件原生可执行文件
-bun run build   # 产物: build/mcp-gateway(.exe)
+bun run build   # 产物: build/open-mcp-gateway(.exe)
 ```
 
 ## 配置
 
-配置文件位于 `$XDG_CONFIG_HOME/mcp-gateway/config.json5`（JSON5 格式，支持注释与尾随逗号），路径支持环境变量动态插值：`${APP_DATA_DIR}`、`${XDG_DATA_HOME}`、`${HOME}` / `%USERPROFILE%` 等，提升跨机可移植性。
+配置文件位于 `$XDG_CONFIG_HOME/open-mcp-gateway/config.json5`（JSON5 格式，支持注释与尾随逗号），路径支持环境变量动态插值：`${APP_DATA_DIR}`、`${XDG_DATA_HOME}`、`${HOME}` / `%USERPROFILE%` 等，提升跨机可移植性。
 
 ```json5
 {
@@ -95,7 +95,7 @@ bun run build   # 产物: build/mcp-gateway(.exe)
 业务型 MCP 扩展包不安装在本工程源码内，统一在数据层集中管理：
 
 ```bash
-cd "$XDG_DATA_HOME/mcp-gateway"
+cd "$XDG_DATA_HOME/open-mcp-gateway"
 bun add <mcp-package-name>    # 安装
 bun update <pkg>              # 升级
 ```
@@ -117,7 +117,7 @@ http://<gateway-host>:8444/codebase_memory/openapi.json
 bun run test          # 或: .\ps1_scripts\test-gateway.ps1
                       # 端到端断言: 健康检查 / 服务握手 / 代理 Origin 对齐
 
-tail -f "$XDG_STATE_HOME/mcp-gateway/logs/gateway.log"   # 日志观测
+tail -f "$XDG_STATE_HOME/open-mcp-gateway/logs/gateway.log"   # 日志观测
 ```
 
 ## License

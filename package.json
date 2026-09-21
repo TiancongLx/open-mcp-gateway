@@ -1,6 +1,6 @@
 {
     "$schema": "https://json.schemastore.org/package.json",
-    "name": "mcp-gateway",
+    "name": "open-mcp-gateway",
     "version": "1.0.0",
     "private": true,
     "type": "module",
@@ -11,7 +11,7 @@
     "scripts": {
         "start": "bun run ./src/index.ts",
         "test": "bun test",
-        "build": "bun build --compile --minify --sourcemap --bytecode --target=bun-windows-x64 ./src/index.ts --outfile ./build/mcp-gateway.exe"
+        "build": "bun build --compile --minify --sourcemap --bytecode --target=bun-windows-x64 ./src/index.ts --outfile ./build/open-mcp-gateway.exe"
     },
     "dependencies": {
         "@modelcontextprotocol/sdk": "^1.30.0",

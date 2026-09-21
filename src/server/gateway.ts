@@ -198,7 +198,7 @@ export class GatewayServer {
             },
         });
 
-        info(`mcp-gateway 已成功监听在: http://${host}:${port}`);
+        info(`open-mcp-gateway 已成功监听在: http://${host}:${port}`);
     }
 
     public stop(): void {

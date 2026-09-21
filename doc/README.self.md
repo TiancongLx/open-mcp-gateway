@@ -23,7 +23,7 @@
                            ▼
 ┌────────────────────────────────────────────────────────┐
 │               核心路由与协议转换网关                   │
-│                mcp-gateway (:9090)                     │
+│                open-mcp-gateway (:9090)                     │
 │  - OpenAPI 3.1.0 规范生成                              │
 │  - 异步互斥锁 (AsyncMutex) 保障的蓝绿会话池             │
 │  - 跨平台 XDG 四大规范路径与环境变量插值引擎           │
@@ -35,7 +35,7 @@
 ┌─────────────────────────────┐ ┌─────────────────────────────────────────┐
 │        底层原生进程         │ │               串流子进程                │
 │       codebase_memory       │ │          Next AI Draw.io Server         │
-│ (C:/Users/root/.local/bin)  │ │ (C:/Users/root/.local/share/mcp-gateway)│
+│ (C:/Users/root/.local/bin)  │ │ (C:/Users/root/.local/share/open-mcp-gateway)│
 └─────────────────────────────┘ └─────────────────────────────────────────┘
 ```
 
@@ -47,10 +47,10 @@
 
 | 规范目录 | 环境变量 | 默认物理路径 (Windows) | 职能定义 |
 | :--- | :--- | :--- | :--- |
-| **Config** | `XDG_CONFIG_HOME` | `C:\Users\root\.config\mcp-gateway\` | 静态主配置文件 `config.json5` |
-| **Data** | `XDG_DATA_HOME` | `C:\Users\root\.local\share\mcp-gateway\` | 从 npm 安装的外部 MCP 插件仓储（拥有独立的 `package.json`） |
-| **State** | `XDG_STATE_HOME` | `C:\Users\root\.local\state\mcp-gateway\` | 动态状态与运行时持久化日志 `logs\gateway.log` |
-| **Cache** | `XDG_CACHE_HOME` | `C:\Users\root\.cache\mcp-gateway\` | 规范文档缓存与瞬态运行时数据 |
+| **Config** | `XDG_CONFIG_HOME` | `C:\Users\root\.config\open-mcp-gateway\` | 静态主配置文件 `config.json5` |
+| **Data** | `XDG_DATA_HOME` | `C:\Users\root\.local\share\open-mcp-gateway\` | 从 npm 安装的外部 MCP 插件仓储（拥有独立的 `package.json`） |
+| **State** | `XDG_STATE_HOME` | `C:\Users\root\.local\state\open-mcp-gateway\` | 动态状态与运行时持久化日志 `logs\gateway.log` |
+| **Cache** | `XDG_CACHE_HOME` | `C:\Users\root\.cache\open-mcp-gateway\` | 规范文档缓存与瞬态运行时数据 |
 
 ---
 
@@ -60,7 +60,7 @@
 
 ### 1. 动态插值语法
 配置文件中的路径参数支持环境变量动态插值，提升跨机可移植性：
-- `${APP_DATA_DIR}`：直接指向当前应用的专属数据区（即 `XDG_DATA_HOME\mcp-gateway`）。
+- `${APP_DATA_DIR}`：直接指向当前应用的专属数据区（即 `XDG_DATA_HOME\open-mcp-gateway`）。
 - `${XDG_DATA_HOME}`、`${XDG_CONFIG_HOME}` 等：指向系统标准 XDG 根路径。
 - `%USERPROFILE%`、`${HOME}`：展开为操作系统用户家目录。
 
@@ -101,13 +101,13 @@
 本工程代码库内**严禁直接安装业务型 MCP 扩展包**。所有通过 npm / bun 下载的外部 MCP 统一在数据层集中管理。
 
 ### 1. 物理位置
-`C:\Users\root\.local\share\mcp-gateway\`
+`C:\Users\root\.local\share\open-mcp-gateway\`
 
 ### 2. 插件安装与更新命令
 在 PowerShell 中切换至该目录进行操作：
 ```powershell
 # 切换至数据层物理目录
-cd $env:XDG_DATA_HOME\mcp-gateway
+cd $env:XDG_DATA_HOME\open-mcp-gateway
 
 # 安装新的 MCP 服务包
 bun add <mcp-package-name>
@@ -130,7 +130,7 @@ bun run start
 
 # 编译为单文件原生 Windows 可执行文件
 bun run build
-# 产物生成于: build/mcp-gateway.exe
+# 产物生成于: build/open-mcp-gateway.exe
 ```
 
 ### 2. 自动化端到端测试
@@ -142,7 +142,7 @@ bun run build
 ### 3. 持久化日志观测
 日志自动落盘至 XDG 规范的状态目录中：
 ```powershell
-Get-Content "$env:XDG_STATE_HOME\mcp-gateway\logs\gateway.log" -Tail 30 -Wait
+Get-Content "$env:XDG_STATE_HOME\open-mcp-gateway\logs\gateway.log" -Tail 30 -Wait
 ```
 
 ---

@@ -9,7 +9,7 @@ async function main() {
     const xdg = resolveXdg();
     initFileLogging(xdg.logFilePath);
 
-    info(`「mcp-gateway」启动中 (Bun ${Bun.version})...`);
+    info(`「open-mcp-gateway」启动中 (Bun ${Bun.version})...`);
     info(`[XDG Config] 配置文件路径: ${xdg.activeConfigFile}`);
     info(`[XDG State]  运行时日志文件: ${xdg.logFilePath}`);
     info(`[XDG Data]   共享数据存储区: ${xdg.dataHome}`);
@@ -60,7 +60,7 @@ async function main() {
         gateway.stop();
         await pool.shutdown();
 
-        info('mcp-gateway 已安全退出');
+        info('open-mcp-gateway 已安全退出');
         process.exit(0);
     };
 

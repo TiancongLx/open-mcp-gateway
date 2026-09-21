@@ -2,7 +2,7 @@ import { join, resolve } from 'node:path';
 import { homedir } from 'node:os';
 import { existsSync, mkdirSync } from 'node:fs';
 
-const APP_NAME = 'mcp-gateway';
+const APP_NAME = 'open-mcp-gateway';
 
 export interface XdgEnvironment {
     configBase: string;
@@ -41,7 +41,7 @@ export function resolveXdg(): XdgEnvironment {
     }
 
     const candidatePaths = [
-        process.env.MCP_GATEWAY_CONFIG,
+        process.env.MCP_OPEN_GATEWAY_CONFIG,
         join(process.cwd(), 'config.json5'),
         join(configHome, 'config.json5'),
         join(configHome, 'config.json'),

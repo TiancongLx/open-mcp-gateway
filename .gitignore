@@ -3,6 +3,7 @@ node_modules/
 
 # Ignore environment variables (contains sensitive data)
 .env
+.env.example
 
 # Ignore repomix's output file
 repomix-output.xml

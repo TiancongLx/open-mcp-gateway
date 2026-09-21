@@ -1,6 +1,6 @@
 # ==============================================================================
 # Script: ps1_scripts/test-gateway.ps1
-# Description: XDG 规范下 mcp-gateway 自动化断言回归测试
+# Description: XDG 规范下 open-mcp-gateway 自动化断言回归测试
 # ==============================================================================
 
 $ErrorActionPreference = "Stop"
@@ -10,7 +10,7 @@ Set-Location $ProjectRoot
 $env:NO_PROXY = "127.0.0.1,localhost,100.81.173.80"
 
 Write-Host "======================================================================" -ForegroundColor Cyan
-Write-Host ">>> [mcp-gateway] XDG 规范化回归测试套件" -ForegroundColor Cyan
+Write-Host ">>> [open-mcp-gateway] XDG 规范化回归测试套件" -ForegroundColor Cyan
 Write-Host "======================================================================" -ForegroundColor Cyan
 
 # 1. 清理 9090 端口

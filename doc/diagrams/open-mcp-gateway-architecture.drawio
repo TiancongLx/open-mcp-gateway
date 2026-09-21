@@ -19,7 +19,7 @@
     </mxCell>
 
     <!-- 3. 核心路由与协议转换网关 -->
-    <mxCell id="5" value="核心路由与协议转换网关 (mcp-gateway :9090)&#xa;• OpenAPI 3.1.0 规范生成与路由转换&#xa;• 异步互斥锁 (AsyncMutex) 保障的蓝绿会话池&#xa;• 跨平台 XDG 四大规范路径与环境变量插值引擎" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EFF6FF;strokeColor=#2563EB;strokeWidth=2;fontSize=12;fontColor=#1E3A8A;align=center;spacingTop=4;arcSize=12;" vertex="1" parent="1">
+    <mxCell id="5" value="核心路由与协议转换网关 (open-mcp-gateway :9090)&#xa;• OpenAPI 3.1.0 规范生成与路由转换&#xa;• 异步互斥锁 (AsyncMutex) 保障的蓝绿会话池&#xa;• 跨平台 XDG 四大规范路径与环境变量插值引擎" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EFF6FF;strokeColor=#2563EB;strokeWidth=2;fontSize=12;fontColor=#1E3A8A;align=center;spacingTop=4;arcSize=12;" vertex="1" parent="1">
       <mxGeometry x="175" y="235" width="450" height="90" as="geometry"/>
     </mxCell>
 
@@ -34,7 +34,7 @@
     </mxCell>
 
     <!-- 5. XDG 四大规范物理隔离层 -->
-    <mxCell id="8" value="XDG 规范物理布局与运行隔离&#xa;Config: %USERPROFILE%\.config\mcp-gateway\ (config.json5) | Data: %USERPROFILE%\.local\share\mcp-gateway\ (独立 npm 仓储)&#xa;State: %USERPROFILE%\.local\state\mcp-gateway\logs\ (运行时日志) | Cache: %USERPROFILE%\.cache\mcp-gateway\ (瞬态缓存)" style="rounded=1;dashed=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#64748B;strokeWidth=1.5;fontSize=11;fontColor=#334155;arcSize=10;" vertex="1" parent="1">
+    <mxCell id="8" value="XDG 规范物理布局与运行隔离&#xa;Config: %USERPROFILE%\.config\open-mcp-gateway\ (config.json5) | Data: %USERPROFILE%\.local\share\open-mcp-gateway\ (独立 npm 仓储)&#xa;State: %USERPROFILE%\.local\state\open-mcp-gateway\logs\ (运行时日志) | Cache: %USERPROFILE%\.cache\open-mcp-gateway\ (瞬态缓存)" style="rounded=1;dashed=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#64748B;strokeWidth=1.5;fontSize=11;fontColor=#334155;arcSize=10;" vertex="1" parent="1">
       <mxGeometry x="50" y="495" width="700" height="70" as="geometry"/>
     </mxCell>
 
@@ -43,17 +43,17 @@
       <mxGeometry relative="1" as="geometry"/>
     </mxCell>
 
-    <!-- 边 2: Caddy -> mcp-gateway -->
+    <!-- 边 2: Caddy -> open-mcp-gateway -->
     <mxCell id="10" value="HTTP 反向代理转发 (:8444 -&gt; :9090)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=classic;strokeColor=#9333EA;strokeWidth=1.5;fontSize=11;fontColor=#581C87;" edge="1" parent="1" source="4" target="5">
       <mxGeometry relative="1" as="geometry"/>
     </mxCell>
 
-    <!-- 边 3: mcp-gateway -> codebase_memory -->
+    <!-- 边 3: open-mcp-gateway -> codebase_memory -->
     <mxCell id="11" value="JSON-RPC (Native Stdio)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=classic;strokeColor=#059669;strokeWidth=1.5;fontSize=11;fontColor=#064E3B;" edge="1" parent="1" source="5" target="6">
       <mxGeometry relative="1" as="geometry"/>
     </mxCell>
 
-    <!-- 边 4: mcp-gateway -> Next AI Draw.io Server -->
+    <!-- 边 4: open-mcp-gateway -> Next AI Draw.io Server -->
     <mxCell id="12" value="JSON-RPC (Bun Stdio 串流管道)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=classic;strokeColor=#DB2777;strokeWidth=1.5;fontSize=11;fontColor=#831843;" edge="1" parent="1" source="5" target="7">
       <mxGeometry relative="1" as="geometry"/>
     </mxCell>

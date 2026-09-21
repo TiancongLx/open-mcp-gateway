@@ -51,12 +51,12 @@ bun install
 bun run dev
 
 # Or compile into a single native executable
-bun run build   # Output: build/mcp-gateway(.exe)
+bun run build   # Output: build/open-mcp-gateway(.exe)
 ```
 
 ## Configuration
 
-The config file lives at `$XDG_CONFIG_HOME/mcp-gateway/config.json5` (JSON5 format, comments and trailing commas supported). Paths support environment variable interpolation — `${APP_DATA_DIR}`, `${XDG_DATA_HOME}`, `${HOME}` / `%USERPROFILE%`, and more — for cross-machine portability.
+The config file lives at `$XDG_CONFIG_HOME/open-mcp-gateway/config.json5` (JSON5 format, comments and trailing commas supported). Paths support environment variable interpolation — `${APP_DATA_DIR}`, `${XDG_DATA_HOME}`, `${HOME}` / `%USERPROFILE%`, and more — for cross-machine portability.
 
 ```json5
 {
@@ -96,7 +96,7 @@ The config file lives at `$XDG_CONFIG_HOME/mcp-gateway/config.json5` (JSON5 form
 Business MCP extension packages are never installed inside this repository; they are centrally managed in the data directory:
 
 ```bash
-cd "$XDG_DATA_HOME/mcp-gateway"
+cd "$XDG_DATA_HOME/open-mcp-gateway"
 bun add <mcp-package-name>    # install
 bun update <pkg>              # upgrade
 ```
@@ -120,7 +120,7 @@ bun run test          # bun test: concurrency contract tests for AsyncMutex (FIF
                       # shutdown regression — a fake stdio node with a 60s handshake
                       # timeout must still shut down within the 5s watchdog window
 
-tail -f "$XDG_STATE_HOME/mcp-gateway/logs/gateway.log"   # log monitoring
+tail -f "$XDG_STATE_HOME/open-mcp-gateway/logs/gateway.log"   # log monitoring
 ```
 
 ## License
