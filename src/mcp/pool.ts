@@ -33,7 +33,13 @@ export class McpPool {
         } catch (err) {
             warn(`[${name}] 会话连接未能建立: ${err instanceof Error ? err.message : String(err)}`);
             await nextSession.close();
-            this.sessions.set(name, nextSession);
+            // P0-2 修复：连接失败时绝不覆盖既有会话。旧行为用 FAILED 的 nextSession
+            // 顶替 map 中的 oldSession → ① 健康 READY 会话被踢下线（可用性回退）；
+            // ② 旧 stdio 子进程失去唯一引用成为孤儿进程，反复改坏配置即累积泄漏。
+            // 仅在首次注册时登记 FAILED 态，供 /servers 与后续热重载观测。
+            if (!oldSession) {
+                this.sessions.set(name, nextSession);
+            }
         }
     }
 

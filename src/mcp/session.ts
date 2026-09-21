@@ -87,7 +87,7 @@ export class McpSession {
                 { capabilities: {} }
             );
 
-            const timeoutMs = this.config.timeout || 10000;
+            const timeoutMs = this.config.timeout || 50000;
             let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
             const timeoutPromise = new Promise<never>((_, reject) => {
