@@ -34,7 +34,13 @@ export class McpPool {
                 await nextSession.connect(signal ?? this.abortController.signal);
                 this.sessions.set(name, nextSession);
                 if (oldSession && oldSession !== nextSession) {
-                    await oldSession.close();
+                    // 旧会话清理与新会话上线隔离：close 抛错不得落入下方 catch
+                    // （否则会误关已 READY 的新会话，使 map 指向已关闭实例）
+                    try {
+                        await oldSession.close();
+                    } catch (closeErr) {
+                        warn(`[${name}] 旧会话清理失败（新会话不受影响）: ${closeErr instanceof Error ? closeErr.message : String(closeErr)}`);
+                    }
                 }
             } catch (err) {
                 warn(`[${name}] 会话连接未能建立: ${err instanceof Error ? err.message : String(err)}`);
