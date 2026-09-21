@@ -10,6 +10,7 @@
     },
     "scripts": {
         "start": "bun run ./src/index.ts",
+        "test": "bun test",
         "build": "bun build --compile --minify --sourcemap --bytecode --target=bun-windows-x64 ./src/index.ts --outfile ./build/mcp-gateway.exe"
     },
     "dependencies": {
