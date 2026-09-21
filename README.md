@@ -11,6 +11,7 @@ Built with **Bun 1.4** and **TypeScript**. It aggregates locally deployed MCP (M
 - **Strict OpenAPI 3.1.0 contract**: tool inputs are mounted under `requestBody.content['application/json'].schema`; generated `operationId`s match the original tool names exactly, with no `tool_*_post` naming pollution
 - **Full transport coverage**: Native Binary Stdio / Script Stdio / SSE / HTTP unified under one gateway, with protocol wrapping, lifecycle self-healing, and hot reloading
 - **Blue-green session pool**: service session hot-swapping guarded by an AsyncMutex, so config updates never interrupt in-flight requests
+- **Cancellation-aware lifecycle**: connection handshakes accept an `AbortSignal`; graceful shutdown aborts in-flight handshakes and releases sessions instead of deadlocking against the shutdown watchdog. `AsyncMutex` is deliberately **non-reentrant** — nesting `runExclusive` calls on the same key self-deadlocks by contract (covered by regression tests)
 - **Cross-platform XDG layout**: strict separation of config, data, state, and cache directories — zero pollution of the source tree
 - **Single-binary distribution**: `bun build --compile` produces a native executable with no runtime dependencies
 - **Reverse-proxy friendly**: `X-Forwarded-*` headers are parsed automatically, so `servers.url` in OpenAPI documents always reflects the real external base URL
@@ -114,8 +115,10 @@ http://<gateway-host>:8444/codebase_memory/openapi.json
 ## Testing and Logs
 
 ```bash
-bun run test          # or: .\ps1_scripts\test-gateway.ps1
-                      # End-to-end assertions: health check / handshake / proxy origin alignment
+bun run test          # bun test: concurrency contract tests for AsyncMutex (FIFO /
+                      # no-overlap / release-on-throw / non-reentrant) plus the P1
+                      # shutdown regression — a fake stdio node with a 60s handshake
+                      # timeout must still shut down within the 5s watchdog window
 
 tail -f "$XDG_STATE_HOME/mcp-gateway/logs/gateway.log"   # log monitoring
 ```

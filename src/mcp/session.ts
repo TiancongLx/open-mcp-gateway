@@ -32,7 +32,9 @@ export class McpSession {
         public readonly config: McpServerConfig
     ) {}
 
-    public async connect(): Promise<void> {
+    // signal：外部中止信号（P1 修复）。停机时可立即终止进行中的握手，
+    // 未提供时行为与旧版一致（仅受 timeout 约束）。
+    public async connect(signal?: AbortSignal): Promise<void> {
         this.state = 'CONNECTING';
         this.lastError = null;
         debug(`[${this.serverName}] 开始建立通用 MCP 传输连接...`);
@@ -87,7 +89,7 @@ export class McpSession {
                 { capabilities: {} }
             );
 
-            const timeoutMs = this.config.timeout || 10000;
+            const timeoutMs = this.config.timeout || 50000;
             let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
             const timeoutPromise = new Promise<never>((_, reject) => {
@@ -95,6 +97,23 @@ export class McpSession {
                     reject(new Error(`MCP 节点握手超时 (${timeoutMs}ms)`));
                 }, timeoutMs);
             });
+
+            // P1 修复：外部中止 promise。signal 已中止则立即拒绝，否则 abort 事件触发时拒绝。
+            // Promise.race 输方仍会悬挂，赢家抛出后必须在 finally 移除监听，避免 promise 泄漏。
+            // TS 控制流不追踪 Promise executor 回调内的赋值（变量会被收窄为 null → 对其可选调用得到 never）。
+            // 故监听接线提到顶层作用域，用 Promise.withResolvers（ES2024）显式取 reject。
+            let abortCleanup: (() => void) | null = null;
+            let abortPromise: Promise<never> | null = null;
+            if (signal) {
+                const { promise, reject } = Promise.withResolvers<never>();
+                const onAbort = () => reject(new Error('连接握手已被中止 (aborted)'));
+                signal.addEventListener('abort', onAbort, { once: true });
+                abortCleanup = () => signal.removeEventListener('abort', onAbort);
+                if (signal.aborted) {
+                    onAbort();
+                }
+                abortPromise = promise;
+            }
 
             const connectPromise = (async () => {
                 await this.client!.connect(this.transport!);
@@ -105,10 +124,16 @@ export class McpSession {
                 debug(`[${this.serverName}] 异步握手终止通知: ${innerErr instanceof Error ? innerErr.message : String(innerErr)}`);
             });
 
+            const racers: Promise<void>[] = [connectPromise, timeoutPromise];
+            if (abortPromise) {
+                racers.push(abortPromise);
+            }
+
             try {
-                await Promise.race([connectPromise, timeoutPromise]);
+                await Promise.race(racers);
             } finally {
                 if (timeoutId) clearTimeout(timeoutId);
+                abortCleanup?.();
             }
 
             this.state = 'READY';
