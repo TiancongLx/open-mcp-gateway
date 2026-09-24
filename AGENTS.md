@@ -1,6 +1,6 @@
 # AGENTS.md — open-mcp-gateway（OMG）
 
-> 深度上下文用 `manage_adr(project='open-mcp-gateway')` 读取，环境与拓扑见笔记《热启动索引》。（v1.1 · 2026-09-23）
+> 深度上下文用 `manage_adr(project='open-mcp-gateway')` 读取，环境与拓扑见笔记《环境索引》。（v1.2 · 2026-09-24）
 
 ## 这是什么
 
