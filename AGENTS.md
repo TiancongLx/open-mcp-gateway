@@ -25,7 +25,7 @@ OpenAPI 生成器在 `src/openapi/generator.ts`。`OpenApiGenerator.generate` �
 
 ## 约定与陷阱
 
-stdout 是协议通道，诊断信息一律走 stderr，往 stdout 打印任何多余的东西都会破坏协议。工具执行失败时返回 MCP 的 `isError` 结果，不要在协议层抛异常。单图像块结果默认整形为托管媒体描述符 `{screenshot, render}`（模型以 markdown 嵌入回复正文，机制同 AIHubMix；OWUI 会把 `data:` 图像分流为「仅喂模型」，勿退回裸 data URI 路线），三态协商见 `src/server/image-shape.ts`：服务级开关 `owuiImageCompat`（缺省开、显式 false 关）+ `Accept: application/json` 信封逃生口 + `Accept: image/*` 裸字节；文本类结果恒为 JSON 信封，不要扩大整形范围。
+stdout 是协议通道，诊断信息一律走 stderr，往 stdout 打印任何多余的东西都会破坏协议。工具执行失败时返回 MCP 的 `isError` 结果，不要在协议层抛异常。单图像块结果默认整形为托管媒体描述符 `{screenshot, dataUri, render}`（模型视觉与确定性展示由 OWUI 侧车 `contrib/owui/screenshot-vision-sidecar.py` 补全：直取 dataUri 注入视觉 + message.files 落库展示；勿退回裸 data URI 路线），三态协商见 `src/server/image-shape.ts`：服务级开关 `owuiImageCompat`（缺省开、显式 false 关）+ `Accept: application/json` 信封逃生口 + `Accept: image/*` 裸字节；文本类结果恒为 JSON 信封，不要扩大整形范围。
 
 配置走 XDG 加变量插值，`.env` 不入库。将来如果要加 Streamable HTTP 传输，先把本文件和 ADR 更新了再动代码。
 

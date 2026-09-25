@@ -223,6 +223,7 @@ export class GatewayServer {
                                 return Response.json(
                                     {
                                         screenshot: mediaUrl,
+                                        dataUri: `data:${shaped.mimeType};base64,${Buffer.from(shaped.bytes).toString('base64')}`,
                                         render: `请在回复正文以 Markdown 图片语法嵌入此截图以向用户展示：![截图](${mediaUrl})`,
                                     },
                                     { headers: { ...corsHeaders, 'Content-Type': 'application/json; charset=utf-8' } }

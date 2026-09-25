@@ -38,12 +38,14 @@ describe('OWUI 图像兼容整形（三态协商，HTTP 集成）', () => {
                 body: '{}'
             });
 
-        // 1. 默认 media：描述符 + 截图 URL 回源字节保全
+        // 1. 默认 media：描述符（含 dataUri 供侧车免取图注入）+ 截图 URL 回源字节保全
         const media = await call('shot');
         expect(media.headers.get('content-type')).toContain('application/json');
         const desc = (await media.json()) as any;
         expect(desc.screenshot).toContain('/media/');
         expect(desc.render).toContain('![');
+        expect(String(desc.dataUri)).toMatch(/^data:image\/png;base64,/);
+        expect(Buffer.from(String(desc.dataUri).split(',')[1], 'base64').equals(PNG_BYTES)).toBe(true);
         const imgResp = await fetch(desc.screenshot);
         expect(imgResp.status).toBe(200);
         expect(imgResp.headers.get('content-type')).toBe('image/png');
