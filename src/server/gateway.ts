@@ -1,7 +1,8 @@
 import { info, error, warn } from '@/utils/logger';
 import { McpPool } from '@/mcp/pool';
 import { OpenApiGenerator } from '@/openapi/generator';
-import { isImageCompatEnabled, shouldShapeImage, shapeImageResult } from '@/server/image-shape';
+import { isImageCompatEnabled, resolveImageMode, shapeImageResult } from '@/server/image-shape';
+import { getMedia, putMedia } from '@/server/media-store';
 
 export interface GatewayServerOptions {
     port: number;
@@ -78,6 +79,22 @@ export class GatewayServer {
 
                     const normalizedPath = path.replace(/\/+$/, '');
                     const publicOrigin = this.resolvePublicOrigin(req);
+
+                    // 2b. 媒体托管（截图）：GET /media/{name} → 裸图像字节，供对话流 <img> 直接加载
+                    const mediaMatch = normalizedPath.match(/^\/media\/([\w.-]+)$/);
+                    if (mediaMatch && method === 'GET') {
+                        const media = await getMedia(mediaMatch[1]);
+                        if (!media) {
+                            return Response.json({ error: 'Media not found or expired' }, { status: 404, headers: corsHeaders });
+                        }
+                        return new Response(media.bytes, {
+                            headers: {
+                                ...corsHeaders,
+                                'Content-Type': media.mimeType,
+                                'Cache-Control': 'public, max-age=86400',
+                            },
+                        });
+                    }
 
                     // 3. OpenAPI 规范端点
                     let openApiServerName: string | null = null;
@@ -179,21 +196,37 @@ export class GatewayServer {
                         info(`[工具执行] 服务: [${matchedServer}], 工具: [${matchedTool}]`);
                         const executionResult = await session.callTool(matchedTool, body);
 
-                        // OWUI 兼容整形（服务级开关 + 内容协商，见 image-shape.ts）：开关为开（缺省）
-                        // 且未显式要求 JSON 信封时，单图像块结果以裸图像字节返回（对应 OWUI
-                        // process_tool_result 的二进制图像入口，对话流内联渲染）；开关为关或整形
-                        // 不适用时维持 CallToolResult JSON 信封。
-                        if (shouldShapeImage(req.headers, isImageCompatEnabled(session.config))) {
+                        // OWUI 兼容整形（服务级开关 + 三态内容协商，见 image-shape.ts）：
+                        //   media（缺省）= 入 media-store 换托管 URL，模型按 render 指引以 markdown
+                        //     嵌入回复正文（与 AIHubMix 托管 URL 渲染机制同构，绕开 OWUI
+                        //     「data: 图像仅喂模型」分流，用户在对话流直接看到截图）；
+                        //   raw（Accept 显式 image/*）= 裸图像字节；
+                        //   envelope（开关关 / 显式 Accept: application/json / 整形不适用）
+                        //     = CallToolResult JSON 信封。
+                        const imageMode = resolveImageMode(req.headers, isImageCompatEnabled(session.config));
+                        if (imageMode !== 'envelope') {
                             const shaped = shapeImageResult(executionResult, matchedTool);
                             if (shaped) {
-                                info(`[工具执行] OWUI 图像整形生效: [${matchedServer}/${matchedTool}] ${shaped.mimeType} ${shaped.bytes.byteLength}B`);
-                                return new Response(shaped.bytes, {
-                                    headers: {
-                                        ...corsHeaders,
-                                        'Content-Type': shaped.mimeType,
-                                        'Content-Disposition': `inline; filename="${shaped.filename}"`,
+                                if (imageMode === 'raw') {
+                                    info(`[工具执行] 图像整形(raw): [${matchedServer}/${matchedTool}] ${shaped.mimeType} ${shaped.bytes.byteLength}B`);
+                                    return new Response(shaped.bytes, {
+                                        headers: {
+                                            ...corsHeaders,
+                                            'Content-Type': shaped.mimeType,
+                                            'Content-Disposition': `inline; filename="${shaped.filename}"`,
+                                        },
+                                    });
+                                }
+                                const mediaName = await putMedia(shaped.bytes, shaped.mimeType);
+                                const mediaUrl = `${publicOrigin}/media/${mediaName}`;
+                                info(`[工具执行] 图像整形(media): [${matchedServer}/${matchedTool}] ${mediaUrl} ${shaped.bytes.byteLength}B`);
+                                return Response.json(
+                                    {
+                                        screenshot: mediaUrl,
+                                        render: `请在回复正文以 Markdown 图片语法嵌入此截图以向用户展示：![截图](${mediaUrl})`,
                                     },
-                                });
+                                    { headers: { ...corsHeaders, 'Content-Type': 'application/json; charset=utf-8' } }
+                                );
                             }
                         }
 

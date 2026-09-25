@@ -1,9 +1,9 @@
-// OWUI 图像整形（服务级开关 + 内容协商）集成测试：起真实 GatewayServer + 图像夹具节点，走 HTTP 断言响应形态。
+// OWUI 图像整形（服务级开关 + 三态协商）HTTP 集成测试：真实 GatewayServer + 图像夹具节点。
 // 覆盖契约：
-//   1. 默认（开关开 + 未显式协商）：单图像块结果 → 200 + image/png 裸字节 + inline 头（auto 语义）
-//   2. 显式 Accept: application/json → 200 + JSON CallToolResult 信封（程序化消费者逃生口）
-//   3. 整形不适用（多图像块 / 纯文本 / isError）→ 一律回落 JSON 信封
-//   4. 字节级保真：裸字节与夹具 base64 解码结果一致；历史别名头 X-OMG-Compat 保持生效
+//   1. 默认（media）：单图像块结果 → {screenshot, render} 描述符；GET 截图 URL → 裸图像字节
+//   2. Accept: image/* → 裸图像字节；Accept: application/json → JSON 信封（逃生口）
+//   3. 整形不适用（多图像块 / 纯文本 / isError）→ JSON 信封
+//   4. 媒体路由安全：未知/穿越文件名 → 404
 import { describe, test, expect, onTestFinished } from 'bun:test';
 import { join, resolve } from 'node:path';
 import { McpPool } from '../src/mcp/pool';
@@ -17,8 +17,8 @@ const BASE = `http://127.0.0.1:${PORT}`;
 const PNG = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 const PNG_BYTES = Buffer.from(PNG, 'base64');
 
-describe('OWUI 图像兼容整形（HTTP 集成）', () => {
-    test('auto 出图 / JSON 逃生口 / 回落 / 字节保全全链路', async () => {
+describe('OWUI 图像兼容整形（三态协商，HTTP 集成）', () => {
+    test('media 描述符 / 媒体回源 / raw / 信封 / 回落全链路', async () => {
         const pool = new McpPool();
         await pool.addServer('img', { command: process.execPath, args: [FIXTURE], timeout: 15000 } as any);
         expect(pool.getSession('img')?.state).toBe('READY');
@@ -38,23 +38,24 @@ describe('OWUI 图像兼容整形（HTTP 集成）', () => {
                 body: '{}'
             });
 
-        // 1. 默认 auto：裸图像字节（含 Accept: */* 与无头两种形态）
-        for (const headers of [{}, { Accept: '*/*' }] as const) {
-            const shaped = await call('shot', headers as Record<string, string>);
-            expect(shaped.status).toBe(200);
-            expect(shaped.headers.get('content-type')).toBe('image/png');
-            expect(shaped.headers.get('content-disposition')).toContain('inline');
-            expect(shaped.headers.get('content-disposition')).toContain('shot.png');
-            const shapedBytes = Buffer.from(await shaped.arrayBuffer());
-            expect(shapedBytes.equals(PNG_BYTES)).toBe(true);
-            expect(Array.from(shapedBytes.slice(0, 4))).toEqual([0x89, 0x50, 0x4e, 0x47]);
-        }
+        // 1. 默认 media：描述符 + 截图 URL 回源字节保全
+        const media = await call('shot');
+        expect(media.headers.get('content-type')).toContain('application/json');
+        const desc = (await media.json()) as any;
+        expect(desc.screenshot).toContain('/media/');
+        expect(desc.render).toContain('![');
+        const imgResp = await fetch(desc.screenshot);
+        expect(imgResp.status).toBe(200);
+        expect(imgResp.headers.get('content-type')).toBe('image/png');
+        const imgBytes = Buffer.from(await imgResp.arrayBuffer());
+        expect(imgBytes.equals(PNG_BYTES)).toBe(true);
 
-        // 1b. 历史别名头保持生效
-        const byAlias = await call('shot', { 'X-OMG-Compat': 'owui-image' });
-        expect(byAlias.headers.get('content-type')).toBe('image/png');
+        // 2a. Accept: image/* → 裸字节
+        const raw = await call('shot', { Accept: 'image/png' });
+        expect(raw.headers.get('content-type')).toBe('image/png');
+        expect(Buffer.from(await raw.arrayBuffer()).equals(PNG_BYTES)).toBe(true);
 
-        // 2. 显式 Accept: application/json → JSON 信封（逃生口）
+        // 2b. Accept: application/json → 信封（逃生口）
         const envelope = await call('shot', { Accept: 'application/json' });
         expect(envelope.headers.get('content-type')).toContain('application/json');
         const envelopeBody = (await envelope.json()) as any;
@@ -67,5 +68,11 @@ describe('OWUI 图像兼容整形（HTTP 集成）', () => {
             const body = (await resp.json()) as any;
             expect(Array.isArray(body.content)).toBe(true);
         }
+
+        // 4. 媒体路由安全：未知与穿越文件名 → 404
+        const missing = await fetch(`${BASE}/media/nonexistent-abc123.png`);
+        expect(missing.status).toBe(404);
+        const traversal = await fetch(`${BASE}/media/..%2F..%2Fetc%2Fpasswd`);
+        expect(traversal.status).toBe(404);
     }, 30000);
 });

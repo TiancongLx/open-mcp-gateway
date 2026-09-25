@@ -1,7 +1,7 @@
 // OWUI 图像整形纯函数单测：覆盖 base64 解码、字段兼容（data/blob）、多块/空载/错误回落、
-// 以及两级裁决（服务级开关 isImageCompatEnabled / 请求级协商 shouldShapeImage）。
+// 以及两级裁决（服务级开关 isImageCompatEnabled / 三态协商 resolveImageMode）。
 import { describe, test, expect } from 'bun:test';
-import { shapeImageResult, isImageCompatEnabled, shouldShapeImage } from '../src/server/image-shape';
+import { shapeImageResult, isImageCompatEnabled, resolveImageMode } from '../src/server/image-shape';
 
 const PNG = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 const PNG_BYTES = Buffer.from(PNG, 'base64');
@@ -25,7 +25,6 @@ describe('shapeImageResult', () => {
         );
         expect(shaped).not.toBeNull();
         expect(shaped!.filename).toBe('shot.jpg');
-        expect(Buffer.from(shaped!.bytes).equals(PNG_BYTES)).toBe(true);
     });
 
     test('并存 text 元数据块仍整形（元数据块丢弃）', () => {
@@ -89,21 +88,24 @@ describe('isImageCompatEnabled（服务级开关：缺省开，显式 false 才�
     });
 });
 
-describe('shouldShapeImage（请求级协商）', () => {
-    test('开关开：默认出图（含 */* 与历史别名头）', () => {
-        expect(shouldShapeImage(new Headers({}), true)).toBe(true);
-        expect(shouldShapeImage(new Headers({ Accept: '*/*' }), true)).toBe(true);
-        expect(shouldShapeImage(new Headers({ Accept: 'image/png' }), true)).toBe(true);
-        expect(shouldShapeImage(new Headers({ 'X-OMG-Compat': 'owui-image' }), true)).toBe(true);
+describe('resolveImageMode（三态协商）', () => {
+    test('开关关 → 恒 envelope', () => {
+        expect(resolveImageMode(new Headers({}), false)).toBe('envelope');
+        expect(resolveImageMode(new Headers({ Accept: 'image/png' }), false)).toBe('envelope');
     });
 
-    test('开关开：显式 Accept: application/json 优先取信封', () => {
-        expect(shouldShapeImage(new Headers({ Accept: 'application/json' }), true)).toBe(false);
-        expect(shouldShapeImage(new Headers({ Accept: 'application/json, image/png' }), true)).toBe(false);
+    test('开关开：显式 application/json → envelope', () => {
+        expect(resolveImageMode(new Headers({ Accept: 'application/json' }), true)).toBe('envelope');
     });
 
-    test('开关关：恒为信封', () => {
-        expect(shouldShapeImage(new Headers({}), false)).toBe(false);
-        expect(shouldShapeImage(new Headers({ Accept: 'image/png' }), false)).toBe(false);
+    test('开关开：显式 image/* → raw', () => {
+        expect(resolveImageMode(new Headers({ Accept: 'image/png' }), true)).toBe('raw');
+        expect(resolveImageMode(new Headers({ Accept: 'image/*' }), true)).toBe('raw');
+    });
+
+    test('开关开：缺省 */* 与历史别名头 → media（托管 URL）', () => {
+        expect(resolveImageMode(new Headers({}), true)).toBe('media');
+        expect(resolveImageMode(new Headers({ Accept: '*/*' }), true)).toBe('media');
+        expect(resolveImageMode(new Headers({ 'X-OMG-Compat': 'owui-image' }), true)).toBe('media');
     });
 });

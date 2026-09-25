@@ -42,13 +42,17 @@ export class OpenApiGenerator {
                     responses: {
                         '200': {
                             description:
-                                'Tool execution result, content-negotiated. Default (Accept: */* or image/*): ' +
-                                'when the result carries exactly one MCP image block, the response is raw image ' +
-                                'bytes (Content-Type: image/*, Content-Disposition: inline); otherwise a JSON ' +
-                                'CallToolResult envelope. Explicit Accept: application/json always yields the ' +
-                                'JSON envelope. Per-server switch: set owuiImageCompat=false in the gateway ' +
-                                'config to pin this server to the JSON envelope. Historical alias: ' +
-                                'X-OMG-Compat: owui-image.',
+                                'Tool execution result, content-negotiated with three representations. ' +
+                                'Default (Accept: */*): for results carrying exactly one MCP image block, ' +
+                                'the image is stored as gateway-hosted media and the response is a JSON ' +
+                                'descriptor {screenshot: <media URL>, render: <markdown hint>} so the caller ' +
+                                'can embed it via markdown (same hosted-URL rendering mechanism as AIHubMix); ' +
+                                'otherwise a JSON CallToolResult envelope. Explicit Accept: image/* yields ' +
+                                'raw image bytes (Content-Type: image/*). Explicit Accept: application/json ' +
+                                'always yields the JSON CallToolResult envelope. Per-server switch: ' +
+                                'owuiImageCompat=false pins the server to the envelope. Historical alias: ' +
+                                'X-OMG-Compat: owui-image. Hosted media is served at GET /media/{name} ' +
+                                '(TTL-bounded).',
                             content: {
                                 'application/json': {
                                     schema: {
