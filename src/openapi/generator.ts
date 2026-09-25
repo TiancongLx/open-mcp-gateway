@@ -41,7 +41,11 @@ export class OpenApiGenerator {
                     },
                     responses: {
                         '200': {
-                            description: 'Tool execution result',
+                            description:
+                                'Tool execution result. When the request negotiates raw image output ' +
+                                '(X-OMG-Compat: owui-image, or Accept explicitly containing image/*) and the ' +
+                                'result carries exactly one image block, the response is raw image bytes; ' +
+                                'otherwise a JSON CallToolResult envelope.',
                             content: {
                                 'application/json': {
                                     schema: {
@@ -53,6 +57,13 @@ export class OpenApiGenerator {
                                             },
                                             isError: { type: 'boolean' },
                                         },
+                                    },
+                                },
+                                'image/png': {
+                                    schema: {
+                                        type: 'string',
+                                        contentEncoding: 'base64',
+                                        contentMediaType: 'image/png',
                                     },
                                 },
                             },

@@ -25,7 +25,7 @@ OpenAPI 生成器在 `src/openapi/generator.ts`。`OpenApiGenerator.generate` �
 
 ## 约定与陷阱
 
-stdout 是协议通道，诊断信息一律走 stderr，往 stdout 打印任何多余的东西都会破坏协议。工具执行失败时返回 MCP 的 `isError` 结果，不要在协议层抛异常。
+stdout 是协议通道，诊断信息一律走 stderr，往 stdout 打印任何多余的东西都会破坏协议。工具执行失败时返回 MCP 的 `isError` 结果，不要在协议层抛异常。工具响应默认是 CallToolResult JSON 信封；仅当请求显式协商图像输出（`X-OMG-Compat: owui-image` 或 Accept 显式含 `image/*`）且结果恰好含一个图像块时，才整形为裸图像字节（见 `src/server/image-shape.ts`），不要扩大整形范围。
 
 配置走 XDG 加变量插值，`.env` 不入库。将来如果要加 Streamable HTTP 传输，先把本文件和 ADR 更新了再动代码。
 

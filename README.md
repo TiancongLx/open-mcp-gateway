@@ -112,13 +112,25 @@ http://<gateway-host>:8444/codebase_memory/openapi.json
 
 3. Done. Open WebUI can now use all of your local MCP services as native tools.
 
+### OWUI Image Rendering (Content Negotiation)
+
+By default, tool results are returned as a JSON `CallToolResult` envelope. When the caller explicitly negotiates raw image output and the result carries **exactly one** MCP image block, the gateway instead returns raw image bytes (`Content-Type: image/*`, `Content-Disposition: inline`), which Open WebUI wraps into a data URI and renders inline in the conversation flow (tool card), keeping base64 out of the model context.
+
+Trigger (either one):
+
+- Request header `X-OMG-Compat: owui-image` (recommended; set it in the OWUI tool-server connection's custom headers)
+- `Accept` explicitly containing `image/*` (the default `*/*` does NOT trigger)
+
+Fallbacks stay on the JSON envelope: multiple image blocks, text-only results, `isError` results, or un-negotiated calls. See `src/server/image-shape.ts` and `tests/gateway.compat.test.ts`.
+
 ## Testing and Logs
 
 ```bash
 bun run test          # bun test: concurrency contract tests for AsyncMutex (FIFO /
-                      # no-overlap / release-on-throw / non-reentrant) plus the P1
-                      # shutdown regression — a fake stdio node with a 60s handshake
-                      # timeout must still shut down within the 5s watchdog window
+                      # no-overlap / release-on-throw / non-reentrant), the P1
+                      # shutdown regression (60s-handshake node must still shut down
+                      # within the 5s watchdog window), pool hot-reload contracts, and
+                      # the OWUI image content-negotiation suite (unit + HTTP integration)
 
 tail -f "$XDG_STATE_HOME/open-mcp-gateway/logs/gateway.log"   # log monitoring
 ```

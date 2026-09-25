@@ -1,6 +1,7 @@
 import { info, error, warn } from '@/utils/logger';
 import { McpPool } from '@/mcp/pool';
 import { OpenApiGenerator } from '@/openapi/generator';
+import { isOwuiImageCompat, shapeImageResult } from '@/server/image-shape';
 
 export interface GatewayServerOptions {
     port: number;
@@ -41,7 +42,7 @@ export class GatewayServer {
                 const corsHeaders = {
                     'Access-Control-Allow-Origin': '*',
                     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-                    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Forwarded-Host, X-Forwarded-Proto',
+                    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Forwarded-Host, X-Forwarded-Proto, X-OMG-Compat, Accept',
                 };
 
                 if (method === 'OPTIONS') {
@@ -177,6 +178,23 @@ export class GatewayServer {
 
                         info(`[工具执行] 服务: [${matchedServer}], 工具: [${matchedTool}]`);
                         const executionResult = await session.callTool(matchedTool, body);
+
+                        // OWUI 兼容整形（内容协商，见 image-shape.ts）：显式协商图像响应且结果恰好
+                        // 携带一个图像块时，以裸图像字节返回（对应 OWUI process_tool_result 的二进制
+                        // 图像入口，对话流内联渲染）；未协商或整形不适用时维持 CallToolResult JSON 信封。
+                        if (isOwuiImageCompat(req.headers)) {
+                            const shaped = shapeImageResult(executionResult, matchedTool);
+                            if (shaped) {
+                                info(`[工具执行] OWUI 图像整形生效: [${matchedServer}/${matchedTool}] ${shaped.mimeType} ${shaped.bytes.byteLength}B`);
+                                return new Response(shaped.bytes, {
+                                    headers: {
+                                        ...corsHeaders,
+                                        'Content-Type': shaped.mimeType,
+                                        'Content-Disposition': `inline; filename="${shaped.filename}"`,
+                                    },
+                                });
+                            }
+                        }
 
                         return Response.json(executionResult, {
                             headers: {
