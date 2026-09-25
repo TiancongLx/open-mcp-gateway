@@ -1,3 +1,8 @@
+# 【已废除 · 2026-09-25 · 实测不可行】本侧车的 files 附件 URL 指向网关内网地址
+# （127.0.0.1:9090/media/...），手机端无法加载，真实多端会话展示不成立；其视觉注入
+# （dataUri 合并）虽服务端验证可用，但整体路线随展示失败废除。已被网关直写方案取代
+# （src/server/owui-attach.ts，方案 B：裸 data: URI 工具结果 + OWUI 托管文件 URL
+# 挂 message.files 双写语义）。本文件仅存档备查，勿再安装到 OWUI。
 """
 title: Screenshot Vision Sidecar
 author: OMG contrib
