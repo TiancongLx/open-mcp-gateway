@@ -1,7 +1,16 @@
-// OWUI 兼容整形（内容协商）：MCP CallToolResult 中「恰好一个图像块」的结果可协商为裸图像字节响应。
-// 背景（OWUI 源码 utils/middleware.py process_tool_result）：execute_tool_server 收到非 JSON 的
-// image/* 响应时包装为 data:image/... 字符串 → 转入 tool_result_files → 对话流工具卡片内联渲染，
-// 模型侧仅保留摘要文本，避免 base64 撑爆上下文。默认（不带兼容协商头）行为不变，仍返回 JSON 信封。
+// OWUI 兼容整形（服务级开关 + 内容协商）：MCP CallToolResult 中「恰好一个图像块」的结果
+// 可整形为裸图像字节响应。背景（OWUI 源码 utils/middleware.py process_tool_result）：
+// execute_tool_server 收到非 JSON 的 image/* 响应时包装为 data:image/... 字符串 → 转入
+// tool_result_files → 对话流工具卡片内联渲染，模型侧仅保留摘要文本，base64 不进上下文。
+//
+// 两级裁决：
+//   1. 服务级开关（config.json5 各 MCP 服务的 owuiImageCompat 字段）：缺省 = 开；
+//      false = 关，该服务所有响应恒为 JSON 信封（功能总闸）。
+//   2. 请求级协商：显式 Accept: application/json 优先取信封（程序化消费者逃生口）；
+//      其余情况（含默认 */* 与历史别名 X-OMG-Compat: owui-image）按「开」的语义出图。
+//
+// 类型契约采用 MCP SDK 原语（CallToolResult / ImageContent），语义边界以 MCP 规范为准。
+import type { CallToolResult, ImageContent } from '@modelcontextprotocol/sdk/types.js';
 
 export interface ShapedImage {
     bytes: Uint8Array;
@@ -23,23 +32,28 @@ function extForMime(mimeType: string): string {
     return MIME_EXT[mimeType.toLowerCase()] ?? 'bin';
 }
 
-// 协商判定：显式 X-OMG-Compat: owui-image，或 Accept 显式声明 image/* 类型。
-// 注意：aiohttp/浏览器默认的 Accept: */* 不触发（语义不明，避免误整形非图像结果）。
-export function isOwuiImageCompat(headers: Headers): boolean {
-    const compat = (headers.get('x-omg-compat') ?? '').trim().toLowerCase();
-    if (compat === 'owui-image') {
-        return true;
+// 服务级开关裁决：仅当显式配置为 false 时关闭（缺省 = 开）。
+export function isImageCompatEnabled(config: { owuiImageCompat?: boolean } | null | undefined): boolean {
+    return config?.owuiImageCompat !== false;
+}
+
+// 请求级协商裁决（在服务级开关为开的前提下）：
+// 显式 Accept: application/json → false（取 JSON 信封）；其余 → true。
+// 历史别名 X-OMG-Compat: owui-image / Accept: image/* 在开关为开时本就生效，保留兼容语义。
+export function shouldShapeImage(headers: Headers, compatEnabled: boolean): boolean {
+    if (!compatEnabled) {
+        return false;
     }
     const accept = headers.get('accept') ?? '';
-    return /image\//i.test(accept);
+    return !/application\/json/i.test(accept);
 }
 
 // 整形条件（全部满足才生效，否则原样回落 JSON 信封）：
 //   1. 非 isError 结果；2. content 为数组；3. 恰好一个 type=image 块；
-//   4. 该块携带非空 data 或 blob（MCP 规范为 data，兼容 OWUI 侧的 blob 命名）。
+//   4. 该块携带非空 data（MCP 规范字段）或 blob（OWUI 侧命名，兼容回退）。
 // 允许并存 text 等元数据块（整形时丢弃；模型侧由 OWUI 替换为摘要文本）。
 export function shapeImageResult(result: unknown, toolName: string): ShapedImage | null {
-    const record = result as { content?: unknown[]; isError?: boolean } | null;
+    const record = result as Partial<CallToolResult> | null;
     if (!record || typeof record !== 'object' || record.isError === true) {
         return null;
     }
@@ -48,7 +62,7 @@ export function shapeImageResult(result: unknown, toolName: string): ShapedImage
         return null;
     }
 
-    const images = content.filter((block): block is { type: string; mimeType?: string; data?: string; blob?: string } => {
+    const images = content.filter((block): block is ImageContent => {
         const b = block as { type?: unknown } | null;
         return !!b && typeof b === 'object' && b.type === 'image';
     });
@@ -57,11 +71,12 @@ export function shapeImageResult(result: unknown, toolName: string): ShapedImage
     }
 
     const image = images[0];
+    const blob = (image as { blob?: unknown }).blob;
     const payload =
         typeof image.data === 'string' && image.data.length > 0
             ? image.data
-            : typeof image.blob === 'string' && image.blob.length > 0
-                ? image.blob
+            : typeof blob === 'string' && blob.length > 0
+                ? blob
                 : null;
     if (!payload) {
         return null;

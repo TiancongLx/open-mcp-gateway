@@ -42,10 +42,13 @@ export class OpenApiGenerator {
                     responses: {
                         '200': {
                             description:
-                                'Tool execution result. When the request negotiates raw image output ' +
-                                '(X-OMG-Compat: owui-image, or Accept explicitly containing image/*) and the ' +
-                                'result carries exactly one image block, the response is raw image bytes; ' +
-                                'otherwise a JSON CallToolResult envelope.',
+                                'Tool execution result, content-negotiated. Default (Accept: */* or image/*): ' +
+                                'when the result carries exactly one MCP image block, the response is raw image ' +
+                                'bytes (Content-Type: image/*, Content-Disposition: inline); otherwise a JSON ' +
+                                'CallToolResult envelope. Explicit Accept: application/json always yields the ' +
+                                'JSON envelope. Per-server switch: set owuiImageCompat=false in the gateway ' +
+                                'config to pin this server to the JSON envelope. Historical alias: ' +
+                                'X-OMG-Compat: owui-image.',
                             content: {
                                 'application/json': {
                                     schema: {
@@ -62,8 +65,8 @@ export class OpenApiGenerator {
                                 'image/png': {
                                     schema: {
                                         type: 'string',
-                                        contentEncoding: 'base64',
                                         contentMediaType: 'image/png',
+                                        description: 'Raw image bytes of the single-image tool result.',
                                     },
                                 },
                             },
