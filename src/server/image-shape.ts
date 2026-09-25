@@ -7,14 +7,14 @@
 // 三态表示（resolveImageMode）：
 //   1. envelope —— CallToolResult JSON 信封（服务级开关关，或显式 Accept: application/json）
 //   2. raw      —— 裸图像字节（Accept 显式含 image/*；直接二进制消费者）
-//   3. media    —— 托管 URL 描述符 JSON（缺省 */*；图像入 media-store，回传
-//                  {screenshot, render}，模型按 render 指引以 markdown 嵌入回复正文，
-//                  与 AIHubMix 的托管 URL 渲染机制同构）
+//   3. attach   —— 裸 data: URI 字符串（缺省 */*；方案 B 默认态）：OWUI 把
+//                  data: 图像工具结果分流为 input_image（同轮喂模型），网关同步
+//                  副作用挂 message.files 补用户展示（见 owui-attach.ts）。
 //
 // 类型契约采用 MCP SDK 原语（CallToolResult / ImageContent）；blob 为 OWUI 侧命名兼容回退。
 import type { CallToolResult, ImageContent } from '@modelcontextprotocol/sdk/types.js';
 
-export type ImageMode = 'envelope' | 'raw' | 'media';
+export type ImageMode = 'envelope' | 'raw' | 'attach';
 
 export interface ShapedImage {
     bytes: Uint8Array;
@@ -42,8 +42,8 @@ export function isImageCompatEnabled(config: { owuiImageCompat?: boolean } | nul
 }
 
 // 请求级协商（服务级开关为开时）：
-//   显式 Accept: application/json → envelope；显式 Accept: image/* → raw；其余（含 */*）→ media。
-// 历史别名 X-OMG-Compat: owui-image 保留（等价于 media，兼容既有配置）。
+//   显式 Accept: application/json → envelope；显式 Accept: image/* → raw；其余（含 */*）→ attach。
+// 历史别名 X-OMG-Compat: owui-image 保留（等价于 attach，兼容既有配置）。
 export function resolveImageMode(headers: Headers, compatEnabled: boolean): ImageMode {
     if (!compatEnabled) {
         return 'envelope';
@@ -55,7 +55,7 @@ export function resolveImageMode(headers: Headers, compatEnabled: boolean): Imag
     if (/image\//i.test(accept)) {
         return 'raw';
     }
-    return 'media';
+    return 'attach';
 }
 
 // 整形条件（全部满足才生效，否则原样回落 JSON 信封）：

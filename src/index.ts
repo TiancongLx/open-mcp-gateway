@@ -26,11 +26,13 @@ async function main() {
     const host = process.env.HOST || initialConfig.host || '127.0.0.1';
 
     const gateway = new GatewayServer(pool, { port, host });
+    gateway.setOwuiConfig(initialConfig.owui);
     gateway.start();
 
     // 4. 注册文件监控与热重载
     configManager.watch(async (newConfig) => {
         await pool.reconcile(newConfig);
+        gateway.setOwuiConfig(newConfig.owui);
     });
 
     // 5. 初始化已有 MCP 服务池

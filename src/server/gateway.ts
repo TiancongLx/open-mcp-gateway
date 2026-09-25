@@ -2,7 +2,7 @@ import { info, error, warn } from '@/utils/logger';
 import { McpPool } from '@/mcp/pool';
 import { OpenApiGenerator } from '@/openapi/generator';
 import { isImageCompatEnabled, resolveImageMode, shapeImageResult } from '@/server/image-shape';
-import { getMedia, putMedia } from '@/server/media-store';
+import { attachImageToOwuiMessage, resolveAttachTarget, type OwuiAttachConfig } from '@/server/owui-attach';
 
 export interface GatewayServerOptions {
     port: number;
@@ -12,6 +12,7 @@ export interface GatewayServerOptions {
 export class GatewayServer {
     private server: ReturnType<typeof Bun.serve> | null = null;
     private isPoolReady = false;
+    private owuiConfig: OwuiAttachConfig | null = null;
 
     constructor(
         private readonly pool: McpPool,
@@ -20,6 +21,11 @@ export class GatewayServer {
 
     public setPoolReady(ready: boolean): void {
         this.isPoolReady = ready;
+    }
+
+    // OWUI 直写配置（attach 副作用目标）：随 config 热重载更新；base/token 任一缺失即视为未配置。
+    public setOwuiConfig(config: OwuiAttachConfig | null | undefined): void {
+        this.owuiConfig = config && config.base && config.token ? config : null;
     }
 
     private resolvePublicOrigin(req: Request): string {
@@ -79,22 +85,6 @@ export class GatewayServer {
 
                     const normalizedPath = path.replace(/\/+$/, '');
                     const publicOrigin = this.resolvePublicOrigin(req);
-
-                    // 2b. 媒体托管（截图）：GET /media/{name} → 裸图像字节，供对话流 <img> 直接加载
-                    const mediaMatch = normalizedPath.match(/^\/media\/([\w.-]+)$/);
-                    if (mediaMatch && method === 'GET') {
-                        const media = await getMedia(mediaMatch[1]);
-                        if (!media) {
-                            return Response.json({ error: 'Media not found or expired' }, { status: 404, headers: corsHeaders });
-                        }
-                        return new Response(media.bytes, {
-                            headers: {
-                                ...corsHeaders,
-                                'Content-Type': media.mimeType,
-                                'Cache-Control': 'public, max-age=86400',
-                            },
-                        });
-                    }
 
                     // 3. OpenAPI 规范端点
                     let openApiServerName: string | null = null;
@@ -197,9 +187,9 @@ export class GatewayServer {
                         const executionResult = await session.callTool(matchedTool, body);
 
                         // OWUI 兼容整形（服务级开关 + 三态内容协商，见 image-shape.ts）：
-                        //   media（缺省）= 入 media-store 换托管 URL，模型按 render 指引以 markdown
-                        //     嵌入回复正文（与 AIHubMix 托管 URL 渲染机制同构，绕开 OWUI
-                        //     「data: 图像仅喂模型」分流，用户在对话流直接看到截图）；
+                        //   attach（缺省）= 裸 data: URI 字符串：OWUI 将其分流为
+                        //     input_image（同轮喂模型），网关同步副作用把同一图像挂入
+                        //     message.files 补用户展示（owui-attach.ts 双写语义）；
                         //   raw（Accept 显式 image/*）= 裸图像字节；
                         //   envelope（开关关 / 显式 Accept: application/json / 整形不适用）
                         //     = CallToolResult JSON 信封。
@@ -217,17 +207,19 @@ export class GatewayServer {
                                         },
                                     });
                                 }
-                                const mediaName = await putMedia(shaped.bytes, shaped.mimeType);
-                                const mediaUrl = `${publicOrigin}/media/${mediaName}`;
-                                info(`[工具执行] 图像整形(media): [${matchedServer}/${matchedTool}] ${mediaUrl} ${shaped.bytes.byteLength}B`);
-                                return Response.json(
-                                    {
-                                        screenshot: mediaUrl,
-                                        dataUri: `data:${shaped.mimeType};base64,${Buffer.from(shaped.bytes).toString('base64')}`,
-                                        render: `请在回复正文以 Markdown 图片语法嵌入此截图以向用户展示：![截图](${mediaUrl})`,
-                                    },
-                                    { headers: { ...corsHeaders, 'Content-Type': 'application/json; charset=utf-8' } }
-                                );
+                                const dataUri = `data:${shaped.mimeType};base64,${Buffer.from(shaped.bytes).toString('base64')}`;
+                                const target = resolveAttachTarget(req.headers);
+                                if (this.owuiConfig && target) {
+                                    const fileUrl = await attachImageToOwuiMessage(this.owuiConfig, target, shaped);
+                                    info(`[工具执行] 图像直写(attach): [${matchedServer}/${matchedTool}] ${fileUrl ?? '附件未挂载（仅同轮视觉）'} ${shaped.bytes.byteLength}B`);
+                                } else {
+                                    info(`[工具执行] 图像整形(attach, 无 OWUI 上下文): [${matchedServer}/${matchedTool}] ${shaped.bytes.byteLength}B`);
+                                }
+                                // text/plain：execute_tool_server 不做 JSON 解析，data: 串原样进
+                                // process_tool_result → extract_base64_images → input_image。
+                                return new Response(dataUri, {
+                                    headers: { ...corsHeaders, 'Content-Type': 'text/plain; charset=utf-8' },
+                                });
                             }
                         }
 

@@ -103,9 +103,9 @@ describe('resolveImageMode（三态协商）', () => {
         expect(resolveImageMode(new Headers({ Accept: 'image/*' }), true)).toBe('raw');
     });
 
-    test('开关开：缺省 */* 与历史别名头 → media（托管 URL）', () => {
-        expect(resolveImageMode(new Headers({}), true)).toBe('media');
-        expect(resolveImageMode(new Headers({ Accept: '*/*' }), true)).toBe('media');
-        expect(resolveImageMode(new Headers({ 'X-OMG-Compat': 'owui-image' }), true)).toBe('media');
+    test('开关开：缺省 */* 与历史别名头 → attach（裸 data: URI + 直写副作用）', () => {
+        expect(resolveImageMode(new Headers({}), true)).toBe('attach');
+        expect(resolveImageMode(new Headers({ Accept: '*/*' }), true)).toBe('attach');
+        expect(resolveImageMode(new Headers({ 'X-OMG-Compat': 'owui-image' }), true)).toBe('attach');
     });
 });
