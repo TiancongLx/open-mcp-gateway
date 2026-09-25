@@ -112,16 +112,16 @@ http://<gateway-host>:8444/codebase_memory/openapi.json
 
 3. Done. Open WebUI can now use all of your local MCP services as native tools.
 
-### OWUI Image Rendering (Content Negotiation)
+### OWUI Image Rendering (Per-Server Switch + Content Negotiation)
 
-By default, tool results are returned as a JSON `CallToolResult` envelope. When the caller explicitly negotiates raw image output and the result carries **exactly one** MCP image block, the gateway instead returns raw image bytes (`Content-Type: image/*`, `Content-Disposition: inline`), which Open WebUI wraps into a data URI and renders inline in the conversation flow (tool card), keeping base64 out of the model context.
+For tool results carrying **exactly one** MCP image block, the gateway serves raw image bytes (`Content-Type: image/*`, `Content-Disposition: inline`) by default, which Open WebUI wraps into a data URI and renders inline in the conversation flow (tool card), keeping base64 out of the model context. All other results (text, multiple image blocks, `isError`) stay on the JSON `CallToolResult` envelope.
 
-Trigger (either one):
+Two-level decision:
 
-- Request header `X-OMG-Compat: owui-image` (recommended; set it in the OWUI tool-server connection's custom headers)
-- `Accept` explicitly containing `image/*` (the default `*/*` does NOT trigger)
+1. Per-server switch `owuiImageCompat` (in `config.json5` on any MCP server entry): omitted = **on**; explicit `false` pins that server to the JSON envelope. Changes take effect via the existing config hot reload.
+2. Request negotiation (when the switch is on): explicit `Accept: application/json` always yields the JSON envelope (escape hatch for programmatic consumers); everything else (including the default `*/*`) gets the image representation. Historical alias `X-OMG-Compat: owui-image` remains supported.
 
-Fallbacks stay on the JSON envelope: multiple image blocks, text-only results, `isError` results, or un-negotiated calls. See `src/server/image-shape.ts` and `tests/gateway.compat.test.ts`.
+See `src/server/image-shape.ts` and `tests/gateway.compat.test.ts`.
 
 ## Testing and Logs
 
