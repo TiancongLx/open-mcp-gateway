@@ -112,16 +112,17 @@ http://<gateway-host>:8444/codebase_memory/openapi.json
 
 3. Done. Open WebUI can now use all of your local MCP services as native tools.
 
-### OWUI Image Rendering (Per-Server Switch + Content Negotiation)
+### OWUI Image Rendering (Hosted Media + Content Negotiation)
 
-For tool results carrying **exactly one** MCP image block, the gateway serves raw image bytes (`Content-Type: image/*`, `Content-Disposition: inline`) by default, which Open WebUI wraps into a data URI and renders inline in the conversation flow (tool card), keeping base64 out of the model context. All other results (text, multiple image blocks, `isError`) stay on the JSON `CallToolResult` envelope.
+For tool results carrying **exactly one** MCP image block, the gateway stores the image as hosted media and returns a JSON descriptor `{screenshot: <media URL>, render: <markdown hint>}` by default. The model embeds the URL in its reply as a Markdown image, so the screenshot renders inline in the conversation — the same hosted-URL mechanism AIHubMix uses. (Background: Open WebUI routes `data:`-URI images to LLM-only vision input and never shows them to the user; only hosted URLs reach the display path.) All other results (text, multiple image blocks, `isError`) stay on the JSON `CallToolResult` envelope.
 
-Two-level decision:
+Three representations (per-server switch `owuiImageCompat`, omitted = on; `false` = envelope only):
 
-1. Per-server switch `owuiImageCompat` (in `config.json5` on any MCP server entry): omitted = **on**; explicit `false` pins that server to the JSON envelope. Changes take effect via the existing config hot reload.
-2. Request negotiation (when the switch is on): explicit `Accept: application/json` always yields the JSON envelope (escape hatch for programmatic consumers); everything else (including the default `*/*`) gets the image representation. Historical alias `X-OMG-Compat: owui-image` remains supported.
+1. `media` (default `*/*`): hosted-media descriptor; `GET /media/{name}` serves the bytes (TTL-bounded, default 24h, `OMG_MEDIA_TTL_HOURS`).
+2. `raw` (`Accept: image/*`): raw image bytes with `Content-Disposition: inline`.
+3. `envelope` (`Accept: application/json`, or switch off): the JSON `CallToolResult` envelope.
 
-See `src/server/image-shape.ts` and `tests/gateway.compat.test.ts`.
+Historical alias `X-OMG-Compat: owui-image` remains supported (= media). See `src/server/image-shape.ts`, `src/server/media-store.ts` and `tests/gateway.compat.test.ts`.
 
 ## Testing and Logs
 
