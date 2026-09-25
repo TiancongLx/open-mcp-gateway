@@ -1,6 +1,6 @@
 # AGENTS.md — open-mcp-gateway（OMG）
 
-> 深度上下文用 `manage_adr(project='open-mcp-gateway')` 读取，环境与拓扑见笔记《环境索引》。（v1.2 · 2026-09-24）
+> 深度上下文用 `manage_adr(project='open-mcp-gateway')` 读取，环境与拓扑见笔记《环境索引》。（v1.3 · 2026-09-25）
 
 ## 这是什么
 
@@ -25,7 +25,7 @@ OpenAPI 生成器在 `src/openapi/generator.ts`。`OpenApiGenerator.generate` �
 
 ## 约定与陷阱
 
-stdout 是协议通道，诊断信息一律走 stderr，往 stdout 打印任何多余的东西都会破坏协议。工具执行失败时返回 MCP 的 `isError` 结果，不要在协议层抛异常。单图像块结果默认整形为托管媒体描述符 `{screenshot, dataUri, render}`（模型视觉与确定性展示由 OWUI 侧车 `contrib/owui/screenshot-vision-sidecar.py` 补全：直取 dataUri 注入视觉 + message.files 落库展示；勿退回裸 data URI 路线），三态协商见 `src/server/image-shape.ts`：服务级开关 `owuiImageCompat`（缺省开、显式 false 关）+ `Accept: application/json` 信封逃生口 + `Accept: image/*` 裸字节；文本类结果恒为 JSON 信封，不要扩大整形范围。
+stdout 是协议通道，诊断信息一律走 stderr，往 stdout 打印任何多余的东西都会破坏协议。工具执行失败时返回 MCP 的 `isError` 结果，不要在协议层抛异常。单图像块结果默认走 attach 整形 = 裸 `data:` URI 字符串 + 网关直写 OWUI `message.files` 副作用（`src/server/owui-attach.ts`；`config.json5` 的 `owui: { base, token }` 热重载生效，目标消息靠 OWUI 注入的 `X-OpenWebUI-Chat-Id` / `X-OpenWebUI-Message-Id` 头定位）。负空间警示：OWUI 里 `data:` 图像仅喂模型、不展示给用户——用户可见性只能靠 `message.files` 托管 URL 通道补全，附件 URL 一律用 OWUI 自身的 `/api/v1/files/{id}/content` 相对路径（网关内网地址手机不可达，OWUI 侧车路线即废于此，勿再走）。三态协商见 `src/server/image-shape.ts`：服务级开关 `owuiImageCompat`（缺省开、显式 false 关）+ `Accept: application/json` 信封逃生口 + `Accept: image/*` 裸字节；文本类结果恒为 JSON 信封，不要扩大整形范围。
 
 配置走 XDG 加变量插值，`.env` 不入库。将来如果要加 Streamable HTTP 传输，先把本文件和 ADR 更新了再动代码。
 
