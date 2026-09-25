@@ -20,7 +20,7 @@ interface LoggerConfig {
 }
 
 const config: LoggerConfig = {
-    level: LogLevels.DEBUG,
+    level: LogLevels.INFO,
     showTimestamp: true,
     logFilePath: null,
 };
