@@ -18,18 +18,10 @@ export interface SseServerConfig {
 
 export type McpServerConfig = StdioServerConfig | SseServerConfig;
 
-// OWUI 直写配置（方案 B，attach 副作用的目标）：base 为 OWUI 公网基址，
-// token 为 OWUI API key（Authorization: Bearer）。随 config.json5 热重载生效。
-export interface OwuiAttachConfig {
-    base: string;
-    token: string;
-}
-
 export interface GatewayConfigFile {
     mcpServers: Record<string, McpServerConfig>;
     port?: number;
     host?: string;
-    owui?: OwuiAttachConfig;
 }
 
 export function isStdioConfig(config: McpServerConfig): config is StdioServerConfig {

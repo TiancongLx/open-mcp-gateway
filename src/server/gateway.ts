@@ -2,7 +2,6 @@ import { info, error, warn } from '@/utils/logger';
 import { McpPool } from '@/mcp/pool';
 import { OpenApiGenerator } from '@/openapi/generator';
 import { isImageCompatEnabled, resolveImageMode, shapeImageResult } from '@/server/image-shape';
-import { attachImageToOwuiMessage, resolveAttachTarget, type OwuiAttachConfig } from '@/server/owui-attach';
 
 export interface GatewayServerOptions {
     port: number;
@@ -12,7 +11,6 @@ export interface GatewayServerOptions {
 export class GatewayServer {
     private server: ReturnType<typeof Bun.serve> | null = null;
     private isPoolReady = false;
-    private owuiConfig: OwuiAttachConfig | null = null;
 
     constructor(
         private readonly pool: McpPool,
@@ -21,11 +19,6 @@ export class GatewayServer {
 
     public setPoolReady(ready: boolean): void {
         this.isPoolReady = ready;
-    }
-
-    // OWUI 直写配置（attach 副作用目标）：随 config 热重载更新；base/token 任一缺失即视为未配置。
-    public setOwuiConfig(config: OwuiAttachConfig | null | undefined): void {
-        this.owuiConfig = config && config.base && config.token ? config : null;
     }
 
     private resolvePublicOrigin(req: Request): string {
@@ -184,12 +177,18 @@ export class GatewayServer {
                         }
 
                         info(`[工具执行] 服务: [${matchedServer}], 工具: [${matchedTool}]`);
+                        // Tool context forwarding: inject chat-context headers as tool metadata
+                        const toolCtxChatId = req.headers.get('X-Tool-Context-Chat-Id');
+                        const toolCtxUserMsgId = req.headers.get('X-Tool-Context-User-Message-Id');
+                        if (toolCtxChatId) body.chat_id = toolCtxChatId;
+                        if (toolCtxUserMsgId) body.user_message_id = toolCtxUserMsgId;
+
                         const executionResult = await session.callTool(matchedTool, body);
 
-                        // OWUI 兼容整形（服务级开关 + 三态内容协商，见 image-shape.ts）：
-                        //   attach（缺省）= 裸 data: URI 字符串：OWUI 将其分流为
-                        //     input_image（同轮喂模型），网关同步副作用把同一图像挂入
-                        //     message.files 补用户展示（owui-attach.ts 双写语义）；
+                        // 图像兼容整形（服务级开关 + 三态内容协商，见 image-shape.ts）：
+                        //   inline（缺省）= 裸 data: URI 字符串（text/plain），消费端
+                        //     经 process_tool_result → extract_base64_images → input_image
+                        //     同轮喂模型；
                         //   raw（Accept 显式 image/*）= 裸图像字节；
                         //   envelope（开关关 / 显式 Accept: application/json / 整形不适用）
                         //     = CallToolResult JSON 信封。
@@ -208,15 +207,7 @@ export class GatewayServer {
                                     });
                                 }
                                 const dataUri = `data:${shaped.mimeType};base64,${Buffer.from(shaped.bytes).toString('base64')}`;
-                                const target = resolveAttachTarget(req.headers);
-                                if (this.owuiConfig && target) {
-                                    const fileUrl = await attachImageToOwuiMessage(this.owuiConfig, target, shaped);
-                                    info(`[工具执行] 图像直写(attach): [${matchedServer}/${matchedTool}] ${fileUrl ?? '附件未挂载（仅同轮视觉）'} ${shaped.bytes.byteLength}B`);
-                                } else {
-                                    info(`[工具执行] 图像整形(attach, 无 OWUI 上下文): [${matchedServer}/${matchedTool}] ${shaped.bytes.byteLength}B`);
-                                }
-                                // text/plain：execute_tool_server 不做 JSON 解析，data: 串原样进
-                                // process_tool_result → extract_base64_images → input_image。
+                                info(`[工具执行] 图像整形(inline): [${matchedServer}/${matchedTool}] ${shaped.bytes.byteLength}B`);
                                 return new Response(dataUri, {
                                     headers: { ...corsHeaders, 'Content-Type': 'text/plain; charset=utf-8' },
                                 });

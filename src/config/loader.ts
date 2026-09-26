@@ -45,6 +45,13 @@ export class ConfigManager {
                         if (Array.isArray(srvConf.args)) {
                             srvConf.args = srvConf.args.map((a) => interpolateVariables(a, this.xdg));
                         }
+                        if (srvConf.env) {
+                            for (const [envKey, envVal] of Object.entries(srvConf.env)) {
+                                if (typeof envVal === 'string') {
+                                    srvConf.env[envKey] = interpolateVariables(envVal, this.xdg);
+                                }
+                            }
+                        }
                         if (srvConf.cwd) {
                             srvConf.cwd = interpolateVariables(srvConf.cwd, this.xdg);
                         }

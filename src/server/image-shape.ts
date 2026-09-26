@@ -7,9 +7,8 @@
 // 三态表示（resolveImageMode）：
 //   1. envelope —— CallToolResult JSON 信封（服务级开关关，或显式 Accept: application/json）
 //   2. raw      —— 裸图像字节（Accept 显式含 image/*；直接二进制消费者）
-//   3. attach   —— 裸 data: URI 字符串（缺省 */*；方案 B 默认态）：OWUI 把
-//                  data: 图像工具结果分流为 input_image（同轮喂模型），网关同步
-//                  副作用挂 message.files 补用户展示（见 owui-attach.ts）。
+//   3. attach   —— 裸 data: URI 字符串（缺省 */*）：消费端（如 OWUI）把
+//                  data: 图像工具结果分流为 input_image 同轮喂模型。
 //
 // 类型契约采用 MCP SDK 原语（CallToolResult / ImageContent）；blob 为 OWUI 侧命名兼容回退。
 import type { CallToolResult, ImageContent } from '@modelcontextprotocol/sdk/types.js';
