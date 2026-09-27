@@ -1,0 +1,15 @@
+# LF + UTF-8 (no BOM) policy — layered adoption:
+# new/edited text files normalize at `git add`; binary artifacts stay untouched.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.exe binary
+*.dll binary
+*.zip binary
+*.db binary
+*.db-wal binary
+*.db-shm binary
