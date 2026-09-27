@@ -1,6 +1,7 @@
 import { info, warn } from '@/utils/logger';
 import { McpSession } from './session';
 import { AsyncMutex } from '@/utils/lock';
+import { deepEqual } from '@/utils/equal';
 import type { McpServerConfig, GatewayConfigFile } from '@/config/types';
 
 export class McpPool {
@@ -101,7 +102,7 @@ export class McpPool {
                 if (!existing || existing.state !== 'READY') {
                     info(`热重载：挂载服务 [${name}]`);
                     await this.addServer(name, conf, this.abortController.signal);
-                } else if (JSON.stringify(existing.config) !== JSON.stringify(conf)) {
+                } else if (!deepEqual(existing.config, conf)) {
                     info(`热重载：平滑重载已变更的服务 [${name}]`);
                     await this.addServer(name, conf, this.abortController.signal);
                 }
