@@ -73,6 +73,17 @@ export class GatewayServer {
                                 tools: Array.from(sess.tools.keys()),
                             };
                         }
+                        // enabled=false 的服务不建立会话，在注册表中保留 DISABLED 占位
+                        for (const name of this.pool.getDisabledServers().keys()) {
+                            if (!(name in summary)) {
+                                summary[name] = {
+                                    state: 'DISABLED',
+                                    lastError: null,
+                                    toolCount: 0,
+                                    tools: [],
+                                };
+                            }
+                        }
                         return Response.json({ servers: summary }, { headers: corsHeaders });
                     }
 
@@ -97,6 +108,13 @@ export class GatewayServer {
                     if (openApiServerName) {
                         const session = this.pool.getSession(openApiServerName);
                         if (!session) {
+                            if (this.pool.getDisabledServers().has(openApiServerName)) {
+                                warn(`[HTTP 503] 服务 [${openApiServerName}] 已禁用 (enabled=false)`);
+                                return Response.json({
+                                    error: `Server [${openApiServerName}] disabled`,
+                                    state: 'DISABLED',
+                                }, { status: 503, headers: corsHeaders });
+                            }
                             warn(`[HTTP 404] 服务 [${openApiServerName}] 不存在`);
                             return Response.json({ error: `Server [${openApiServerName}] not found` }, { status: 404, headers: corsHeaders });
                         }
@@ -147,6 +165,13 @@ export class GatewayServer {
 
                         const session = this.pool.getSession(matchedServer);
                         if (!session) {
+                            if (this.pool.getDisabledServers().has(matchedServer)) {
+                                warn(`[HTTP 503] 服务 [${matchedServer}] 已禁用 (enabled=false)`);
+                                return Response.json({
+                                    error: `Server [${matchedServer}] disabled`,
+                                    state: 'DISABLED',
+                                }, { status: 503, headers: corsHeaders });
+                            }
                             warn(`[HTTP 404] 服务 [${matchedServer}] 未注册`);
                             return Response.json({ error: `Server [${matchedServer}] not found` }, { status: 404, headers: corsHeaders });
                         }

@@ -2,10 +2,12 @@ import { info, warn } from '@/utils/logger';
 import { McpSession } from './session';
 import { AsyncMutex } from '@/utils/lock';
 import { deepEqual } from '@/utils/equal';
-import type { McpServerConfig, GatewayConfigFile } from '@/config/types';
+import { isServerEnabled, type McpServerConfig, type GatewayConfigFile } from '@/config/types';
 
 export class McpPool {
     private sessions: Map<string, McpSession> = new Map();
+    // enabled=false 服务登记簿：不建立会话，但保留配置供 /servers 呈现 DISABLED 占位
+    private disabledServers: Map<string, McpServerConfig> = new Map();
     private mutex = new AsyncMutex();
     // P1 修复：连接握手的统一中止源；停机时 abort 全部进行中的 connect
     private abortController = new AbortController();
@@ -15,8 +17,16 @@ export class McpPool {
     public async initialize(config: GatewayConfigFile): Promise<void> {
         return this.mutex.runExclusive(async () => {
             const entries = Object.entries(config.mcpServers || {});
+            for (const [name, srvConfig] of entries) {
+                if (!isServerEnabled(srvConfig)) {
+                    this.disabledServers.set(name, srvConfig);
+                    info(`[${name}] 服务已禁用（enabled=false），跳过挂载`);
+                }
+            }
             await Promise.allSettled(
-                entries.map(([name, srvConfig]) => this.addServer(name, srvConfig))
+                entries
+                    .filter(([, srvConfig]) => isServerEnabled(srvConfig))
+                    .map(([name, srvConfig]) => this.addServer(name, srvConfig))
             );
         });
     }
@@ -84,12 +94,22 @@ export class McpPool {
         return this.sessions;
     }
 
+    // enabled=false 的服务登记簿（供 /servers 呈现 DISABLED、路由判禁用返回 503）
+    public getDisabledServers(): ReadonlyMap<string, McpServerConfig> {
+        return this.disabledServers;
+    }
+
     public async reconcile(newConfig: GatewayConfigFile): Promise<void> {
         return this.mutex.runExclusive(async () => {
             const newServers = newConfig.mcpServers || {};
             const currentNames = new Set(this.sessions.keys());
-            const incomingNames = new Set(Object.keys(newServers));
+            const incomingNames = new Set(
+                Object.entries(newServers)
+                    .filter(([, srvConfig]) => isServerEnabled(srvConfig))
+                    .map(([name]) => name)
+            );
 
+            // 下线两类服务：从配置移除的，以及被 enabled=false 禁用的
             for (const name of currentNames) {
                 if (!incomingNames.has(name)) {
                     info(`热重载：下线服务 [${name}]`);
@@ -97,7 +117,20 @@ export class McpPool {
                 }
             }
 
+            // 刷新禁用登记簿（以新配置为准），仅对新进入禁用态的服务记录日志
+            const prevDisabled = this.disabledServers;
+            this.disabledServers = new Map();
             for (const [name, conf] of Object.entries(newServers)) {
+                if (!isServerEnabled(conf)) {
+                    this.disabledServers.set(name, conf);
+                    if (!prevDisabled.has(name)) {
+                        info(`热重载：服务 [${name}] 已禁用（enabled=false），不建立会话`);
+                    }
+                }
+            }
+
+            for (const [name, conf] of Object.entries(newServers)) {
+                if (!isServerEnabled(conf)) continue;
                 const existing = this.sessions.get(name);
                 if (!existing || existing.state !== 'READY') {
                     info(`热重载：挂载服务 [${name}]`);
@@ -127,6 +160,7 @@ export class McpPool {
             const promises = Array.from(this.sessions.values()).map((s) => s.close());
             await Promise.allSettled(promises);
             this.sessions.clear();
+            this.disabledServers.clear();
             info('所有活动 MCP 会话已完全释放');
         });
     }
