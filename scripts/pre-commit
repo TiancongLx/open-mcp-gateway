@@ -1,0 +1,19 @@
+#!/bin/sh
+# pre-commit 门禁（F-B，2026-10-01）：tsc --noEmit + 快测子集，失败即拒绝提交。
+# 安装：git config core.hooksPath scripts（仓库本地配置；钩子本体随仓版本化，避免 .git/hooks 副本陈旧）。
+# 仅本地开发流有效（无 push 场景，用户裁决 2026-10-01）。
+# 快测子集：环境变量 TEST_FILTER 为空 = bun test 全量（现行套件即快测规模：31 用例约 6.2 s，实测 2026-10-01）；
+# 需收窄时导出 TEST_FILTER=<路径子串>（bun test 过滤器按文件路径匹配）。
+set -e
+cd "$(git rev-parse --show-toplevel)"
+TEST_FILTER="${TEST_FILTER:-}"
+echo "[pre-commit] tsc --noEmit"
+./node_modules/.bin/tsc.exe --noEmit
+if [ -n "$TEST_FILTER" ]; then
+    echo "[pre-commit] bun test (subset: $TEST_FILTER)"
+    bun.exe test "$TEST_FILTER"
+else
+    echo "[pre-commit] bun test (full)"
+    bun.exe test
+fi
+echo "[pre-commit] gate OK"
