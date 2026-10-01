@@ -1,6 +1,6 @@
 # AGENTS.md — open-mcp-gateway（OMG）
 
-> 深度上下文：`doc/adr/`（本地化 ADR，git 为唯一版本载体）；环境与拓扑见 `terminal:env-local` 技能。（v1.5 · 2026-09-27）
+> 深度上下文：`doc/adr/`（本地化 ADR，git 为唯一版本载体）；环境与拓扑见 `terminal:env-local` 技能。（v1.6 · 2026-10-01）
 
 ## 这是什么
 
@@ -28,7 +28,7 @@ MCP 聚合网关：本地 MCP Server 以 `stdio` 或 `sse` 接入，其工具统
 - `stdout` 是协议通道，诊断一律走 `stderr`；工具执行失败返回 MCP `isError`，不在协议层抛异常
 - 图像整形三态（`src/server/image-shape.ts`）：`inline`（缺省）裸 `data:` URI、`raw`（`Accept: image/*`）裸字节、`envelope` JSON 信封；文本类结果恒为信封，勿扩大整形范围
 - 配置文件路径一律正斜杠（JSON 转义吃单反斜杠）；`enabled: false` 的服务不建会话（`/servers` 呈 `DISABLED`、路由 503）
-- 服务重启走脱钩式 `schtasks /Run /TN services-switch`（细节见 env-local「运维指令」）
+- 服务重启走脱离式 `~/.config/open-mcp-gateway/Service/restart-svc.ps1`（omg-svc 可直调，ott-svc 须 WMI 派生脱离执行；细节见 env-local「运维指令」）
 
 ## 验证
 

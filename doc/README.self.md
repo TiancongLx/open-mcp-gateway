@@ -167,9 +167,9 @@ Get-Content "$env:XDG_STATE_HOME\open-mcp-gateway\logs\gateway.log" -Tail 30 -Wa
 
 ### 四、 快速生效步骤
 
-1. 执行解耦部署脚本：
+1. 构建并暂存部署产物（`bun run build` 经 postbuild 钩子暂存 `~/.local/bin/omg.exe`）：
    ```powershell
-   .\ps1_scripts\SetupDataMcp.ps1
+   bun run build
    ```
 2. 执行全量测试：
    ```powershell
