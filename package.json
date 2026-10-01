@@ -11,6 +11,7 @@
     "scripts": {
         "start": "bun run ./src/index.ts",
         "test": "bun test",
+        "regress": "bun run ./scripts/regress.ts",
         "build": "bun build --compile --minify --bytecode --target=bun-windows-x64 ./src/index.ts --outfile ./build/open-mcp-gateway.exe",
         "postbuild": "bun run ./scripts/stage.ts"
     },
