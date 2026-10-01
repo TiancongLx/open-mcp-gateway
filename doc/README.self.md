@@ -134,9 +134,9 @@ bun run build
 ```
 
 ### 2. 自动化端到端测试
-运行内置的断言测试脚本，验证健康检查、服务握手与反向代理 Origin 对齐：
+运行全量测试套件（单元与集成）：
 ```powershell
-.\ps1_scripts\test-gateway.ps1
+bun run test
 ```
 
 ### 3. 持久化日志观测
@@ -171,8 +171,8 @@ Get-Content "$env:XDG_STATE_HOME\open-mcp-gateway\logs\gateway.log" -Tail 30 -Wa
    ```powershell
    .\ps1_scripts\SetupDataMcp.ps1
    ```
-2. 执行端到端测试断言：
+2. 执行全量测试：
    ```powershell
-   .\ps1_scripts\test-gateway.ps1
+   bun run test
    ```
 

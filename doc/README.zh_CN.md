@@ -114,8 +114,8 @@ http://<gateway-host>:8444/codebase_memory/openapi.json
 ## 测试与日志
 
 ```bash
-bun run test          # 或: .\ps1_scripts\test-gateway.ps1
-                      # 端到端断言: 健康检查 / 服务握手 / 代理 Origin 对齐
+bun run test          # 测试套件 tests/
+                      # 单元与集成断言
 
 tail -f "$XDG_STATE_HOME/open-mcp-gateway/logs/gateway.log"   # 日志观测
 ```
