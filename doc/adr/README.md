@@ -1,7 +1,7 @@
 # open-mcp-gateway — 架构决策记录（ADR）
 
-> 版本：v3.0（解耦重构版）· 2026-09-26
-> 变更摘要：移除 Open WebUI 附件上传副作用（方案 B），网关恢复为通用的 MCP 至 OpenAPI 协议转换桥接架构定位。`X-R3-*` 请求头更名为 `X-Tool-Context-*`。
+> 版本：v3.1（本地 CI 门禁体系）· 2026-10-01
+> 变更摘要：新增决策 23（scripts/regress.ts 单入口回归 + pre-commit 门禁，与 OTT DECISIONS 25 同构对齐）；STACK 部署行与架构图会话池列表明同步至决策 22 终态（2026-10-01 外部写入收编，内容与决策 22 一致）。
 
 ## PURPOSE
 
@@ -10,7 +10,7 @@ MCP 协议至 OpenAPI 3.1.0 REST 网关：为 Open WebUI 等消费端提供统�
 ## STACK
 
 - 运行时环境：Bun（`bun run src/index.ts`）
-- 部署模式：计划任务 `omg-run` → `build/open-mcp-gateway.exe` 单文件二进制（root，`ONLOGON`）
+- 部署模式：Servy 托管服务 `omg-svc` → `~/.local/bin/omg.exe`（构建产物经 postbuild 钩子软链接暂存），服务账户 root，健康监视 `RestartProcess` 无限拉起
 - 配置规范：遵循 XDG 目录规范与环境变量插值机制（支持 `%VAR%` 与 `${VAR}`）
 - 传输协议：上游仅支持 `stdio` 与 `sse`（不支持 Streamable HTTP）
 
@@ -23,7 +23,7 @@ MCP 协议至 OpenAPI 3.1.0 REST 网关：为 Open WebUI 等消费端提供统�
 gateway.ts — 路由 + 工具上下文注入（X-Tool-Context-* → body.chat_id/user_message_id）
   │ MCP stdio
   ↓
-MCP 会话池（mcp/pool.ts）── codebase_memory / drawio / repomix / browser_governance / pwsh_mcp
+MCP 会话池（mcp/pool.ts）── codebase_memory / drawio / repomix / browser_governance
 ```
 
 - `src/server/gateway.ts`：HTTP 路由调度、OpenAPI 规范生成、工具调用转发及图像格式协商
@@ -57,6 +57,14 @@ MCP 会话池（mcp/pool.ts）── codebase_memory / drawio / repomix / browse
 21. 服务挂载开关与配置比对语义：`enabled`（缺省开、显式 false 关）控制节点挂载——禁用不建会话，`/servers` 呈 `DISABLED`、路由返回 503；`pool.reconcile` 以键序无关深比较（`utils/equal.ts`）判定配置变更。
 
 22. （2026-10-01）部署形态迁移 Servy 托管（与 OTT DECISIONS 24 同步，用户裁决）：计划任务 omg-run 退役为 Servy 托管服务 omg-svc（Servy 10.1，服务账户 .\root），托管对象为 ~/.local/bin/omg.exe——构建产物经 postbuild 钩子（scripts/stage.ts，SHA-256 新鲜度门）软链接暂存，开发 / 部署分离（硬链接因 bun 构建替换式落盘会陈旧，取软链接）。环境 10 项经 Servy --envVars 注入（XDG 四变量 + CBM 双路径 + OWUI_BASE / OWUI_TOKEN / GATEWAY_URL + MCP_OPEN_GATEWAY_CONFIG 显式钉住，保持决策 19 首项语义）；OWUI_TOKEN 暂不作秘密项（capture_and_upload 留待重实现，不依赖）；健康监视 RestartProcess 无限拉起（心跳 30s × 3）。pwsh_mcp 节点已移除（用户执行 G1，2026-10-01 05:24），四池现实（codebase_memory / drawio / repomix / browser_governance）。运维：services-switch 任务与 switch-tasks.ps1 退役归档（switch-archive/），restart-svc.ps1 入役（omg-svc 可直调，ott-svc 须 WMI 派生脱离执行）；omg-run 停用保留为回退资产。验证：重启实效（新旧 PID 交接、旧树清理、3 742 ms 四池 ALL_READY）、探针门全绿。
+
+23. （2026-10-01）本地 CI 门禁体系（与 OTT DECISIONS 25 同构，用户裁决「在 OMG repo 也执行同样的操作」）：
+
+    （a）单入口回归脚本 `scripts/regress.ts`：三段门串行——G1 类型门（`node_modules/.bin/tsc.exe --noEmit` 先行）→ G2 测试门（`bun test` 全量，判据固定为用例数 + 0 fail，基线 31 用例实测 2026-10-01）→ G3 探针门（`curl.exe --noproxy '*'`——缺陷 3；P1 GET /servers 全部池 READY 且池数 ≥ 4，判定语义参照 restart-svc.ps1 的 omg-svc 就绪门；P2 GET /health status=ok；OMG 无 Bearer 鉴权——《双机四流》§四.4，故无凭据段）。负向注入经 `--probe-base-url` 指向闭端口；退出码 0/1/2；缺省短路 + `--continue`；package.json 增 `regress` 映射。验证：正向 3/3 gates（cases=31、P1=200/ALL_READY(4)）+ 负向 G3 FAIL 退出码 1（实测）。提交 `816af77`。
+
+    （b）pre-commit 门禁 `scripts/pre-commit`（POSIX sh，git hook 属 OS 必需接口）：tsc --noEmit 先行 + 快测子集（bun test；`TEST_FILTER` 环境变量按路径子串收窄，缺省全量——现行套件即快测规模），失败即拒绝提交；安装 `git config core.hooksPath scripts`（仓库本地配置，钩子本体随仓版本化）。验证：负向（无匹配过滤器 + --allow-empty）被拒退出码 1 无残余；正向经提交全量门禁实跑通过。仅本地开发流有效（无 push 场景）。提交 `25b9141`。
+
+    （c）更正记录：提交 aa39656 提交信息中「test-gateway.ts import 未声明依赖 yoctocolors 不可运行」的判词取证有误——该依赖实际声明于本仓 dependencies（yoctocolors ^2.1.1）；该脚本删除依据以断言过时（2 池 / 静态 IP Origin，与四池现实不符）与误杀 9090 生产端口为准，删除结论不变（于提交 816af77 正文明示）。
 
 ## CURRENT_FOCUS
 
