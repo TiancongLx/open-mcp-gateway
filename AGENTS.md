@@ -1,32 +1,35 @@
 # AGENTS.md — open-mcp-gateway（OMG）
 
-> 深度上下文用 `manage_adr(project='open-mcp-gateway')` 读取，环境与拓扑见笔记《环境索引》。（v1.3 · 2026-09-25）
+> 深度上下文：`doc/adr/`（本地化 ADR，git 为唯一版本载体）；环境与拓扑见 `terminal:env-local` 技能。（v1.5 · 2026-09-27）
 
 ## 这是什么
 
-这是一个 MCP 聚合网关。本地的 MCP Server 以 stdio 或 sse 接入进来，网关把它们的工具统一包装成 OpenAPI 3.1.0 的 REST 接口，对外提供 `/openapi.json`，由 Open WebUI 经 OpenAPI Servers 挂载使用。
+MCP 聚合网关：本地 MCP Server 以 `stdio` 或 `sse` 接入，其工具统一包装为 OpenAPI 3.1.0 REST（每工具 `POST /{server}/{tool}`），由 Open WebUI 经 OpenAPI Servers 挂载使用。
 
-这里没有 MCP 直通。Open WebUI 一侧拿到的是 REST，上游一侧也只有 stdio 和 sse 两种形态，没有任何 Streamable HTTP 的实现。这两点容易记反，动传输相关代码前先回来确认一句。
+没有 MCP 直通。上游一侧只有 `stdio` 与 `sse` 两种形态，没有 Streamable HTTP——动传输相关代码前先回 `doc/adr/` 确认。配置 `config.json5` 支持 `%VAR%` 与 `${VAR}` 插值并热重载（300 ms 防抖）。
 
 ## 常用命令
 
-- `bun run start` 启动开发版，等同 `bun run ./src/index.ts`
-- `bun test` 跑测试
-- `bun run build` 编译单文件产物 `build/open-mcp-gateway.exe`（`--compile --target=bun-windows-x64`）
-- `tsc --noEmit` 做类型检查。这里的 tsc 是 Go 原生编译器，版本 7.0.2，和 npm 生态的 tsc 不是一个东西，本机也没有 tsgo
+- `bun run start` 开发启动；`bun test` 测试；`node_modules/.bin/tsc.exe --noEmit` 类型检查（tsc 为 Go 原生编译器 7.0.2，无 tsgo）
+- `bun run build` 单文件二进制 `build/open-mcp-gateway.exe`
+- 运行时状态：`GET http://127.0.0.1:9090/servers`；工具调用：`POST http://127.0.0.1:9090/{server}/{tool}`
 
 ## 架构速览
 
-配置定义在 `src/config/types.ts`。`McpServerConfig` 是 `StdioServerConfig` 与 `SseServerConfig` 的联合类型，配套 `isStdioConfig` 和 `isSseConfig` 两个判别函数。路径解析和变量插值在 `src/config/xdg.ts`。
-
-OpenAPI 生成器在 `src/openapi/generator.ts`。`OpenApiGenerator.generate` 返回 `openapi: '3.1.0'` 的规格文档，每个工具映射成一条 `POST /{toolName}` 路由。
-
-其余部分：`src/mcp/` 和 `src/pool/` 管上游会话与连接池，`src/server/` 是 HTTP 服务，`src/utils/logger.ts` 管分级日志和文件日志。
+- `src/server/gateway.ts` — HTTP 路由、OpenAPI 生成、工具转发与图像协商
+- `src/mcp/pool.ts` — 会话池（蓝绿重载、优雅停机、`enabled` 禁用登记簿）
+- `src/mcp/session.ts` — 单服务 MCP 会话（stdio/sse）
+- `src/config/loader.ts` — JSON5 解析、变量插值、文件热重载
+- `src/openapi/generator.ts` — OpenAPI 3.1.0 规范生成
+- `src/utils/equal.ts` — 键序无关深比较（reconcile 配置比对）
 
 ## 约定与陷阱
 
-stdout 是协议通道，诊断信息一律走 stderr，往 stdout 打印任何多余的东西都会破坏协议。工具执行失败时返回 MCP 的 `isError` 结果，不要在协议层抛异常。单图像块结果默认走 attach 整形 = 裸 `data:` URI 字符串 + 网关直写 OWUI `message.files` 副作用（`src/server/owui-attach.ts`；`config.json5` 的 `owui: { base, token }` 热重载生效，目标消息靠 OWUI 注入的 `X-OpenWebUI-Chat-Id` / `X-OpenWebUI-Message-Id` 头定位）。负空间警示：OWUI 里 `data:` 图像仅喂模型、不展示给用户——用户可见性只能靠 `message.files` 托管 URL 通道补全，附件 URL 一律用 OWUI 自身的 `/api/v1/files/{id}/content` 相对路径（网关内网地址手机不可达，OWUI 侧车路线即废于此，勿再走）。三态协商见 `src/server/image-shape.ts`：服务级开关 `owuiImageCompat`（缺省开、显式 false 关）+ `Accept: application/json` 信封逃生口 + `Accept: image/*` 裸字节；文本类结果恒为 JSON 信封，不要扩大整形范围。
+- `stdout` 是协议通道，诊断一律走 `stderr`；工具执行失败返回 MCP `isError`，不在协议层抛异常
+- 图像整形三态（`src/server/image-shape.ts`）：`inline`（缺省）裸 `data:` URI、`raw`（`Accept: image/*`）裸字节、`envelope` JSON 信封；文本类结果恒为信封，勿扩大整形范围
+- 配置文件路径一律正斜杠（JSON 转义吃单反斜杠）；`enabled: false` 的服务不建会话（`/servers` 呈 `DISABLED`、路由 503）
+- 服务重启走脱钩式 `schtasks /Run /TN services-switch`（细节见 env-local「运维指令」）
 
-配置走 XDG 加变量插值，`.env` 不入库。将来如果要加 Streamable HTTP 传输，先把本文件和 ADR 更新了再动代码。
+## 验证
 
-在 Windows 上清理进程用 `taskkill /PID <pid> /T /F`。
+- `bun test` + `tsc --noEmit` 全绿；改动配置后看 `GET /servers` 各池 `READY` 且 `lastError` 为空

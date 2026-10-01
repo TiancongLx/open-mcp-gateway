@@ -1,3 +1,5 @@
+# vim: ft=gitignore
+
 # Dependencies
 node_modules/
 

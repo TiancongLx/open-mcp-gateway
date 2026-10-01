@@ -1,3 +1,4 @@
+# vim: ft=gitignore
 # LF + UTF-8 (no BOM) policy — layered adoption:
 # new/edited text files normalize at `git add`; binary artifacts stay untouched.
 * text=auto eol=lf
