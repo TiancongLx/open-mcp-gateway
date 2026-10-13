@@ -1,7 +1,7 @@
 # open-mcp-gateway — 架构决策记录（ADR）
 
-> 版本：v3.3（统一工具目录入口 · 部署与 OWUI 接线入账）· 2026-10-13
-> 变更摘要：新增决策 24（统一工具目录入口：/omg 统一 compact 规格 + search_tools / call_tool，组合 A 命名；含 READY 门控与离线场景条款）；决策 23（d）更正记录（P1 池数下限 ≥4→≥3、用例基线 31→43）；AGENTS.md v1.7 同步。
+> 版本：v3.4（Streamable HTTP 与远程池断连自愈 · S1）· 2026-10-13
+> 变更摘要：新增决策 24（统一工具目录入口：/omg 统一 compact 规格 + search_tools / call_tool，组合 A 命名；含 READY 门控与离线场景条款）；决策 23（d）更正记录；决策 24 补记（连接面收敛、首验通过）；新增决策 25（Streamable HTTP 传输与远程池退避重连自愈，S1 批次；含目录服务名检索域修正）；AGENTS.md v1.8 同步。
 
 ## PURPOSE
 
@@ -12,7 +12,7 @@ MCP 协议至 OpenAPI 3.1.0 REST 网关：为 Open WebUI 等消费端提供统�
 - 运行时环境：Bun（`bun run src/index.ts`）
 - 部署模式：Servy 托管服务 `omg-svc` → `~/.local/bin/omg.exe`（构建产物经 postbuild 钩子软链接暂存），服务账户 root，健康监视 `RestartProcess` 无限拉起
 - 配置规范：遵循 XDG 目录规范与环境变量插值机制（支持 `%VAR%` 与 `${VAR}`）
-- 传输协议：上游仅支持 `stdio` 与 `sse`（不支持 Streamable HTTP）
+- 传输协议：上游支持 `stdio` / `sse` / `streamable-http` 三态（决策 25，S1 批次起）
 
 ## ARCHITECTURE
 
@@ -30,6 +30,7 @@ MCP 会话池（mcp/pool.ts）── codebase_memory / drawio / repomix（三池
 - `src/server/image-shape.ts`：MCP 图像块格式协商（支持 `inline` 原生 `data:` URI、`raw` 裸二进制字节流、`envelope` JSON 封装三态）
 - `src/config/loader.ts`：JSON5 配置文件解析、环境变量插值及文件热重载（300 毫秒防抖）
 - `src/mcp/pool.ts`：MCP 会话连接池（支持蓝绿平滑重载与优雅停机）
+- `src/mcp/session.ts`：单服务 MCP 会话（stdio / sse / streamable-http；远程池退避重连监督）
 - `src/openapi/generator.ts`：动态生成 OpenAPI 3.1.0 规范文档
 
 ## DECISIONS
@@ -88,10 +89,23 @@ MCP 会话池（mcp/pool.ts）── codebase_memory / drawio / repomix（三池
 
     （i）部署与 OWUI 接线入账（2026-10-13）：产物 `128ace6f…`（99,875,328 B）经 stage 软链入役，omg-svc 重启就绪门 `ALL_READY`（4.9 s），regress 3/3；OWUI 侧接线顺序为——新增 OMG 连接（`http://redmi:8444/omg`，spec 3,315 B，容器视角拉取核验）→ 五模型 toolIds `server:CBM` → `server:OMG` → 同窗口禁用 Firecrawl（关闭、保留条目与密钥）与三池连接。实测回填：三池工具定义 33,770 → 统一入口 1,826 字符（-94.6%）；每次保存后的 OWUI 拉取链经 OMG 日志核验（17:35:49 四规格；17:37:00 仅 /omg）。回滚 = 连接备份 `owui-connections-pre-wire1/pre-wire2.json` 与模型备份 `owui-models-pre-swap.json` 回灌 + 模型引用回切；二进制回滚 = `omg.exe.bak-20261013-pre-catalog`。同日稍后：用户于面板彻底删除 Firecrawl 与三池连接条目（连接面收敛为 github / context7 / OMG 三条；模型侧悬空引用 firecrawl / greptile 清理，留档 `owui-models-pre-refclean.json`）；首验项（严格栈嵌套 `arguments`）实测通过——验收聊天「codebase_memory 工具查询」内 `call_tool` 两次嵌套实调成功。
 
+25. （2026-10-13）Streamable HTTP 传输与远程池断连自愈（S1 批次；决策 24「任何形态 MCP 经 OMG 转 OpenAPI」的使能器；实现提交 `f59fc1f`）：
+
+    （a）动因：SaaS 收编（GitHub / Context7；测试计划 Note 七·D「选择 A」）要求上游传输三态完备（stdio / SSE / Streamable HTTP 此前缺第三态）；远程池在网络波动、代理链路抖动与上游维护窗口下需要断连自愈，而非既有的「一次性连接」语义。
+
+    （b）形态：节点配置新增 `StreamableHttpServerConfig`（判别字段 `transport: 'streamable-http'`；除 `url` / `headers` / `timeout` / `callTimeoutMs` / `enabled` / `owuiImageCompat` 外，含 `reconnect` / `reconnectMinDelayMs` / `reconnectMaxDelayMs`）；`loader.ts` 补 headers 插值面（认证头经 `%VAR%` / `${VAR}` 注入）。会话层经 SDK 1.30 `StreamableHTTPClientTransport` 接入，认证头经 `requestInit.headers` 透传；出口走全局 fetch（Bun 承接机器级 HTTP(S)_PROXY——Servy 服务上下文代理变量已实测在役）。旧两态（stdio / sse）行为零变更；判别分支置于 SSE 之前（规避结构收窄歧义）。
+
+    （c）自愈语义（退避重连监督，仅 Streamable HTTP；`reconnect: false` 可关）：触发面三处——① 意外断连（Protocol onclose，READY 期判定）；② 调用期非超时异常（疑似传输故障，READY 期一次事件即入监督）；③ 初始连接失败（池保留会话对象不再判死刑，覆盖启动期网络/代理未就绪）。退避 min（缺省 1 s）翻倍至 max（缺省 60 s）、±20% 抖动；重连成功自动 `refreshTools` 并复位计数；监督期状态机复用 READY/CONNECTING/FAILED（`/servers` 与 `/omg` 的 READY 门控自动衔接）。`close()` 与池关停清退定时器与在途重连（`supervisionAbort`）。
+
+    （d）池侧行为：`pool.addServer` 失败分支对自愈型会话（无旧会话 ∨ 旧会话非 READY）保留并注册入池、进入监督；旧会话 READY 时维持 P0-2 保护不合入。既有 stdio/sse 失败路径零变更。
+
+    （e）验证：`tests/session.streamable.test.ts` 5 用例（连接/头部透传、断连检测 → 退避重连 → 恢复、初始失败自愈、reconnect:false 旧语义、401 负例）全绿；夹具 `tests/fixtures/streamable-server.ts`（Bun.serve + WebStandard stateless——SDK 1.30 要求每请求新建绑定；独立控制端口支持真实拒连/恢复）。全仓套件 44 → 49、tsc 0。同批次附带目录服务名检索域修正（提交 `f837b57`，权重回填见决策 24（c））。部署与 SaaS 池接入（S2）另行报批（T2 确认制）。
+
 ## CURRENT_FOCUS
 
 - R3 工件管道、单文件二进制部署与运行形态迁移均已验证完成（2026-09-27）；WinSW 已退役（旧件归档 `Service/winsw-archive/`）。
 - 目录面（决策 24）批次：catalog 内核 + /omg 接线 + 判据修正（23d）已入仓（提交 `1a9afcf` / `9aff62f` / `9a1ce83`；43 用例 + regress 3/3 门禁全绿）；部署已入账（产物 `128ace6f…`）——OWUI 接线完成：五模型引用切换、Firecrawl 关闭、三池禁用（备份留档在册）。
+- S1 批次（决策 25）：Streamable HTTP 传输 + 远程池退避重连自愈 + 服务名检索域修正已入仓（提交 `f59fc1f` / `f837b57`；49 用例全绿）；部署与 SaaS 池接入（S2）按 T2 确认制执行。
 - 下一步：任务 1（`find_tab`）→ 5（Streamable HTTP）→ 4（工程治理）→ 界面端验收 → 1.0.0 发布。
 
 ## KNOWN_BUGS

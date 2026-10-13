@@ -1,12 +1,12 @@
 # AGENTS.md — open-mcp-gateway（OMG）
 
-> 深度上下文：`doc/adr/`（本地化 ADR，git 为唯一版本载体）；环境与拓扑见 `terminal:env-local` 技能。（v1.7 · 2026-10-13）
+> 深度上下文：`doc/adr/`（本地化 ADR，git 为唯一版本载体）；环境与拓扑见 `terminal:env-local` 技能。（v1.8 · 2026-10-13）
 
 ## 这是什么
 
-MCP 聚合网关：本地 MCP Server 以 `stdio` 或 `sse` 接入，其工具统一包装为 OpenAPI 3.1.0 REST（每工具 `POST /{server}/{tool}`），由 Open WebUI 经 OpenAPI Servers 挂载使用。
+MCP 聚合网关：本地或远程 MCP Server 以 `stdio` / `sse` / `streamable-http` 接入，其工具统一包装为 OpenAPI 3.1.0 REST（每工具 `POST /{server}/{tool}`），由 Open WebUI 经 OpenAPI Servers 挂载使用。
 
-没有 MCP 直通。上游一侧只有 `stdio` 与 `sse` 两种形态，没有 Streamable HTTP——动传输相关代码前先回 `doc/adr/` 确认。配置 `config.json5` 支持 `%VAR%` 与 `${VAR}` 插值并热重载（300 ms 防抖）。
+没有 MCP 直通。上游一侧支持 `stdio`、`sse` 与 Streamable HTTP（`transport: 'streamable-http'`）三种形态——动传输相关代码前先回 `doc/adr/` 确认。配置 `config.json5` 支持 `%VAR%` 与 `${VAR}` 插值（含 url / headers）并热重载（300 ms 防抖）。远程池具备退避重连自愈（`reconnect: false` 可关；决策 25）。
 
 ## 常用命令
 
@@ -19,7 +19,7 @@ MCP 聚合网关：本地 MCP Server 以 `stdio` 或 `sse` 接入，其工具统
 
 - `src/server/gateway.ts` — HTTP 路由、OpenAPI 生成、工具转发与图像协商
 - `src/mcp/pool.ts` — 会话池（蓝绿重载、优雅停机、`enabled` 禁用登记簿）
-- `src/mcp/session.ts` — 单服务 MCP 会话（stdio/sse）
+- `src/mcp/session.ts` — 单服务 MCP 会话（stdio/sse/streamable-http；远程池退避重连监督）
 - `src/config/loader.ts` — JSON5 解析、变量插值、文件热重载
 - `src/openapi/generator.ts` — OpenAPI 3.1.0 规范生成
 - `src/openapi/catalog.ts` — 统一工具目录入口（/omg：search_tools / call_tool；决策 24）
