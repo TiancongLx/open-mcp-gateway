@@ -1,7 +1,7 @@
 # open-mcp-gateway — 架构决策记录（ADR）
 
-> 版本：v3.5（S1 与目录人机工程迭代 · 部署入账）· 2026-10-13
-> 变更摘要：新增决策 24（统一工具目录入口，含（j）人机工程迭代：server 枚举 / 失败附挂 input_schema / 时间戳）与决策 25（Streamable HTTP 传输与远程池断连自愈，S1）；决策 23（d）/24 补记更正在案；S1 与人机工程批次已部署入账（产物 `3c0f8d90…`，2026-10-13）；AGENTS.md v1.8 同步。
+> 版本：v3.6（S2 · SaaS 池接入与 OWUI 收敛）· 2026-10-13
+> 变更摘要：新增决策 26（S2 · SaaS 池接入：GitHub / Context7 折入 OMG + instructions 保真 + 就绪门 ≥5 + OWUI 单连接收敛）；S2 全链已部署验证（2026-10-13）；AGENTS.md v1.9 同步。
 
 ## PURPOSE
 
@@ -105,11 +105,27 @@ MCP 会话池（mcp/pool.ts）── codebase_memory / drawio / repomix（三池
 
     （e）验证：`tests/session.streamable.test.ts` 5 用例（连接/头部透传、断连检测 → 退避重连 → 恢复、初始失败自愈、reconnect:false 旧语义、401 负例）全绿；夹具 `tests/fixtures/streamable-server.ts`（Bun.serve + WebStandard stateless——SDK 1.30 要求每请求新建绑定；独立控制端口支持真实拒连/恢复）。全仓套件 44 → 49、tsc 0。同批次附带目录服务名检索域修正（提交 `f837b57`，权重回填见决策 24（c））。部署入账（2026-10-13）：产物 `3c0f8d90…`（99,932,672 B）经 stage 软链入役，omg-svc 重启就绪门 `ALL_READY`（3.8 s）；冒烟（枚举 17 工具 / 零命中提示 / 服务作用域检索）与 regress 3/3（cases=51）通过；OWUI 侧重存触发 spec 重取（OMG 日志 `GET /omg/openapi.json` 落痕核验，OWUI 侧零错误）。二进制回滚 = `omg.exe.bak-20261013-pre-ergonomics`（`128ace6f…`）；连接/模型回滚资产见决策 24（i）。SaaS 池接入（S2）另行报批（T2 确认制）。
 
+26. （2026-10-13）SaaS 池接入与 OWUI 收敛（S2 批次；决策 24「选择 A 全折入 OMG」的落地；实现提交 `88a8ff3` + 判据提交 `ec802dd`）：
+
+    （a）范围与动因（用户裁决 2026-10-13）：GitHub / Context7（原 OWUI 直连 MCP）折入 OMG 上游——OWUI 集成工具收敛为单一 `/omg` 连接（终态：模型+检索 = LiteLLM / 集成工具 = OMG / 终端 = OTT）。出口纪律：一律经 Xray（GitHub 直连不可预期；Bun fetch 走机器级 `HTTP(S)_PROXY`，Servy 服务上下文继承已实测）。
+
+    （b）实现：两池 `transport: 'streamable-http'`（决策 25）+ 认证头 `Authorization: Bearer %GITHUB_MCP_KEY%` / `%CONTEXT7_MCP_KEY%`（loader headers 插值面）；instructions 保真——会话层捕获 MCP initialize `instructions`，`/omg/tools/search` 按命中服务附出 `server_instructions`（不常驻 spec / 系统提示）；manifest 预算 700 → 1700（五池 76 工具全名清单 ≈1.5k 字符）。
+
+    （c）就绪门判据升级：`scripts/regress.ts` 与 `restart-svc.ps1` 池数下限 3 → 5（五池现实 2026-10-13 起；截断类配置故障可被捕获）；`restart-svc.ps1.bak-20261013-s2` 备份在册。
+
+    （d）密钥注入（环境面，root HKCU 仍为值源）：GITHUB_MCP_KEY / CONTEXT7_MCP_KEY（值源 = OWUI 连接凭据，长度 40 / 43）——① root HKCU 就位（三源哈希互证）；② 服务环境快照经 Servy `import` 更新——源码级确认 `preserveExistingCredentials / preserveExistingRuntimeState: true` 恒开，账号 `.\root` 与其余 10 项环境零扰动（实测回读 12 项）；③ `install-omg-servy.ps1` envPairs +2（备份 `.bak-20261013-s2`；未来安装自洽）。服务环境前态备份：`omg-svc-env-pre-s2.json`。
+
+    （e）验证（2026-10-13）：沙箱预演（独立 XDG，端口 9091）——两池实连（github 46 / context7 2 工具）+ instructions 保真（1,802 / 632 字符）+ 实调（`get_me` 1.73 s / `resolve-library-id` 2.92 s）；部署窗口（stop → config 1821→2576 B（备份 `config.json5.bak-20261013-s2`）→ Bun JSON5 解析门 → restart）——就绪门 `ALL_READY after 4261 ms`（五池：cbm 17 / drawio 5 / repomix 6 / github 46 / context7 2 = 76 工具）；`/omg` 规格 3,878 → 4,754 B；生产冒烟：`server_instructions.github` 1,802 字符随检索附出、`get_me` 0.57 s、`resolve-library-id` 1.52 s；regress 3/3（P1=200/ALL_READY(5)）。
+
+    （f）OWUI 收敛（单保存窗口）：连接面 3 → 1（保留 `OMG`；删除 github / context7；OMG 对象 11 字段逐一 EQUAL，零归一化损伤）；七模型悬空引用清理（glm×2 / mimo×2 / deepseek → `[server:OMG]`；gemini / grounding-formalization-architect → `[]`；meta 其余键与 params 零变动）；保存触发 spec 重取（OMG 日志 `21:50:41 GET /omg/openapi.json` 落痕，OWUI 零错误）；全配置导出残留扫描零命中。回滚 = `owui-connections-pre-s2.json` + `owui-models-pre-s2.json` 回灌。
+
+    （g）T3 实测回填（F1 口径，复刻 OWUI 转换）：/omg 可见载荷 search_tools 2,366 + call_tool 823 = 3,189 字符（S2 前同口径 2,313；历史 1,826 属 T1 首代 spec，代际不可直比）。工具区终值：OMG 3,189 + OTT 13,508 ≈ 16.7k 字符（对停 FC 后 72.6k ≈ −77%；对全工具面起点 161.3k ≈ −89.6%）；SaaS 净变化 = +876（manifest 28→76 工具）− 57,290（两连接移除）= −56,414；每消息 MCP 固定开销 github/context7 合计 4.6 s 归零；`cached_tokens` A/B 待真实会话流量回填。
+
 ## CURRENT_FOCUS
 
 - R3 工件管道、单文件二进制部署与运行形态迁移均已验证完成（2026-09-27）；WinSW 已退役（旧件归档 `Service/winsw-archive/`）。
 - 目录面（决策 24）批次：catalog 内核 + /omg 接线 + 判据修正（23d）已入仓（提交 `1a9afcf` / `9aff62f` / `9a1ce83`；43 用例 + regress 3/3 门禁全绿）；部署已入账（产物 `128ace6f…`）——OWUI 接线完成：五模型引用切换、Firecrawl 关闭、三池禁用（备份留档在册）。
-- S1 批次（决策 25）与人机工程迭代（决策 24（j））：已部署（产物 `3c0f8d90…`，就绪门 3.8 s，regress 3/3 / cases=51，冒烟全绿）；待办：S2（SaaS 池接入：github / context7 配置 + Xray 出口实测 + OWUI 清旧连接）按 T2 确认制执行。
+- S2 批次（决策 26）：已部署（产物 `ddabb246…`，五池就绪门 4.3 s；regress 3/3 / P1=ALL_READY(5)）；OWUI 收敛为单 /omg 连接（github / context7 已删除、模型引用清理完毕、spec 重取留痕核验）。待办：T3 复测收尾（cached_tokens A/B 待真实流量）、OTT「按 OT 严格对齐」批次（不单独立项，见工具面测试计划 Note）。
 - 下一步：任务 1（`find_tab`）→ 5（Streamable HTTP）→ 4（工程治理）→ 界面端验收 → 1.0.0 发布。
 
 ## KNOWN_BUGS

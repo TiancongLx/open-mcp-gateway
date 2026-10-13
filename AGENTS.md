@@ -1,12 +1,12 @@
 # AGENTS.md — open-mcp-gateway（OMG）
 
-> 深度上下文：`doc/adr/`（本地化 ADR，git 为唯一版本载体）；环境与拓扑见 `terminal:env-local` 技能。（v1.8 · 2026-10-13）
+> 深度上下文：`doc/adr/`（本地化 ADR，git 为唯一版本载体）；环境与拓扑见 `terminal:env-local` 技能。（v1.9 · 2026-10-13）
 
 ## 这是什么
 
 MCP 聚合网关：本地或远程 MCP Server 以 `stdio` / `sse` / `streamable-http` 接入，其工具统一包装为 OpenAPI 3.1.0 REST（每工具 `POST /{server}/{tool}`），由 Open WebUI 经 OpenAPI Servers 挂载使用。
 
-没有 MCP 直通。上游一侧支持 `stdio`、`sse` 与 Streamable HTTP（`transport: 'streamable-http'`）三种形态——动传输相关代码前先回 `doc/adr/` 确认。配置 `config.json5` 支持 `%VAR%` 与 `${VAR}` 插值（含 url / headers）并热重载（300 ms 防抖）。远程池具备退避重连自愈（`reconnect: false` 可关；决策 25）。
+没有 MCP 直通。上游一侧支持 `stdio`、`sse` 与 Streamable HTTP（`transport: 'streamable-http'`）三种形态——动传输相关代码前先回 `doc/adr/` 确认。配置 `config.json5` 支持 `%VAR%` 与 `${VAR}` 插值（含 url / headers）并热重载（300 ms 防抖）。远程池具备退避重连自愈（`reconnect: false` 可关；决策 25）。生产池五态：本地三池（codebase_memory / drawio / repomix）+ GitHub / Context7（Streamable HTTP，经 Xray 出口；密钥经服务环境注入，勿硬编码）。
 
 ## 常用命令
 
@@ -34,4 +34,4 @@ MCP 聚合网关：本地或远程 MCP Server 以 `stdio` / `sse` / `streamable-
 
 ## 验证
 
-- `bun test` + `tsc --noEmit` 全绿；改动配置后看 `GET /servers` 各池 `READY` 且 `lastError` 为空
+- `bun test` + `tsc --noEmit` 全绿；改动配置后看 `GET /servers` 五池 `READY` 且 `lastError` 为空（就绪门判据 ≥5，五池现实 2026-10-13 起）
