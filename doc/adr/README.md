@@ -89,6 +89,8 @@ MCP 会话池（mcp/pool.ts）── codebase_memory / drawio / repomix（三池
 
     （i）部署与 OWUI 接线入账（2026-10-13）：产物 `128ace6f…`（99,875,328 B）经 stage 软链入役，omg-svc 重启就绪门 `ALL_READY`（4.9 s），regress 3/3；OWUI 侧接线顺序为——新增 OMG 连接（`http://redmi:8444/omg`，spec 3,315 B，容器视角拉取核验）→ 五模型 toolIds `server:CBM` → `server:OMG` → 同窗口禁用 Firecrawl（关闭、保留条目与密钥）与三池连接。实测回填：三池工具定义 33,770 → 统一入口 1,826 字符（-94.6%）；每次保存后的 OWUI 拉取链经 OMG 日志核验（17:35:49 四规格；17:37:00 仅 /omg）。回滚 = 连接备份 `owui-connections-pre-wire1/pre-wire2.json` 与模型备份 `owui-models-pre-swap.json` 回灌 + 模型引用回切；二进制回滚 = `omg.exe.bak-20261013-pre-catalog`。同日稍后：用户于面板彻底删除 Firecrawl 与三池连接条目（连接面收敛为 github / context7 / OMG 三条；模型侧悬空引用 firecrawl / greptile 清理，留档 `owui-models-pre-refclean.json`）；首验项（严格栈嵌套 `arguments`）实测通过——验收聊天「codebase_memory 工具查询」内 `call_tool` 两次嵌套实调成功。
 
+    （j）目录人机工程迭代（2026-10-13，基于验收会话的 LLM 复盘评估）：① search_tools 增 `server` 枚举语义——显式 `server` 参数（query 缺省即枚举）或查询词恰为 READY 服务名（便利语义）时，返回该服务全部工具（按名排序；缺省全量、显式 count 截断，安全上限 100）；② 检索响应附 `generated_at`、快照清单附生成时间戳（漂移可辨识）；③ call 失败（MCP `isError` 结果或调用异常）自动补挂该工具 `input_schema`（自修复不依赖重搜）；④ 零命中附枚举提示。测试：新增枚举/作用域/错误回挂/提示用例（套件 49 → 51，含既有断言扩展）。
+
 25. （2026-10-13）Streamable HTTP 传输与远程池断连自愈（S1 批次；决策 24「任何形态 MCP 经 OMG 转 OpenAPI」的使能器；实现提交 `f59fc1f`）：
 
     （a）动因：SaaS 收编（GitHub / Context7；测试计划 Note 七·D「选择 A」）要求上游传输三态完备（stdio / SSE / Streamable HTTP 此前缺第三态）；远程池在网络波动、代理链路抖动与上游维护窗口下需要断连自愈，而非既有的「一次性连接」语义。
