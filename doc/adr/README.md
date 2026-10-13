@@ -119,13 +119,13 @@ MCP 会话池（mcp/pool.ts）── codebase_memory / drawio / repomix（三池
 
     （f）OWUI 收敛（单保存窗口）：连接面 3 → 1（保留 `OMG`；删除 github / context7；OMG 对象 11 字段逐一 EQUAL，零归一化损伤）；七模型悬空引用清理（glm×2 / mimo×2 / deepseek → `[server:OMG]`；gemini / grounding-formalization-architect → `[]`；meta 其余键与 params 零变动）；保存触发 spec 重取（OMG 日志 `21:50:41 GET /omg/openapi.json` 落痕，OWUI 零错误）；全配置导出残留扫描零命中。回滚 = `owui-connections-pre-s2.json` + `owui-models-pre-s2.json` 回灌。
 
-    （g）T3 实测回填（F1 口径，复刻 OWUI 转换）：/omg 可见载荷 search_tools 2,366 + call_tool 823 = 3,189 字符（S2 前同口径 2,313；历史 1,826 属 T1 首代 spec，代际不可直比）。工具区终值：OMG 3,189 + OTT 13,508 ≈ 16.7k 字符（对停 FC 后 72.6k ≈ −77%；对全工具面起点 161.3k ≈ −89.6%）；SaaS 净变化 = +876（manifest 28→76 工具）− 57,290（两连接移除）= −56,414；每消息 MCP 固定开销 github/context7 合计 4.6 s 归零；`cached_tokens` A/B 待真实会话流量回填。
+    （g）T3 实测回填（F1 口径，复刻 OWUI 转换）：/omg 可见载荷 search_tools 2,366 + call_tool 823 = 3,189 字符（S2 前同口径 2,313；历史 1,826 属 T1 首代 spec，代际不可直比）。工具区终值：OMG 3,189 + OTT 13,508 ≈ 16.7k 字符（对停 FC 后 72.6k ≈ −77%；对全工具面起点 161.3k ≈ −89.6%）；SaaS 净变化 = +876（manifest 28→76 工具）− 57,290（两连接移除）= −56,414；每消息 MCP 固定开销 github/context7 合计 4.6 s 归零；`cached_tokens` 回填（2026-10-14 验收聊天「GitHub Tools Enumeration」）：累计输入 84,750 / 缓存命中 50,496（≈59.6%）；验收：枚举 46/46 一次取齐 + `get_me` 成功，全程 23.5 s。
 
 ## CURRENT_FOCUS
 
 - R3 工件管道、单文件二进制部署与运行形态迁移均已验证完成（2026-09-27）；WinSW 已退役（旧件归档 `Service/winsw-archive/`）。
 - 目录面（决策 24）批次：catalog 内核 + /omg 接线 + 判据修正（23d）已入仓（提交 `1a9afcf` / `9aff62f` / `9a1ce83`；43 用例 + regress 3/3 门禁全绿）；部署已入账（产物 `128ace6f…`）——OWUI 接线完成：五模型引用切换、Firecrawl 关闭、三池禁用（备份留档在册）。
-- S2 批次（决策 26）：已部署（产物 `ddabb246…`，五池就绪门 4.3 s；regress 3/3 / P1=ALL_READY(5)）；OWUI 收敛为单 /omg 连接（github / context7 已删除、模型引用清理完毕、spec 重取留痕核验）。待办：T3 复测收尾（cached_tokens A/B 待真实流量）、OTT「按 OT 严格对齐」批次（不单独立项，见工具面测试计划 Note）。
+- S2 批次（决策 26）：已部署（产物 `ddabb246…`，五池就绪门 4.3 s；regress 3/3 / P1=ALL_READY(5)）；OWUI 收敛为单 /omg 连接（github / context7 已删除、模型引用清理完毕、spec 重取留痕核验）。待办：OTT「按 OT 严格对齐」批次（不单独立项，见工具面测试计划 Note）；T3 缓存已回填（验收聊天「GitHub Tools Enumeration」，见决策 26（g））。
 - 下一步：任务 1（`find_tab`）→ 5（Streamable HTTP）→ 4（工程治理）→ 界面端验收 → 1.0.0 发布。
 
 ## KNOWN_BUGS
