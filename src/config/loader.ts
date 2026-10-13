@@ -57,6 +57,14 @@ export class ConfigManager {
                         }
                     } else if ('url' in srvConf && typeof srvConf.url === 'string') {
                         srvConf.url = interpolateVariables(srvConf.url, this.xdg);
+                        // 传输头透传面（认证等）：HTTP+SSE 与 Streamable HTTP 共用
+                        if ('headers' in srvConf && srvConf.headers && typeof srvConf.headers === 'object') {
+                            for (const [headerKey, headerVal] of Object.entries(srvConf.headers)) {
+                                if (typeof headerVal === 'string') {
+                                    srvConf.headers[headerKey] = interpolateVariables(headerVal, this.xdg);
+                                }
+                            }
+                        }
                     }
                 }
 

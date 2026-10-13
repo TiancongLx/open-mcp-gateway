@@ -55,6 +55,16 @@ export class McpPool {
                 }
             } catch (err) {
                 warn(`[${name}] 会话连接未能建立: ${err instanceof Error ? err.message : String(err)}`);
+                // 远程池断连自愈（S1 批次）：Streamable HTTP 会话不判死刑——保留会话对象进入退避
+                // 重连监督（含初始连接失败；oldSession 仍 READY 时维持 P0-2 保护，不替换）。
+                if (nextSession.canSelfHeal && (!oldSession || oldSession.state !== 'READY')) {
+                    if (oldSession && oldSession !== nextSession) {
+                        await oldSession.close();
+                    }
+                    this.sessions.set(name, nextSession);
+                    nextSession.beginSupervision();
+                    return;
+                }
                 await nextSession.close();
                 // P0-2 修复：连接失败时绝不覆盖既有会话。旧行为用 FAILED 的 nextSession
                 // 顶替 map 中的 oldSession → ① 健康 READY 会话被踢下线（可用性回退）；
