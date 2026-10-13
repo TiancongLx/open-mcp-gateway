@@ -1,7 +1,7 @@
 # open-mcp-gateway — 架构决策记录（ADR）
 
-> 版本：v3.4（Streamable HTTP 与远程池断连自愈 · S1）· 2026-10-13
-> 变更摘要：新增决策 24（统一工具目录入口：/omg 统一 compact 规格 + search_tools / call_tool，组合 A 命名；含 READY 门控与离线场景条款）；决策 23（d）更正记录；决策 24 补记（连接面收敛、首验通过）；新增决策 25（Streamable HTTP 传输与远程池退避重连自愈，S1 批次；含目录服务名检索域修正）；AGENTS.md v1.8 同步。
+> 版本：v3.5（S1 与目录人机工程迭代 · 部署入账）· 2026-10-13
+> 变更摘要：新增决策 24（统一工具目录入口，含（j）人机工程迭代：server 枚举 / 失败附挂 input_schema / 时间戳）与决策 25（Streamable HTTP 传输与远程池断连自愈，S1）；决策 23（d）/24 补记更正在案；S1 与人机工程批次已部署入账（产物 `3c0f8d90…`，2026-10-13）；AGENTS.md v1.8 同步。
 
 ## PURPOSE
 
@@ -101,13 +101,13 @@ MCP 会话池（mcp/pool.ts）── codebase_memory / drawio / repomix（三池
 
     （d）池侧行为：`pool.addServer` 失败分支对自愈型会话（无旧会话 ∨ 旧会话非 READY）保留并注册入池、进入监督；旧会话 READY 时维持 P0-2 保护不合入。既有 stdio/sse 失败路径零变更。
 
-    （e）验证：`tests/session.streamable.test.ts` 5 用例（连接/头部透传、断连检测 → 退避重连 → 恢复、初始失败自愈、reconnect:false 旧语义、401 负例）全绿；夹具 `tests/fixtures/streamable-server.ts`（Bun.serve + WebStandard stateless——SDK 1.30 要求每请求新建绑定；独立控制端口支持真实拒连/恢复）。全仓套件 44 → 49、tsc 0。同批次附带目录服务名检索域修正（提交 `f837b57`，权重回填见决策 24（c））。部署与 SaaS 池接入（S2）另行报批（T2 确认制）。
+    （e）验证：`tests/session.streamable.test.ts` 5 用例（连接/头部透传、断连检测 → 退避重连 → 恢复、初始失败自愈、reconnect:false 旧语义、401 负例）全绿；夹具 `tests/fixtures/streamable-server.ts`（Bun.serve + WebStandard stateless——SDK 1.30 要求每请求新建绑定；独立控制端口支持真实拒连/恢复）。全仓套件 44 → 49、tsc 0。同批次附带目录服务名检索域修正（提交 `f837b57`，权重回填见决策 24（c））。部署入账（2026-10-13）：产物 `3c0f8d90…`（99,932,672 B）经 stage 软链入役，omg-svc 重启就绪门 `ALL_READY`（3.8 s）；冒烟（枚举 17 工具 / 零命中提示 / 服务作用域检索）与 regress 3/3（cases=51）通过；OWUI 侧重存触发 spec 重取（OMG 日志 `GET /omg/openapi.json` 落痕核验，OWUI 侧零错误）。二进制回滚 = `omg.exe.bak-20261013-pre-ergonomics`（`128ace6f…`）；连接/模型回滚资产见决策 24（i）。SaaS 池接入（S2）另行报批（T2 确认制）。
 
 ## CURRENT_FOCUS
 
 - R3 工件管道、单文件二进制部署与运行形态迁移均已验证完成（2026-09-27）；WinSW 已退役（旧件归档 `Service/winsw-archive/`）。
 - 目录面（决策 24）批次：catalog 内核 + /omg 接线 + 判据修正（23d）已入仓（提交 `1a9afcf` / `9aff62f` / `9a1ce83`；43 用例 + regress 3/3 门禁全绿）；部署已入账（产物 `128ace6f…`）——OWUI 接线完成：五模型引用切换、Firecrawl 关闭、三池禁用（备份留档在册）。
-- S1 批次（决策 25）：Streamable HTTP 传输 + 远程池退避重连自愈 + 服务名检索域修正已入仓（提交 `f59fc1f` / `f837b57`；49 用例全绿）；部署与 SaaS 池接入（S2）按 T2 确认制执行。
+- S1 批次（决策 25）与人机工程迭代（决策 24（j））：已部署（产物 `3c0f8d90…`，就绪门 3.8 s，regress 3/3 / cases=51，冒烟全绿）；待办：S2（SaaS 池接入：github / context7 配置 + Xray 出口实测 + OWUI 清旧连接）按 T2 确认制执行。
 - 下一步：任务 1（`find_tab`）→ 5（Streamable HTTP）→ 4（工程治理）→ 界面端验收 → 1.0.0 发布。
 
 ## KNOWN_BUGS
