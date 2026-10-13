@@ -1,7 +1,7 @@
 # open-mcp-gateway — 架构决策记录（ADR）
 
-> 版本：v3.7（检索计数显式化 · 实现入仓）· 2026-10-14
-> 变更摘要：新增决策 26（S2 · SaaS 池接入：GitHub / Context7 折入 OMG + instructions 保真 + 就绪门 ≥5 + OWUI 单连接收敛）；S2 全链已部署验证（2026-10-13）；AGENTS.md v1.9 同步；决策 24（l）检索响应计数显式化（2026-10-14 实现入仓）。
+> 版本：v3.7（检索计数显式化 · 部署入账）· 2026-10-14
+> 变更摘要：新增决策 26（S2 · SaaS 池接入：GitHub / Context7 折入 OMG + instructions 保真 + 就绪门 ≥5 + OWUI 单连接收敛）；S2 全链已部署验证（2026-10-13）；AGENTS.md v1.9 同步；决策 24（l）检索响应计数显式化（2026-10-14 实现并部署入账，产物 `304ff32c…`）。
 
 ## PURPOSE
 
@@ -93,7 +93,7 @@ MCP 会话池（mcp/pool.ts）── codebase_memory / drawio / repomix（三池
 
     （k）交叉裁定更新（2026-10-13）：OTT 工具折叠裁定撤销（用户裁决；依据：消费端 `display_file` 三层按名特判、白名单扩容后净收益 ≈ -8%、避免与「按 OT 严格对齐」工作重复）——（e）中 `search_terminal_tools` / `call_terminal_tool` 命名不再实施；（h）中 OTT 部分修正为「全量直出」，合计实测随 T3 复测回填。裁量正文与账目见工具面测试计划 Note（T2 节）。
 
-    （l）检索响应计数显式化（2026-10-14，实现入仓）：`search_tools` 响应新增 `count` 字段（= 返回工具条数；零命中为 0）——消除模型端手数误差（验收聊天「GitHub Tools Enumeration」实录：返回 46、模型自述 49）；规格 200 响应描述同步；测试断言扩展（精确检索 / 枚举 / 截断 / 零命中）。部署另行报批。
+    （l）检索响应计数显式化（2026-10-14，实现入仓）：`search_tools` 响应新增 `count` 字段（= 返回工具条数；零命中为 0）——消除模型端手数误差（验收聊天「GitHub Tools Enumeration」实录：返回 46、模型自述 49）；规格 200 响应描述同步；测试断言扩展（精确检索 / 枚举 / 截断 / 零命中）。部署入账（2026-10-14）：产物 `304ff32c…`（stage 软链校验通过）；omg-svc 重启就绪门 `ALL_READY after 4411 ms`；冒烟（枚举 count=46 / 截断 count=2 / 零命中 count=0；规格 4,754 → 4,800 B）+ regress 3/3（P1=ALL_READY(5)）；OWUI 重存触发重取核验（OMG 日志 04:35:46 落痕）；回滚 = `omg.exe.bak-20261014-pre-count`（前产物 `ddabb246…`）。
 
 25. （2026-10-13）Streamable HTTP 传输与远程池断连自愈（S1 批次；决策 24「任何形态 MCP 经 OMG 转 OpenAPI」的使能器；实现提交 `f59fc1f`）：
 
@@ -128,6 +128,7 @@ MCP 会话池（mcp/pool.ts）── codebase_memory / drawio / repomix（三池
 - R3 工件管道、单文件二进制部署与运行形态迁移均已验证完成（2026-09-27）；WinSW 已退役（旧件归档 `Service/winsw-archive/`）。
 - 目录面（决策 24）批次：catalog 内核 + /omg 接线 + 判据修正（23d）已入仓（提交 `1a9afcf` / `9aff62f` / `9a1ce83`；43 用例 + regress 3/3 门禁全绿）；部署已入账（产物 `128ace6f…`）——OWUI 接线完成：五模型引用切换、Firecrawl 关闭、三池禁用（备份留档在册）。
 - S2 批次（决策 26）：已部署（产物 `ddabb246…`，五池就绪门 4.3 s；regress 3/3 / P1=ALL_READY(5)）；OWUI 收敛为单 /omg 连接（github / context7 已删除、模型引用清理完毕、spec 重取留痕核验）。待办：OTT「按 OT 严格对齐」批次（不单独立项，见工具面测试计划 Note）；T3 缓存已回填（验收聊天「GitHub Tools Enumeration」，见决策 26（g））。
+- 检索计数显式化（决策 24（l））：实现 + 部署已完成（产物 `304ff32c…`，2026-10-14；冒烟 + regress 3/3 + OWUI 重存核验）。
 - 下一步：任务 1（`find_tab`）→ 5（Streamable HTTP）→ 4（工程治理）→ 界面端验收 → 1.0.0 发布。
 
 ## KNOWN_BUGS
