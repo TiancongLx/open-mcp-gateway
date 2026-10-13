@@ -6,7 +6,7 @@
 //   ② 大 schema 以「工具结果」按需返回（提示词缓存前缀不被改写）；
 //   ③ provider tools 数组随池状态稳定。
 //
-// 检索语义：精确工具名直返命中；否则按加权重叠排名（name×3 / 参数名×2 /
+// 检索语义：精确工具名直返命中；否则按加权重叠排名（name×3 / 服务名×2 / 参数名×2 /
 // description×1；camelCase 拆分 + CJK 二元组）；count 缺省 5、上限 20
 // （对齐 OWUI Tool Search 参数语义）。search_tools 描述内嵌「服务: 工具名」
 // 清单（manifest）——于 spec 缓存时刻生成（配置态快照）；搜索与调用实时。
@@ -80,11 +80,13 @@ function propertyKeys(inputSchema: unknown): string[] {
 
 function scoreEntry(entry: CatalogToolEntry, queryTokens: string[]): number {
     const nameTokens = new Set(tokenize(entry.name));
+    const serverTokens = new Set(tokenize(entry.server));
     const paramTokens = new Set(tokenize(propertyKeys(entry.inputSchema).join(' ')));
     const descriptionTokens = new Set(tokenize(entry.description));
     let score = 0;
     for (const token of queryTokens) {
         if (nameTokens.has(token)) score += 3;
+        if (serverTokens.has(token)) score += 2; // 服务名：低权重信号（服务名查询直指该服务工具）
         if (paramTokens.has(token)) score += 2;
         if (descriptionTokens.has(token)) score += 1;
     }

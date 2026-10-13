@@ -60,6 +60,21 @@ describe('catalog 排名', () => {
         expect(searchCatalog(cjk, '文档').map((h) => h.name)).toEqual(['read_doc']);
     });
 
+    test('服务名纳入检索域（低权重）：服务名查询命中该服务工具', () => {
+        const entries = [
+            makeEntry('codebase_memory', 'list_projects', 'stable paging'),
+            makeEntry('codebase_memory', 'search_code', 'Find code'),
+            makeEntry('repomix', 'pack_codebase', 'Package a local code directory'),
+        ];
+        const hits = searchCatalog(entries, 'codebase_memory', 20);
+        expect(hits.map((h) => `${h.server}:${h.name}`)).toEqual([
+            'codebase_memory:list_projects',
+            'codebase_memory:search_code',
+            'repomix:pack_codebase',
+        ]);
+        expect(searchCatalog(entries, 'memory', 20).map((h) => h.name)).toEqual(['list_projects', 'search_code']);
+    });
+
     test('无命中与空查询', () => {
         expect(searchCatalog(entries, 'zzz')).toEqual([]);
         expect(searchCatalog(entries, '   ')).toEqual([]);

@@ -74,7 +74,7 @@ MCP 会话池（mcp/pool.ts）── codebase_memory / drawio / repomix（三池
 
     （b）形态：新增保留命名空间 `/omg`（`mcpServers` 若占用该名则启动告警并遮蔽——当前三池无冲突；启动检查 + 路由侧惰性告警双保险）。新增：`GET /omg`、`GET /omg/openapi.json`（统一 compact 规格，两路径同构）；`POST /omg/tools/search`（operationId `search_tools`）；`POST /omg/tools/call`（operationId `call_tool`）。本版无配置面（纯增量路由；开关与参数化后续按需裁决）。旧三池路径（`/{server}`、`/{server}/openapi.json`、`POST /{server}/{tool}`）行为零变更。
 
-    （c）语义：search 入参 `{query, count?}`——精确工具名直返命中（跨池同名时全量返回以消歧），否则按加权重叠排名（name×3 / 参数名×2 / description×1；camelCase 拆分 + CJK 二元组），`count` 缺省 5、上限 20（对齐 OWUI Tool Search 参数语义）；返回 `{tools: [{server, name, description, input_schema}], unavailable_servers: [...]}`，仅含 READY 池命中并附不可用池提示。call 入参 `{tool, arguments?, server?}`——`server` 缺省时按名跨池解析（0 命中返回候选提示 / 1 命中直调 / 多命中返回歧义列表）；执行复用会话池 `callTool` 与图像三态协商，`X-Tool-Context-*` 透传；HTTP 状态语义：未就绪或禁用 503（CONNECTING 附 `Retry-After: 2`）、未知工具或歧义 400、未知服务器 404、异常 500。`search_tools` 描述内嵌「服务: 工具名」清单（预算 ~0.7 kB）——清单于 spec 缓存时刻生成（配置态快照）；搜索与调用实时。
+    （c）语义：search 入参 `{query, count?}`——精确工具名直返命中（跨池同名时全量返回以消歧），否则按加权重叠排名（name×3 / 服务名×2 / 参数名×2 / description×1；camelCase 拆分 + CJK 二元组），`count` 缺省 5、上限 20（对齐 OWUI Tool Search 参数语义）；返回 `{tools: [{server, name, description, input_schema}], unavailable_servers: [...]}`，仅含 READY 池命中并附不可用池提示。call 入参 `{tool, arguments?, server?}`——`server` 缺省时按名跨池解析（0 命中返回候选提示 / 1 命中直调 / 多命中返回歧义列表）；执行复用会话池 `callTool` 与图像三态协商，`X-Tool-Context-*` 透传；HTTP 状态语义：未就绪或禁用 503（CONNECTING 附 `Retry-After: 2`）、未知工具或歧义 400、未知服务器 404、异常 500。`search_tools` 描述内嵌「服务: 工具名」清单（预算 ~0.7 kB）——清单于 spec 缓存时刻生成（配置态快照）；搜索与调用实时。
 
     （d）规模与兼容：三池全量工具定义快照 33,770 字符 → 统一入口目标 ≤3 kB（约 -93%；实测随部署批次回填）。OWUI 侧迁移：新增 `/omg` 连接（`http://redmi:8444/omg`，path `openapi.json`）→ 验收 → 禁用旧三连接；回滚 = 反向操作，毫秒级，无数据迁移。
 
