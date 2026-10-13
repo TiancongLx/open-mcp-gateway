@@ -20,7 +20,7 @@ export const SEARCH_TOOL_NAME = 'search_tools';
 export const CALL_TOOL_NAME = 'call_tool';
 export const DEFAULT_SEARCH_COUNT = 5;
 export const MAX_SEARCH_COUNT = 20;
-export const MANIFEST_BUDGET_CHARS = 700;
+export const MANIFEST_BUDGET_CHARS = 1700; // 五池 76 工具全名清单约 1.5k 字符；超预算逐级截断并标记
 
 export interface CatalogToolEntry {
     server: string;
@@ -37,7 +37,7 @@ export interface CatalogSearchHit {
 }
 
 export interface PoolCatalogView {
-    ready: Array<{ server: string; tools: CatalogToolEntry[] }>;
+    ready: Array<{ server: string; tools: CatalogToolEntry[]; instructions?: string | null }>;
     unavailable: string[];
 }
 
@@ -173,7 +173,7 @@ export function collectPoolView(pool: McpPool): PoolCatalogView {
                     inputSchema: tool.inputSchema,
                 }))
                 .sort((a, b) => a.name.localeCompare(b.name));
-            ready.push({ server, tools });
+            ready.push({ server, tools, instructions: session.instructions ?? null });
         } else {
             unavailable.push(server);
         }

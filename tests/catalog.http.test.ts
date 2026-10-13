@@ -115,6 +115,7 @@ describe('统一目录入口（/omg，HTTP 集成）', () => {
         const enumAllBody = (await enumAll.json()) as any;
         expect(enumAllBody.tools.map((t: any) => t.name)).toEqual(['doc_stats', 'echo_args', 'fail_always', 'listItems', 'read_doc']);
         expect(typeof enumAllBody.generated_at).toBe('string');
+        expect(enumAllBody.server_instructions.catalog).toContain('Fixture guidance');
 
         const enumCapped = await post('/omg/tools/search', { server: 'catalog', count: 2 });
         expect(((await enumCapped.json()) as any).tools.map((t: any) => t.name)).toEqual(['doc_stats', 'echo_args']);

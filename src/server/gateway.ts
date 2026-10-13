@@ -427,6 +427,17 @@ export class GatewayServer {
             unavailable_servers: view.unavailable,
             generated_at: new Date().toISOString(),
         };
+        // 服务指令保真（S2）：命中工具所属服务的 MCP instructions 按需附出（不常驻 spec / 系统提示）
+        const hitServers = new Set(hits.map((hit) => hit.server));
+        const serverInstructions: Record<string, string> = {};
+        for (const readyServer of view.ready) {
+            if (hitServers.has(readyServer.server) && readyServer.instructions) {
+                serverInstructions[readyServer.server] = readyServer.instructions;
+            }
+        }
+        if (Object.keys(serverInstructions).length > 0) {
+            responseBody.server_instructions = serverInstructions;
+        }
         if (hits.length === 0) {
             responseBody.hint = scope
                 ? `No matches in server '${scope}'. Omit 'query' to enumerate all of its tools.`

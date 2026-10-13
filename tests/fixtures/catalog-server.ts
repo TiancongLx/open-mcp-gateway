@@ -72,6 +72,7 @@ rl.on('line', (line) => {
                 result: {
                     protocolVersion: (req.params?.protocolVersion as string) ?? '2025-06-18',
                     capabilities: { tools: {} },
+                    instructions: 'Fixture guidance: prefer read_doc for documents.',
                     serverInfo: SERVER_INFO,
                 },
             });

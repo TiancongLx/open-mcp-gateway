@@ -31,6 +31,8 @@ export class McpSession {
     public state: SessionState = 'UNINITIALIZED';
     public lastError: string | null = null;
     public tools: Map<string, Tool> = new Map();
+    // 服务指令（S2）：MCP initialize 返回的 instructions 原文（无则 null），供检索响应按服务附出。
+    public instructions: string | null = null;
     private client: Client | null = null;
     private transport: Transport | null = null;
     // 远程池断连自愈（S1 批次）：退避重连监督（仅 Streamable HTTP；reconnect:false 关闭）
@@ -167,6 +169,7 @@ export class McpSession {
             this.state = 'READY';
             this.lastError = null;
             this.reconnectAttempts = 0;
+            this.instructions = this.client?.getInstructions() ?? null;
             info(`[${this.serverName}] 节点就绪，成功注册 ${this.tools.size} 个工具: [${Array.from(this.tools.keys()).join(', ')}]`);
             this.attachSupervision();
         } catch (err) {
@@ -337,6 +340,7 @@ export class McpSession {
             }
             this.client = null;
             this.transport = null;
+            this.instructions = null;
         }
     }
 }
