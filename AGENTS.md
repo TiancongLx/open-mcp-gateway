@@ -1,6 +1,6 @@
 # AGENTS.md — open-mcp-gateway（OMG）
 
-> 深度上下文：`doc/adr/`（本地化 ADR，git 为唯一版本载体）；环境与拓扑见 `terminal:env-local` 技能。（v1.6 · 2026-10-01）
+> 深度上下文：`doc/adr/`（本地化 ADR，git 为唯一版本载体）；环境与拓扑见 `terminal:env-local` 技能。（v1.7 · 2026-10-13）
 
 ## 这是什么
 
@@ -13,6 +13,7 @@ MCP 聚合网关：本地 MCP Server 以 `stdio` 或 `sse` 接入，其工具统
 - `bun run start` 开发启动；`bun test` 测试；`node_modules/.bin/tsc.exe --noEmit` 类型检查（tsc 为 Go 原生编译器 7.0.2，无 tsgo）
 - `bun run build` 单文件二进制 `build/open-mcp-gateway.exe`
 - 运行时状态：`GET http://127.0.0.1:9090/servers`；工具调用：`POST http://127.0.0.1:9090/{server}/{tool}`
+- 统一目录（决策 24）：规格 `GET http://127.0.0.1:9090/omg/openapi.json`；检索 `POST http://127.0.0.1:9090/omg/tools/search`；调度 `POST http://127.0.0.1:9090/omg/tools/call`
 
 ## 架构速览
 
@@ -21,6 +22,7 @@ MCP 聚合网关：本地 MCP Server 以 `stdio` 或 `sse` 接入，其工具统
 - `src/mcp/session.ts` — 单服务 MCP 会话（stdio/sse）
 - `src/config/loader.ts` — JSON5 解析、变量插值、文件热重载
 - `src/openapi/generator.ts` — OpenAPI 3.1.0 规范生成
+- `src/openapi/catalog.ts` — 统一工具目录入口（/omg：search_tools / call_tool；决策 24）
 - `src/utils/equal.ts` — 键序无关深比较（reconcile 配置比对）
 
 ## 约定与陷阱

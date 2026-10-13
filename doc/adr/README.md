@@ -1,7 +1,7 @@
 # open-mcp-gateway — 架构决策记录（ADR）
 
-> 版本：v3.1（本地 CI 门禁体系）· 2026-10-01
-> 变更摘要：新增决策 23（scripts/regress.ts 单入口回归 + pre-commit 门禁，与 OTT DECISIONS 25 同构对齐）；STACK 部署行与架构图会话池列表明同步至决策 22 终态（2026-10-01 外部写入收编，内容与决策 22 一致）。
+> 版本：v3.2（统一工具目录入口）· 2026-10-13
+> 变更摘要：新增决策 24（统一工具目录入口：/omg 统一 compact 规格 + search_tools / call_tool，组合 A 命名；含 READY 门控与离线场景条款）；决策 23（d）更正记录（P1 池数下限 ≥4→≥3、用例基线 31→43）；AGENTS.md v1.7 同步。
 
 ## PURPOSE
 
@@ -23,7 +23,7 @@ MCP 协议至 OpenAPI 3.1.0 REST 网关：为 Open WebUI 等消费端提供统�
 gateway.ts — 路由 + 工具上下文注入（X-Tool-Context-* → body.chat_id/user_message_id）
   │ MCP stdio
   ↓
-MCP 会话池（mcp/pool.ts）── codebase_memory / drawio / repomix / browser_governance
+MCP 会话池（mcp/pool.ts）── codebase_memory / drawio / repomix（三池现实 2026-10-11 起）
 ```
 
 - `src/server/gateway.ts`：HTTP 路由调度、OpenAPI 规范生成、工具调用转发及图像格式协商
@@ -66,9 +66,30 @@ MCP 会话池（mcp/pool.ts）── codebase_memory / drawio / repomix / browse
 
     （c）更正记录：提交 aa39656 提交信息中「test-gateway.ts import 未声明依赖 yoctocolors 不可运行」的判词取证有误——该依赖实际声明于本仓 dependencies（yoctocolors ^2.1.1）；该脚本删除依据以断言过时（2 池 / 静态 IP Origin，与四池现实不符）与误杀 9090 生产端口为准，删除结论不变（于提交 816af77 正文明示）。
 
+    （d）更正记录（2026-10-13，目录批次回归实测暴露）：P1 池数下限随 browser_governance 移除后的三池现实由「≥4」更正为「≥3」——`scripts/regress.ts` 同步修正并 CASE_BASELINE 31 → 43（提交 `9a1ce83`）；`~/.config/open-mcp-gateway/Service/restart-svc.ps1` 就绪门同步修正（备份 `restart-svc.ps1.bak-20261013-poolcount` 在册；修正后 regress 3/3 PASS 实测）。
+
+24. （2026-10-13）统一工具目录入口（catalog face：/omg 的 search_tools / call_tool；组合 A 命名；实现批次提交 `1a9afcf` + `9aff62f`）：
+
+    （a）动因：OWUI Tool Search 实验特性在本机严格函数解码栈上不可用（延迟工具无法按名调用、静默失效；上游 #32243 裁决为设计取舍），上下文节省目标改由网关侧自研承载。设计不变式三条：① 模型可调用的名字恒为已声明工具（严格栈安全）；② 大 schema 以「工具结果」按需返回（提示词缓存前缀不被改写）；③ provider `tools` 数组随池状态稳定。
+
+    （b）形态：新增保留命名空间 `/omg`（`mcpServers` 若占用该名则启动告警并遮蔽——当前三池无冲突；启动检查 + 路由侧惰性告警双保险）。新增：`GET /omg`、`GET /omg/openapi.json`（统一 compact 规格，两路径同构）；`POST /omg/tools/search`（operationId `search_tools`）；`POST /omg/tools/call`（operationId `call_tool`）。本版无配置面（纯增量路由；开关与参数化后续按需裁决）。旧三池路径（`/{server}`、`/{server}/openapi.json`、`POST /{server}/{tool}`）行为零变更。
+
+    （c）语义：search 入参 `{query, count?}`——精确工具名直返命中（跨池同名时全量返回以消歧），否则按加权重叠排名（name×3 / 参数名×2 / description×1；camelCase 拆分 + CJK 二元组），`count` 缺省 5、上限 20（对齐 OWUI Tool Search 参数语义）；返回 `{tools: [{server, name, description, input_schema}], unavailable_servers: [...]}`，仅含 READY 池命中并附不可用池提示。call 入参 `{tool, arguments?, server?}`——`server` 缺省时按名跨池解析（0 命中返回候选提示 / 1 命中直调 / 多命中返回歧义列表）；执行复用会话池 `callTool` 与图像三态协商，`X-Tool-Context-*` 透传；HTTP 状态语义：未就绪或禁用 503（CONNECTING 附 `Retry-After: 2`）、未知工具或歧义 400、未知服务器 404、异常 500。`search_tools` 描述内嵌「服务: 工具名」清单（预算 ~0.7 kB）——清单于 spec 缓存时刻生成（配置态快照）；搜索与调用实时。
+
+    （d）规模与兼容：三池全量工具定义快照 33,770 字符 → 统一入口目标 ≤3 kB（约 -93%；实测随部署批次回填）。OWUI 侧迁移：新增 `/omg` 连接（`http://redmi:8444/omg`，path `openapi.json`）→ 验收 → 禁用旧三连接；回滚 = 反向操作，毫秒级，无数据迁移。
+
+    （e）命名裁决（用户 2026-10-12）：短名归聚合枢纽（OMG = `search_tools` / `call_tool`）；OTT 对应取名 `search_terminal_tools` / `call_terminal_tool`（阶段 2 实施）。背景：OWUI 工具名跨连接全局唯一、重名静默去重——短名不可三池各持一份，统一入口为唯一自洽形态。
+
+    （f）已知风险：① 与未来重开 OWUI Tool Search 时其内置 `search_tools` 存在撞名可能（该特性当前关闭；重开时另行裁决）；② `arguments` 嵌套对象在严格栈的生成能力属本批次首个上线验收项，后备形态 `arguments_json`（字符串）预案在案；③ 首次调用某工具可能多一轮（清单 + 错误引导缓解）。
+
+    （g）验证：`tests/catalog.rank.test.ts`（11 用例：分词/精确名/权重/CJK/count/形状/manifest）+ `tests/catalog.http.test.ts`（HTTP 集成：规格结构、检索双形态、跨池分发、消歧、歧义/未知/404/503、图像三态、方法面）；门禁 tsc + `bun test`（31 → 43 用例全绿）+ `bun run regress` 三段门 3/3 PASS（P1=200/ALL_READY(3)，2026-10-13 实测）。
+
+    （h）离线场景条款（2026-10-13 补录）：本机双服务 Down、OWUI 在线时——① 折叠后 OMG/OTT 死重量由 ~46.7 千字符降至 ~5–7 kB 预期上限（OMG ≤3k + OTT 1.5–3.7k，随部署实测回填）；② 离线死工具名片数 43 → 6（4 meta + OTT 白名单 2，OTT 属阶段 2）；③ 离线期 OWUI 重启后需重存连接（保存连接/重启）以回载；终端选中会话 503 硬失败属 OWUI 既有行为（CHTR-0001 §一 a4，操作时避开）；④ search/call 的 READY 门控与 503 语义见（c），避免返回死工具诱发死调用。
+
 ## CURRENT_FOCUS
 
 - R3 工件管道、单文件二进制部署与运行形态迁移均已验证完成（2026-09-27）；WinSW 已退役（旧件归档 `Service/winsw-archive/`）。
+- 目录面（决策 24）批次：catalog 内核 + /omg 接线 + 判据修正（23d）已入仓（提交 `1a9afcf` / `9aff62f` / `9a1ce83`；43 用例 + regress 3/3 门禁全绿）；部署与 OWUI 切换按 T2 确认制执行。
 - 下一步：任务 1（`find_tab`）→ 5（Streamable HTTP）→ 4（工程治理）→ 界面端验收 → 1.0.0 发布。
 
 ## KNOWN_BUGS
