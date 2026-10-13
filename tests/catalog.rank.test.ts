@@ -1,6 +1,6 @@
 // 统一工具目录内核单测（决策 24）：分词（camelCase 拆分 + CJK 二元组）与加权重叠排名语义。
 import { describe, test, expect } from 'bun:test';
-import { tokenize, searchCatalog, buildManifestText, clampCount, type CatalogToolEntry } from '../src/openapi/catalog';
+import { tokenize, searchCatalog, enumerateCatalog, buildManifestText, clampCount, type CatalogToolEntry } from '../src/openapi/catalog';
 
 const makeEntry = (server: string, name: string, description: string, properties: string[] = []): CatalogToolEntry => ({
     server,
@@ -92,6 +92,24 @@ describe('catalog 排名', () => {
     test('命中项形状 {server,name,description,input_schema}', () => {
         const [hit] = searchCatalog([makeEntry('s1', 'alpha', 'd', ['p'])], 'alpha');
         expect(Object.keys(hit).sort()).toEqual(['description', 'input_schema', 'name', 'server']);
+    });
+
+    test('服务枚举：返回该服务全部工具（按名排序）与 count 上限', () => {
+        const entries = [makeEntry('s1', 'bbb', ''), makeEntry('s1', 'aaa', ''), makeEntry('s2', 'ccc', '')];
+        expect(enumerateCatalog(entries, 's1').map((h) => h.name)).toEqual(['aaa', 'bbb']);
+        expect(enumerateCatalog(entries, 's1', 1).map((h) => h.name)).toEqual(['aaa']);
+        expect(enumerateCatalog(entries, 'zzz')).toEqual([]);
+    });
+
+    test('服务作用域检索：仅在该服务内排名', () => {
+        const entries = [
+            makeEntry('s1', 'chart_reader', ''),
+            makeEntry('s1', 'chart_writer', ''),
+            makeEntry('s2', 'gamma', 'chart utility'),
+        ];
+        expect(searchCatalog(entries, 'chart', 20, 's2').map((h) => h.name)).toEqual(['gamma']);
+        expect(searchCatalog(entries, 'chart', 20, 's1').map((h) => h.name)).toEqual(['chart_reader', 'chart_writer']);
+        expect(searchCatalog(entries, 'gamma', 20, 's1')).toEqual([]);
     });
 });
 

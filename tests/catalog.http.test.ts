@@ -109,6 +109,35 @@ describe('统一目录入口（/omg，HTTP 集成）', () => {
         expect((await post('/omg/tools/search', {})).status).toBe(400);
         expect((await post('/omg/tools/search', { query: 'x', count: 'five' })).status).toBe(400);
 
+        // ---- 2b. 服务枚举与作用域检索（人机工程迭代）----
+        const enumAll = await post('/omg/tools/search', { server: 'catalog' });
+        expect(enumAll.status).toBe(200);
+        const enumAllBody = (await enumAll.json()) as any;
+        expect(enumAllBody.tools.map((t: any) => t.name)).toEqual(['doc_stats', 'echo_args', 'fail_always', 'listItems', 'read_doc']);
+        expect(typeof enumAllBody.generated_at).toBe('string');
+
+        const enumCapped = await post('/omg/tools/search', { server: 'catalog', count: 2 });
+        expect(((await enumCapped.json()) as any).tools.map((t: any) => t.name)).toEqual(['doc_stats', 'echo_args']);
+
+        const enumByName = await post('/omg/tools/search', { query: 'catalog' });
+        const enumByNameBody = (await enumByName.json()) as any;
+        expect(new Set(enumByNameBody.tools.map((t: any) => t.server))).toEqual(new Set(['catalog']));
+        expect(enumByNameBody.tools.length).toBe(5);
+
+        const scopedSearch = await post('/omg/tools/search', { query: 'read', server: 'catalog2' });
+        const scopedBody = (await scopedSearch.json()) as any;
+        expect(scopedBody.tools.length).toBeGreaterThan(0);
+        expect(scopedBody.tools.every((t: any) => t.server === 'catalog2')).toBe(true);
+
+        expect((await post('/omg/tools/search', { server: 'ghost' })).status).toBe(404);
+        expect((await post('/omg/tools/search', { server: 'slow' })).status).toBe(503);
+        expect((await post('/omg/tools/search', { query: 123 })).status).toBe(400);
+
+        const zeroHit = await post('/omg/tools/search', { query: 'zzzz_nomatch' });
+        const zeroBody = (await zeroHit.json()) as any;
+        expect(zeroBody.tools).toEqual([]);
+        expect(typeof zeroBody.hint).toBe('string');
+
         // ---- 3. 调用：分发 / 参数透传 / 上下文透传 ----
         const call = await post('/omg/tools/call', { tool: 'read_doc', server: 'catalog', arguments: { path: 'x.md' } });
         expect(call.status).toBe(200);
@@ -155,6 +184,15 @@ describe('统一目录入口（/omg，HTTP 集成）', () => {
         const nrBody = (await notReady.json()) as any;
         expect(nrBody.state).toBe('CONNECTING');
         expect(notReady.headers.get('retry-after')).toBe('2');
+
+        // ---- 3d. 失败结果附挂 input_schema（人机工程迭代）----
+        const failCall = await post('/omg/tools/call', { tool: 'fail_always', server: 'catalog' });
+        expect(failCall.status).toBe(200);
+        const failBody = (await failCall.json()) as any;
+        expect(failBody.isError).toBe(true);
+        const failText = failBody.content.map((c: any) => c.text ?? '').join('\n');
+        expect(failText).toContain('input_schema');
+        expect(failText).toContain('demo_arg');
 
         // ---- 4. 图像协商（目录调用 img/shot）----
         const imgInline = await post('/omg/tools/call', { tool: 'shot', server: 'img' });

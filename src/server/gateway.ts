@@ -5,6 +5,7 @@ import {
     CATALOG_NAMESPACE,
     buildUnifiedSpec,
     collectPoolView,
+    enumerateCatalog,
     resolveCallTarget,
     searchCatalog,
 } from '@/openapi/catalog';
@@ -319,6 +320,22 @@ export class GatewayServer {
         return parsed as Record<string, unknown>;
     }
 
+    // 失败结果补挂 input_schema（人机工程迭代）：仅 isError 信封触发，成功路径零改动。
+    private augmentErrorWithSchema(result: unknown, toolName: string, schema: unknown): unknown {
+        if (!schema) return result;
+        const rec = result as { isError?: unknown; content?: unknown } | null;
+        if (!rec || typeof rec !== 'object' || rec.isError !== true || !Array.isArray(rec.content)) {
+            return result;
+        }
+        return {
+            ...(rec as Record<string, unknown>),
+            content: [
+                ...(rec.content as unknown[]),
+                { type: 'text', text: `The call failed. Expected input_schema for ${toolName}: ${JSON.stringify(schema)}` },
+            ],
+        };
+    }
+
     private async handleCatalogSearch(req: Request, corsHeaders: Record<string, string>): Promise<Response> {
         let body: Record<string, unknown>;
         try {
@@ -327,9 +344,20 @@ export class GatewayServer {
             return Response.json({ error: 'Invalid JSON request payload' }, { status: 400, headers: corsHeaders });
         }
 
-        const { query, count } = body;
-        if (typeof query !== 'string' || query.trim().length === 0) {
-            return Response.json({ error: "Missing 'query'" }, { status: 400, headers: corsHeaders });
+        const { query, count, server } = body;
+        let searchQuery = '';
+        if (query !== undefined) {
+            if (typeof query !== 'string') {
+                return Response.json({ error: "'query' must be a string" }, { status: 400, headers: corsHeaders });
+            }
+            searchQuery = query.trim();
+        }
+        let searchServer: string | undefined;
+        if (server !== undefined) {
+            if (typeof server !== 'string') {
+                return Response.json({ error: "'server' must be a string" }, { status: 400, headers: corsHeaders });
+            }
+            searchServer = server.trim() || undefined;
         }
         let searchCount: number | undefined;
         if (count === undefined) {
@@ -339,12 +367,76 @@ export class GatewayServer {
         } else {
             return Response.json({ error: "'count' must be a finite number" }, { status: 400, headers: corsHeaders });
         }
+        if (!searchServer && !searchQuery) {
+            return Response.json({ error: "Missing 'query' or 'server'" }, { status: 400, headers: corsHeaders });
+        }
 
         const view = collectPoolView(this.pool);
-        const entries = view.ready.flatMap((server) => server.tools);
-        const hits = searchCatalog(entries, query, searchCount);
-        info(`[目录检索] query=[${query}] hits=${hits.length} ready=${view.ready.length} unavailable=${view.unavailable.length}`);
-        return Response.json({ tools: hits, unavailable_servers: view.unavailable }, {
+        const entries = view.ready.flatMap((readyServer) => readyServer.tools);
+
+        // 服务枚举解析：显式 server 参数（query 缺省即枚举）优先；查询词恰为某 READY 服务名时按枚举处理（便利语义）
+        let scope = searchServer;
+        if (!scope && searchQuery && view.ready.some((readyServer) => readyServer.server === searchQuery)) {
+            scope = searchQuery;
+            searchQuery = '';
+        }
+        if (scope && !view.ready.some((readyServer) => readyServer.server === scope)) {
+            const session = this.pool.getSession(scope);
+            if (session) {
+                warn(`[目录检索 拒绝] 服务 [${scope}] 未就绪 (当前状态: ${session.state})`);
+                return Response.json(
+                    {
+                        error: `Server [${scope}] not ready`,
+                        state: session.state,
+                        lastError: session.lastError,
+                        unavailable_servers: view.unavailable,
+                    },
+                    {
+                        status: 503,
+                        headers: {
+                            ...corsHeaders,
+                            ...(session.state === 'CONNECTING' ? { 'Retry-After': '2' } : {}),
+                        },
+                    }
+                );
+            }
+            if (this.pool.getDisabledServers().has(scope)) {
+                warn(`[目录检索 拒绝] 服务 [${scope}] 已禁用 (enabled=false)`);
+                return Response.json(
+                    { error: `Server [${scope}] disabled`, state: 'DISABLED' },
+                    { status: 503, headers: corsHeaders }
+                );
+            }
+            return Response.json(
+                {
+                    error: `Server [${scope}] not found`,
+                    available_servers: [...view.ready.map((readyServer) => readyServer.server), ...view.unavailable],
+                },
+                { status: 404, headers: corsHeaders }
+            );
+        }
+
+        const hits = !scope
+            ? searchCatalog(entries, searchQuery, searchCount)
+            : searchQuery
+                ? searchCatalog(entries, searchQuery, searchCount, scope)
+                : enumerateCatalog(entries, scope, searchCount);
+
+        const responseBody: Record<string, unknown> = {
+            tools: hits,
+            unavailable_servers: view.unavailable,
+            generated_at: new Date().toISOString(),
+        };
+        if (hits.length === 0) {
+            responseBody.hint = scope
+                ? `No matches in server '${scope}'. Omit 'query' to enumerate all of its tools.`
+                : "No matches. Pass 'server' to enumerate a server's tools, or use an exact tool name.";
+        }
+
+        info(
+            `[目录检索] query=[${searchQuery}] server=[${scope ?? '-'}] hits=${hits.length} ready=${view.ready.length} unavailable=${view.unavailable.length}`
+        );
+        return Response.json(responseBody, {
             headers: {
                 ...corsHeaders,
                 'Content-Type': 'application/json; charset=utf-8',
@@ -399,7 +491,21 @@ export class GatewayServer {
         }
 
         info(`[目录调用] 服务: [${resolved.server}], 工具: [${toolName}]`);
-        const executionResult = await resolved.session.callTool(toolName, callArgs);
+        let executionResult: unknown;
+        try {
+            executionResult = await resolved.session.callTool(toolName, callArgs);
+        } catch (err) {
+            const errMsg = err instanceof Error ? err.message : String(err);
+            warn(`[目录调用 异常] tool=[${toolName}] ${errMsg}`);
+            const content: Array<Record<string, unknown>> = [{ type: 'text', text: `Tool call failed: ${errMsg}` }];
+            const schema = resolved.session.tools.get(toolName)?.inputSchema;
+            if (schema) {
+                content.push({ type: 'text', text: `Expected input_schema for ${toolName}: ${JSON.stringify(schema)}` });
+            }
+            return Response.json({ isError: true, error: errMsg, content }, { status: 500, headers: corsHeaders });
+        }
+        // 失败信封补挂 schema（自修复不依赖重搜）；仅 isError 结果触发
+        executionResult = this.augmentErrorWithSchema(executionResult, toolName, resolved.session.tools.get(toolName)?.inputSchema);
 
         // 图像三态协商复用（image-shape.ts）：inline 缺省 / raw / envelope
         const imageMode = resolveImageMode(req.headers, isImageCompatEnabled(resolved.session.config));

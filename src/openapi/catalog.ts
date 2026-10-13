@@ -109,12 +109,18 @@ export function clampCount(count: number | undefined): number {
     return Math.max(1, Math.min(Math.floor(count), MAX_SEARCH_COUNT));
 }
 
-export function searchCatalog(entries: CatalogToolEntry[], query: string, count?: number): CatalogSearchHit[] {
+export function searchCatalog(
+    entries: CatalogToolEntry[],
+    query: string,
+    count?: number,
+    serverFilter?: string
+): CatalogSearchHit[] {
+    const scope = serverFilter ? entries.filter((entry) => entry.server === serverFilter) : entries;
     const q = (query ?? '').trim();
     if (!q) return [];
 
     // 精确工具名直返；跨池重名时全量返回，供调用侧以 server 消歧
-    const exact = entries.filter((entry) => entry.name === q);
+    const exact = scope.filter((entry) => entry.name === q);
     if (exact.length > 0) {
         return exact.sort((a, b) => a.server.localeCompare(b.server)).map(toHit);
     }
@@ -122,7 +128,7 @@ export function searchCatalog(entries: CatalogToolEntry[], query: string, count?
     const queryTokens = Array.from(new Set(tokenize(q)));
     if (queryTokens.length === 0) return [];
 
-    const scored = entries
+    const scored = scope
         .map((entry) => ({ entry, score: scoreEntry(entry, queryTokens) }))
         .filter((candidate) => candidate.score > 0)
         .sort(
@@ -133,6 +139,21 @@ export function searchCatalog(entries: CatalogToolEntry[], query: string, count?
         );
 
     return scored.slice(0, clampCount(count)).map((candidate) => toHit(candidate.entry));
+}
+
+// 服务枚举（人机工程迭代 2026-10-13）：返回指定服务全部工具，按名排序；
+// count 缺省 = 全量，显式时截断；安全上限防意外拉爆。
+export const ENUMERATE_SAFETY_MAX = 100;
+
+export function enumerateCatalog(entries: CatalogToolEntry[], server: string, count?: number): CatalogSearchHit[] {
+    const tools = entries
+        .filter((entry) => entry.server === server)
+        .sort((a, b) => a.name.localeCompare(b.name));
+    const limit =
+        count === undefined || !Number.isFinite(count)
+            ? ENUMERATE_SAFETY_MAX
+            : Math.max(1, Math.min(Math.floor(count), ENUMERATE_SAFETY_MAX));
+    return tools.slice(0, limit).map(toHit);
 }
 
 // ---- 池视图与清单（manifest）----
@@ -281,6 +302,7 @@ export function resolveCallTarget(pool: McpPool, tool: string, server?: string):
 const SEARCH_DESCRIPTION =
     'Search the MCP tool catalog and return full tool definitions. ' +
     'Pass an exact tool name to get that tool directly, or a short keyword query for ranked matches. ' +
+    'Pass server (or use the exact server name as the query) to enumerate every tool of that server. ' +
     'Use it before calling a tool when you need its input_schema. ' +
     'Then execute with call_tool, passing the tool name and arguments.';
 
@@ -288,6 +310,7 @@ const CALL_DESCRIPTION =
     'Execute a tool from the MCP catalog by name. ' +
     'Pass arguments as a JSON object matching the tool input_schema (fetch it with search_tools first). ' +
     'When several servers expose the same tool name, pass server to disambiguate. ' +
+    'If the call fails, the error result includes the tool input_schema so you can fix the arguments without searching again. ' +
     'Image results follow the same three-state content negotiation as per-server routes.';
 
 const EXECUTION_RESPONSE_DESCRIPTION =
@@ -299,7 +322,7 @@ export function buildUnifiedSpec(pool: McpPool, publicOrigin: string): OpenApiSp
     const view = collectPoolView(pool);
     const manifest = buildManifestText(view);
     const manifestBlock = manifest.text
-        ? `Currently available tools (snapshot at spec fetch time):\n${manifest.text}${manifest.truncated ? '\n…' : ''}`
+        ? `Currently available tools (snapshot generated at ${new Date().toISOString()}):\n${manifest.text}${manifest.truncated ? '\n…' : ''}`
         : 'No tools are currently ready.';
 
     return {
@@ -333,14 +356,18 @@ export function buildUnifiedSpec(pool: McpPool, publicOrigin: string): OpenApiSp
                                     properties: {
                                         query: {
                                             type: 'string',
-                                            description: 'Exact tool name or keywords.',
+                                            description: 'Exact tool name, keywords, or an exact server name (enumerates that server). Optional when server is given.',
                                         },
                                         count: {
                                             type: 'integer',
-                                            description: 'Max results (default 5, up to 20).',
+                                            description: 'Max results (ranked search default 5, up to 20; server enumeration returns all unless set).',
+                                        },
+                                        server: {
+                                            type: 'string',
+                                            description: 'Scope the search to one server; omit query to enumerate every tool of it.',
                                         },
                                     },
-                                    required: ['query'],
+                                    required: [],
                                 },
                             },
                         },
@@ -348,11 +375,12 @@ export function buildUnifiedSpec(pool: McpPool, publicOrigin: string): OpenApiSp
                     responses: {
                         '200': {
                             description:
-                                'Matched tools with full definitions: ' +
-                                '{tools:[{server,name,description,input_schema}], unavailable_servers:[...]}',
+                                'Matched or enumerated tools with full definitions: ' +
+                                '{tools:[{server,name,description,input_schema}], unavailable_servers:[...], generated_at}; ' +
+                                'zero matches include a hint.',
                         },
                         '400': {
-                            description: 'Invalid JSON payload or missing query',
+                            description: "Invalid JSON payload, or missing both 'query' and 'server'",
                         },
                         '500': {
                             description: 'Internal exception',

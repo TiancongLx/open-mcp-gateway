@@ -41,6 +41,15 @@ const TOOLS = [
             properties: { anything: { type: 'string' } },
         },
     },
+    {
+        name: 'fail_always',
+        description: 'Always returns an MCP error result (error-path tests)',
+        inputSchema: {
+            type: 'object',
+            properties: { demo_arg: { type: 'string', description: 'required demo argument' } },
+            required: ['demo_arg'],
+        },
+    },
 ];
 
 const rl = createInterface({ input: process.stdin });
@@ -73,6 +82,17 @@ rl.on('line', (line) => {
         case 'tools/call': {
             const name = req.params?.name as string;
             const args = (req.params?.arguments as Record<string, unknown>) ?? {};
+            if (name === 'fail_always') {
+                send({
+                    jsonrpc: '2.0',
+                    id: req.id,
+                    result: {
+                        content: [{ type: 'text', text: 'fail_always: missing required argument demo_arg' }],
+                        isError: true,
+                    },
+                });
+                break;
+            }
             let text: string;
             if (name === 'read_doc') {
                 text = `doc:${String(args.path ?? '')}`;
