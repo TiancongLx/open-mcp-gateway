@@ -1,6 +1,6 @@
 # open-mcp-gateway — 架构决策记录（ADR）
 
-> 版本：v3.2（统一工具目录入口）· 2026-10-13
+> 版本：v3.3（统一工具目录入口 · 部署与 OWUI 接线入账）· 2026-10-13
 > 变更摘要：新增决策 24（统一工具目录入口：/omg 统一 compact 规格 + search_tools / call_tool，组合 A 命名；含 READY 门控与离线场景条款）；决策 23（d）更正记录（P1 池数下限 ≥4→≥3、用例基线 31→43）；AGENTS.md v1.7 同步。
 
 ## PURPOSE
@@ -86,10 +86,12 @@ MCP 会话池（mcp/pool.ts）── codebase_memory / drawio / repomix（三池
 
     （h）离线场景条款（2026-10-13 补录）：本机双服务 Down、OWUI 在线时——① 折叠后 OMG/OTT 死重量由 ~46.7 千字符降至 ~5–7 kB 预期上限（OMG ≤3k + OTT 1.5–3.7k，随部署实测回填）；② 离线死工具名片数 43 → 6（4 meta + OTT 白名单 2，OTT 属阶段 2）；③ 离线期 OWUI 重启后需重存连接（保存连接/重启）以回载；终端选中会话 503 硬失败属 OWUI 既有行为（CHTR-0001 §一 a4，操作时避开）；④ search/call 的 READY 门控与 503 语义见（c），避免返回死工具诱发死调用。
 
+    （i）部署与 OWUI 接线入账（2026-10-13）：产物 `128ace6f…`（99,875,328 B）经 stage 软链入役，omg-svc 重启就绪门 `ALL_READY`（4.9 s），regress 3/3；OWUI 侧接线顺序为——新增 OMG 连接（`http://redmi:8444/omg`，spec 3,315 B，容器视角拉取核验）→ 五模型 toolIds `server:CBM` → `server:OMG` → 同窗口禁用 Firecrawl（关闭、保留条目与密钥）与三池连接。实测回填：三池工具定义 33,770 → 统一入口 1,826 字符（-94.6%）；每次保存后的 OWUI 拉取链经 OMG 日志核验（17:35:49 四规格；17:37:00 仅 /omg）。回滚 = 连接备份 `owui-connections-pre-wire1/pre-wire2.json` 与模型备份 `owui-models-pre-swap.json` 回灌 + 模型引用回切；二进制回滚 = `omg.exe.bak-20261013-pre-catalog`。
+
 ## CURRENT_FOCUS
 
 - R3 工件管道、单文件二进制部署与运行形态迁移均已验证完成（2026-09-27）；WinSW 已退役（旧件归档 `Service/winsw-archive/`）。
-- 目录面（决策 24）批次：catalog 内核 + /omg 接线 + 判据修正（23d）已入仓（提交 `1a9afcf` / `9aff62f` / `9a1ce83`；43 用例 + regress 3/3 门禁全绿）；部署与 OWUI 切换按 T2 确认制执行。
+- 目录面（决策 24）批次：catalog 内核 + /omg 接线 + 判据修正（23d）已入仓（提交 `1a9afcf` / `9aff62f` / `9a1ce83`；43 用例 + regress 3/3 门禁全绿）；部署已入账（产物 `128ace6f…`）——OWUI 接线完成：五模型引用切换、Firecrawl 关闭、三池禁用（备份留档在册）。
 - 下一步：任务 1（`find_tab`）→ 5（Streamable HTTP）→ 4（工程治理）→ 界面端验收 → 1.0.0 发布。
 
 ## KNOWN_BUGS
