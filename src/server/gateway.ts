@@ -1,6 +1,13 @@
 import { info, error, warn } from '@/utils/logger';
 import { McpPool } from '@/mcp/pool';
 import { OpenApiGenerator } from '@/openapi/generator';
+import {
+    CATALOG_NAMESPACE,
+    buildUnifiedSpec,
+    collectPoolView,
+    resolveCallTarget,
+    searchCatalog,
+} from '@/openapi/catalog';
 import { isImageCompatEnabled, resolveImageMode, shapeImageResult } from '@/server/image-shape';
 
 export interface GatewayServerOptions {
@@ -34,6 +41,7 @@ export class GatewayServer {
         this.server = Bun.serve({
             port,
             hostname: host,
+            idleTimeout: 255, // 最大值（秒），避免 SSE 等流式响应被 10s 默认值截断
             fetch: async (req: Request) => {
                 const url = new URL(req.url);
                 const path = url.pathname;
@@ -90,7 +98,32 @@ export class GatewayServer {
                     const normalizedPath = path.replace(/\/+$/, '');
                     const publicOrigin = this.resolvePublicOrigin(req);
 
-                    // 3. OpenAPI 规范端点
+                    // 3. 统一目录入口（保留命名空间 /omg，决策 24）
+                    const catalogBase = `/${CATALOG_NAMESPACE}`;
+                    if (normalizedPath === catalogBase || normalizedPath === `${catalogBase}/openapi.json`) {
+                        if (method !== 'GET') {
+                            return Response.json({ error: 'Method Not Allowed' }, { status: 405, headers: corsHeaders });
+                        }
+                        this.warnCatalogNamespaceShadow();
+                        const catalogSpec = buildUnifiedSpec(this.pool, publicOrigin);
+                        return Response.json(catalogSpec, {
+                            headers: {
+                                ...corsHeaders,
+                                'Content-Type': 'application/json; charset=utf-8',
+                            },
+                        });
+                    }
+                    if (normalizedPath === `${catalogBase}/tools/search` || normalizedPath === `${catalogBase}/tools/call`) {
+                        if (method !== 'POST') {
+                            return Response.json({ error: 'Method Not Allowed' }, { status: 405, headers: corsHeaders });
+                        }
+                        this.warnCatalogNamespaceShadow();
+                        return normalizedPath === `${catalogBase}/tools/search`
+                            ? await this.handleCatalogSearch(req, corsHeaders)
+                            : await this.handleCatalogCall(req, corsHeaders);
+                    }
+
+                    // 4. OpenAPI 规范端点
                     let openApiServerName: string | null = null;
                     const openApiMatch = normalizedPath.match(/^\/([^/]+)\/openapi\.json$/);
                     if (openApiMatch && method === 'GET') {
@@ -143,7 +176,7 @@ export class GatewayServer {
                         });
                     }
 
-                    // 4. 工具调用路由
+                    // 5. 工具调用路由
                     let matchedServer: string | null = null;
                     let matchedTool: string | null = null;
 
@@ -260,6 +293,143 @@ export class GatewayServer {
         });
 
         info(`open-mcp-gateway 已成功监听在: http://${host}:${port}`);
+    }
+
+    // ---- 统一目录入口（/omg，决策 24）：检索 search_tools / 调度 call_tool ----
+
+    private catalogShadowWarned = false;
+
+    private warnCatalogNamespaceShadow(): void {
+        if (this.catalogShadowWarned) return;
+        if (this.pool.getSession(CATALOG_NAMESPACE) || this.pool.getDisabledServers().has(CATALOG_NAMESPACE)) {
+            this.catalogShadowWarned = true;
+            warn(`[${CATALOG_NAMESPACE}] 保留命名空间遮蔽了同名 MCP 服务：/${CATALOG_NAMESPACE} 路由优先`);
+        }
+    }
+
+    private async parseJsonBody(req: Request): Promise<Record<string, unknown>> {
+        const rawText = await req.text();
+        if (rawText.trim().length === 0) {
+            return {};
+        }
+        const parsed: unknown = JSON.parse(rawText);
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+            throw new Error('payload is not a JSON object');
+        }
+        return parsed as Record<string, unknown>;
+    }
+
+    private async handleCatalogSearch(req: Request, corsHeaders: Record<string, string>): Promise<Response> {
+        let body: Record<string, unknown>;
+        try {
+            body = await this.parseJsonBody(req);
+        } catch {
+            return Response.json({ error: 'Invalid JSON request payload' }, { status: 400, headers: corsHeaders });
+        }
+
+        const { query, count } = body;
+        if (typeof query !== 'string' || query.trim().length === 0) {
+            return Response.json({ error: "Missing 'query'" }, { status: 400, headers: corsHeaders });
+        }
+        let searchCount: number | undefined;
+        if (count === undefined) {
+            searchCount = undefined;
+        } else if (typeof count === 'number' && Number.isFinite(count)) {
+            searchCount = count;
+        } else {
+            return Response.json({ error: "'count' must be a finite number" }, { status: 400, headers: corsHeaders });
+        }
+
+        const view = collectPoolView(this.pool);
+        const entries = view.ready.flatMap((server) => server.tools);
+        const hits = searchCatalog(entries, query, searchCount);
+        info(`[目录检索] query=[${query}] hits=${hits.length} ready=${view.ready.length} unavailable=${view.unavailable.length}`);
+        return Response.json({ tools: hits, unavailable_servers: view.unavailable }, {
+            headers: {
+                ...corsHeaders,
+                'Content-Type': 'application/json; charset=utf-8',
+            },
+        });
+    }
+
+    private async handleCatalogCall(req: Request, corsHeaders: Record<string, string>): Promise<Response> {
+        let body: Record<string, unknown>;
+        try {
+            body = await this.parseJsonBody(req);
+        } catch {
+            return Response.json({ error: 'Invalid JSON request payload' }, { status: 400, headers: corsHeaders });
+        }
+
+        const { tool, server, arguments: rawArguments } = body;
+        if (typeof tool !== 'string' || tool.trim().length === 0) {
+            return Response.json({ error: "Missing 'tool'" }, { status: 400, headers: corsHeaders });
+        }
+        let serverName: string | undefined;
+        if (server !== undefined) {
+            if (typeof server !== 'string') {
+                return Response.json({ error: "'server' must be a string" }, { status: 400, headers: corsHeaders });
+            }
+            serverName = server.trim() || undefined;
+        }
+        let callArgs: Record<string, unknown> = {};
+        if (rawArguments !== undefined && rawArguments !== null) {
+            if (typeof rawArguments !== 'object' || Array.isArray(rawArguments)) {
+                return Response.json({ error: "'arguments' must be a JSON object" }, { status: 400, headers: corsHeaders });
+            }
+            callArgs = { ...(rawArguments as Record<string, unknown>) };
+        }
+
+        // 工具上下文透传（与池路径一致：X-Tool-Context-* → chat_id / user_message_id）
+        const toolCtxChatId = req.headers.get('X-Tool-Context-Chat-Id');
+        const toolCtxUserMsgId = req.headers.get('X-Tool-Context-User-Message-Id');
+        if (toolCtxChatId) callArgs.chat_id = toolCtxChatId;
+        if (toolCtxUserMsgId) callArgs.user_message_id = toolCtxUserMsgId;
+
+        const toolName = tool.trim();
+        const resolved = resolveCallTarget(this.pool, toolName, serverName);
+        if (resolved.kind === 'reject') {
+            warn(`[目录调用 拒绝] ${resolved.status} tool=[${toolName}] server=[${serverName ?? '-'}]`);
+            return Response.json(resolved.body, {
+                status: resolved.status,
+                headers: {
+                    ...corsHeaders,
+                    ...(resolved.retryAfter ? { 'Retry-After': resolved.retryAfter } : {}),
+                },
+            });
+        }
+
+        info(`[目录调用] 服务: [${resolved.server}], 工具: [${toolName}]`);
+        const executionResult = await resolved.session.callTool(toolName, callArgs);
+
+        // 图像三态协商复用（image-shape.ts）：inline 缺省 / raw / envelope
+        const imageMode = resolveImageMode(req.headers, isImageCompatEnabled(resolved.session.config));
+        if (imageMode !== 'envelope') {
+            const shaped = shapeImageResult(executionResult, toolName);
+            if (shaped) {
+                if (imageMode === 'raw') {
+                    info(`[目录调用] 图像整形(raw): [${resolved.server}/${toolName}] ${shaped.mimeType} ${shaped.bytes.byteLength}B`);
+                    return new Response(shaped.bytes, {
+                        headers: {
+                            ...corsHeaders,
+                            'Content-Type': shaped.mimeType,
+                            'Content-Disposition': `inline; filename="${shaped.filename}"`,
+                        },
+                    });
+                }
+                const dataUri = `data:${shaped.mimeType};base64,${Buffer.from(shaped.bytes).toString('base64')}`;
+                info(`[目录调用] 图像整形(inline): [${resolved.server}/${toolName}] ${shaped.bytes.byteLength}B`);
+                return new Response(dataUri, {
+                    headers: { ...corsHeaders, 'Content-Type': 'text/plain; charset=utf-8' },
+                });
+            }
+        }
+
+        return Response.json(executionResult, {
+            headers: {
+                ...corsHeaders,
+                'Content-Type': 'application/json; charset=utf-8',
+            },
+        });
     }
 
     public stop(): void {

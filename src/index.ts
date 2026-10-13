@@ -1,6 +1,7 @@
 import { resolveXdg } from '@/config/xdg';
 import { ConfigManager } from '@/config/loader';
 import { McpPool } from '@/mcp/pool';
+import { CATALOG_NAMESPACE } from '@/openapi/catalog';
 import { GatewayServer } from '@/server/gateway';
 import { info, error, warn, initFileLogging } from '@/utils/logger';
 
@@ -41,6 +42,11 @@ async function main() {
         info('MCP 服务池初始化完毕，网关全面就绪');
     } catch (err) {
         warn(`MCP 服务池存在未就绪节点: ${err instanceof Error ? err.message : String(err)}`);
+    }
+
+    // 保留命名空间遮蔽检查（决策 24）：/omg 路由优先级高于同名 MCP 服务
+    if (pool.getAllSessions().has(CATALOG_NAMESPACE) || pool.getDisabledServers().has(CATALOG_NAMESPACE)) {
+        warn(`[${CATALOG_NAMESPACE}] 保留命名空间遮蔽了同名 MCP 服务：/${CATALOG_NAMESPACE} 路由优先`);
     }
 
     // 6. 优雅停机托管
