@@ -1,7 +1,7 @@
 # open-mcp-gateway — 架构决策记录（ADR）
 
-> 版本：v3.6（S2 · SaaS 池接入与 OWUI 收敛）· 2026-10-13
-> 变更摘要：新增决策 26（S2 · SaaS 池接入：GitHub / Context7 折入 OMG + instructions 保真 + 就绪门 ≥5 + OWUI 单连接收敛）；S2 全链已部署验证（2026-10-13）；AGENTS.md v1.9 同步。
+> 版本：v3.7（检索计数显式化 · 实现入仓）· 2026-10-14
+> 变更摘要：新增决策 26（S2 · SaaS 池接入：GitHub / Context7 折入 OMG + instructions 保真 + 就绪门 ≥5 + OWUI 单连接收敛）；S2 全链已部署验证（2026-10-13）；AGENTS.md v1.9 同步；决策 24（l）检索响应计数显式化（2026-10-14 实现入仓）。
 
 ## PURPOSE
 
@@ -92,6 +92,8 @@ MCP 会话池（mcp/pool.ts）── codebase_memory / drawio / repomix（三池
     （j）目录人机工程迭代（2026-10-13，基于验收会话的 LLM 复盘评估）：① search_tools 增 `server` 枚举语义——显式 `server` 参数（query 缺省即枚举）或查询词恰为 READY 服务名（便利语义）时，返回该服务全部工具（按名排序；缺省全量、显式 count 截断，安全上限 100）；② 检索响应附 `generated_at`、快照清单附生成时间戳（漂移可辨识）；③ call 失败（MCP `isError` 结果或调用异常）自动补挂该工具 `input_schema`（自修复不依赖重搜）；④ 零命中附枚举提示。测试：新增枚举/作用域/错误回挂/提示用例（套件 49 → 51，含既有断言扩展）。
 
     （k）交叉裁定更新（2026-10-13）：OTT 工具折叠裁定撤销（用户裁决；依据：消费端 `display_file` 三层按名特判、白名单扩容后净收益 ≈ -8%、避免与「按 OT 严格对齐」工作重复）——（e）中 `search_terminal_tools` / `call_terminal_tool` 命名不再实施；（h）中 OTT 部分修正为「全量直出」，合计实测随 T3 复测回填。裁量正文与账目见工具面测试计划 Note（T2 节）。
+
+    （l）检索响应计数显式化（2026-10-14，实现入仓）：`search_tools` 响应新增 `count` 字段（= 返回工具条数；零命中为 0）——消除模型端手数误差（验收聊天「GitHub Tools Enumeration」实录：返回 46、模型自述 49）；规格 200 响应描述同步；测试断言扩展（精确检索 / 枚举 / 截断 / 零命中）。部署另行报批。
 
 25. （2026-10-13）Streamable HTTP 传输与远程池断连自愈（S1 批次；决策 24「任何形态 MCP 经 OMG 转 OpenAPI」的使能器；实现提交 `f59fc1f`）：
 

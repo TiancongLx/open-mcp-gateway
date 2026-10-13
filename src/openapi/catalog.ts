@@ -376,8 +376,8 @@ export function buildUnifiedSpec(pool: McpPool, publicOrigin: string): OpenApiSp
                         '200': {
                             description:
                                 'Matched or enumerated tools with full definitions: ' +
-                                '{tools:[{server,name,description,input_schema}], unavailable_servers:[...], generated_at}; ' +
-                                'zero matches include a hint.',
+                                '{count, tools:[{server,name,description,input_schema}], unavailable_servers:[...], generated_at}; ' +
+                                'count is the number of returned tools; zero matches include a hint.',
                         },
                         '400': {
                             description: "Invalid JSON payload, or missing both 'query' and 'server'",

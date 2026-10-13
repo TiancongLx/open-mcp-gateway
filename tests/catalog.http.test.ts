@@ -97,6 +97,7 @@ describe('统一目录入口（/omg，HTTP 集成）', () => {
         expect(exactBody.tools.map((t: any) => `${t.server}:${t.name}`)).toEqual(['catalog:read_doc', 'catalog2:read_doc']);
         expect(exactBody.tools[0].input_schema.properties.path.type).toBe('string');
         expect(exactBody.unavailable_servers).toEqual(['slow']);
+        expect(exactBody.count).toBe(2);
 
         const cjk = await post('/omg/tools/search', { query: '文档' });
         const cjkBody = (await cjk.json()) as any;
@@ -115,10 +116,13 @@ describe('统一目录入口（/omg，HTTP 集成）', () => {
         const enumAllBody = (await enumAll.json()) as any;
         expect(enumAllBody.tools.map((t: any) => t.name)).toEqual(['doc_stats', 'echo_args', 'fail_always', 'listItems', 'read_doc']);
         expect(typeof enumAllBody.generated_at).toBe('string');
+        expect(enumAllBody.count).toBe(5);
         expect(enumAllBody.server_instructions.catalog).toContain('Fixture guidance');
 
         const enumCapped = await post('/omg/tools/search', { server: 'catalog', count: 2 });
-        expect(((await enumCapped.json()) as any).tools.map((t: any) => t.name)).toEqual(['doc_stats', 'echo_args']);
+        const enumCappedBody = (await enumCapped.json()) as any;
+        expect(enumCappedBody.tools.map((t: any) => t.name)).toEqual(['doc_stats', 'echo_args']);
+        expect(enumCappedBody.count).toBe(2);
 
         const enumByName = await post('/omg/tools/search', { query: 'catalog' });
         const enumByNameBody = (await enumByName.json()) as any;
@@ -138,6 +142,7 @@ describe('统一目录入口（/omg，HTTP 集成）', () => {
         const zeroBody = (await zeroHit.json()) as any;
         expect(zeroBody.tools).toEqual([]);
         expect(typeof zeroBody.hint).toBe('string');
+        expect(zeroBody.count).toBe(0);
 
         // ---- 3. 调用：分发 / 参数透传 / 上下文透传 ----
         const call = await post('/omg/tools/call', { tool: 'read_doc', server: 'catalog', arguments: { path: 'x.md' } });

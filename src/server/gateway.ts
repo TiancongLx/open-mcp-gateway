@@ -424,6 +424,7 @@ export class GatewayServer {
 
         const responseBody: Record<string, unknown> = {
             tools: hits,
+            count: hits.length,
             unavailable_servers: view.unavailable,
             generated_at: new Date().toISOString(),
         };
