@@ -4,7 +4,7 @@
 // 判据（缺陷 8：不断言 expect() 计数）：
 //   G1 类型门：node_modules/.bin/tsc.exe --noEmit 退出码 0。
 //   G2 测试门：bun test 退出码 0 且 fail=0 且用例数>0；用例数如实记录，低于基线仅告警。
-//   G3 探针门：P1 池门（GET /servers，全部池 READY 且池数>=4，500 ms 轮询至 --probe-timeout；
+//   G3 探针门：P1 池门（GET /servers，全部池 READY 且池数>=3——三池现实 2026-10-11 起，500 ms 轮询至 --probe-timeout；
 //      判定语义参照 ~/.config/open-mcp-gateway/Service/restart-svc.ps1 的 omg-svc 就绪门）+
 //      P2 健康契约（GET /health，status=ok）。
 // 传输固定 curl.exe --noproxy '*'（缺陷 3：https_proxy 劫持本地回环）。OMG 无 Bearer 鉴权
@@ -20,7 +20,7 @@ import { join } from 'node:path';
 
 const repoRoot = join(import.meta.dir, '..');
 const TSC = join(repoRoot, 'node_modules', '.bin', 'tsc.exe');
-const CASE_BASELINE = 31; // 基线 31 用例（实测 2026-10-01）；低于基线仅告警
+const CASE_BASELINE = 43; // 基线 43 用例（实测 2026-10-13，目录批次后）；低于基线仅告警
 const HTTP_MARK = '@@HTTP=';
 
 type GateStatus = 'PASS' | 'FAIL' | 'SKIPPED';
@@ -133,7 +133,7 @@ if (!anyFail || continueMode) {
 if (!anyFail || continueMode) {
     const t0 = Date.now();
 
-    // P1 池门：GET /servers，全部池 READY 且池数>=4（参照 restart-svc.ps1 的 omg-svc 就绪门）
+    // P1 池门：GET /servers，全部池 READY 且池数>=3（三池现实 2026-10-11 起；参照 restart-svc.ps1 的 omg-svc 就绪门）
     let p1 = 'P1=-/NO_HTTP';
     let p1ok = false;
     const deadline = Date.now() + probeTimeoutMs;
@@ -146,7 +146,7 @@ if (!anyFail || continueMode) {
                 if (typeof sv === 'object' && sv !== null) {
                     const entries = Object.entries(sv as Record<string, unknown>);
                     const ready = entries.filter(([, v]) => typeof v === 'object' && v !== null && (v as Record<string, unknown>)['state'] === 'READY');
-                    if (entries.length >= 4 && ready.length === entries.length) {
+                    if (entries.length >= 3 && ready.length === entries.length) {
                         p1 = `P1=${r1.status}/ALL_READY(${entries.length})`;
                         p1ok = true;
                         break;
