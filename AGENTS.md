@@ -1,6 +1,6 @@
 # AGENTS.md — open-mcp-gateway（OMG）
 
-> 深度上下文：`doc/adr/`（本地化 ADR，git 为唯一版本载体）；环境与拓扑见 `terminal:env-local` 技能。（v1.9 · 2026-10-13）
+> 深度上下文：`doc/adr/`（本地化 ADR，git 为唯一版本载体）；环境与拓扑见 `terminal:env-local` 技能。（v1.10 · 2026-10-16）
 
 ## 这是什么
 
@@ -22,7 +22,7 @@ MCP 聚合网关：本地或远程 MCP Server 以 `stdio` / `sse` / `streamable-
 - `src/mcp/session.ts` — 单服务 MCP 会话（stdio/sse/streamable-http；远程池退避重连监督）
 - `src/config/loader.ts` — JSON5 解析、变量插值、文件热重载
 - `src/openapi/generator.ts` — OpenAPI 3.1.0 规范生成
-- `src/openapi/catalog.ts` — 统一工具目录入口（/omg：search_tools / call_tool；服务枚举 / 错误 schema 回挂 / 时间戳；决策 24）
+- `src/openapi/catalog.ts` — 统一工具目录入口（/omg：search_tools / call_tool；服务枚举 / 错误 schema 回挂 / 清单内容指纹；决策 24）
 - `src/utils/equal.ts` — 键序无关深比较（reconcile 配置比对）
 
 ## 约定与陷阱

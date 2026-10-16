@@ -1,7 +1,7 @@
 # open-mcp-gateway — 架构决策记录（ADR）
 
-> 版本：v3.7（检索计数显式化 · 部署入账）· 2026-10-14
-> 变更摘要：新增决策 26（S2 · SaaS 池接入：GitHub / Context7 折入 OMG + instructions 保真 + 就绪门 ≥5 + OWUI 单连接收敛）；S2 全链已部署验证（2026-10-13）；AGENTS.md v1.9 同步；决策 24（l）检索响应计数显式化（2026-10-14 实现并部署入账，产物 `304ff32c…`）。
+> 版本：v3.8（规格字节恒稳 · 工具会话缓存修复）· 2026-10-16
+> 变更摘要：决策 24（m）清单描述时间戳 → 内容指纹——修复工具会话跨请求前缀缓存击穿（GLM 0% → 99%+、DeepSeek 768 → 6400）；实现 + 部署 + 三视点字节恒稳核验入账（产物 `993be1d4…`）；AGENTS.md v1.10 同步。
 
 ## PURPOSE
 
@@ -95,6 +95,10 @@ MCP 会话池（mcp/pool.ts）── codebase_memory / drawio / repomix（三池
 
     （l）检索响应计数显式化（2026-10-14，实现入仓）：`search_tools` 响应新增 `count` 字段（= 返回工具条数；零命中为 0）——消除模型端手数误差（验收聊天「GitHub Tools Enumeration」实录：返回 46、模型自述 49）；规格 200 响应描述同步；测试断言扩展（精确检索 / 枚举 / 截断 / 零命中）。部署入账（2026-10-14）：产物 `304ff32c…`（stage 软链校验通过）；omg-svc 重启就绪门 `ALL_READY after 4411 ms`；冒烟（枚举 count=46 / 截断 count=2 / 零命中 count=0；规格 4,754 → 4,800 B）+ regress 3/3（P1=ALL_READY(5)）；OWUI 重存触发重取核验（OMG 日志 04:35:46 落痕）；回滚 = `omg.exe.bak-20261014-pre-count`（前产物 `ddabb246…`）。
 
+    （m）规格字节恒稳修复（2026-10-16，工具会话前缀缓存击穿修复，实现入仓）：`search_tools` 描述内嵌清单的「生成时刻」时间戳（（j）② 引入）使 `/omg/openapi.json` 逐请求字节变化——OWUI（无 Redis）每请求重取规格 → provider tools 描述含时刻戳 → 跨请求前缀缓存击穿。根因实测：规格 3× 拉取 3 枚 md5、字节级 diff 定格于时间戳；GLM 工具会话跨请求缓存 0%、DeepSeek 截断于 768 token（无工具基线 97–99%）。修订：清单描述由「snapshot generated at <ISO 时刻>」改为「catalog fingerprint: <sha256(manifestBody) 前 12 位十六进制>」（新增导出 `manifestFingerprint()`；哈希输入=清单体含截断标记）——内容不变则规格字节恒稳（设计不变式 ③），内容变化则指纹变化（承接（j）② 漂移可辨识语义）；检索响应 `generated_at` 保留（运行时面，非规格面）。测试：rank 指纹三断言（恒等 / 变化 / 形制）+ http 跨请求字节恒等与指纹格式断言（套件 51 → 52；tsc 0 全绿）。
+
+    部署入账（2026-10-16）：产物 `993be1d4…`（99,934,720 B）经 stage 软链入役（停服 → 构建 → 重启序列）；omg-svc 重启就绪门 `ALL_READY after 4299 ms`（pid 10640）。规格字节恒稳三视点核验：9090 直连 3× 同哈希、8444 Caddy 2× 同哈希、HK 容器（OWUI 实际取数路径 `redmi:8444`）3× 同哈希（4,781 B）；指纹回环校验通过（描述内指纹 = 清单体 sha256 前 12 位，重算一致）；跨视点哈希差异 = `servers.url` 随 Host 头生成（每视点内恒稳，设计使然）。复测（带工具矩阵，gap 12 s）：GLM 跨请求 T2/T3 缓存命中 0%/0% → 99.4%/99.1%；DeepSeek 768/768（11.7%）→ 6,400/6,400（97.3%/97.0%）。regress 3/3（G1 tsc / G2 cases=52 / G3 P1=200·ALL_READY(5)）。回滚 = `omg.exe.bak-20261016-pre-fingerprint`（前产物 `304ff32c…`）。
+
 25. （2026-10-13）Streamable HTTP 传输与远程池断连自愈（S1 批次；决策 24「任何形态 MCP 经 OMG 转 OpenAPI」的使能器；实现提交 `f59fc1f`）：
 
     （a）动因：SaaS 收编（GitHub / Context7；测试计划 Note 七·D「选择 A」）要求上游传输三态完备（stdio / SSE / Streamable HTTP 此前缺第三态）；远程池在网络波动、代理链路抖动与上游维护窗口下需要断连自愈，而非既有的「一次性连接」语义。
@@ -129,6 +133,7 @@ MCP 会话池（mcp/pool.ts）── codebase_memory / drawio / repomix（三池
 - 目录面（决策 24）批次：catalog 内核 + /omg 接线 + 判据修正（23d）已入仓（提交 `1a9afcf` / `9aff62f` / `9a1ce83`；43 用例 + regress 3/3 门禁全绿）；部署已入账（产物 `128ace6f…`）——OWUI 接线完成：五模型引用切换、Firecrawl 关闭、三池禁用（备份留档在册）。
 - S2 批次（决策 26）：已部署（产物 `ddabb246…`，五池就绪门 4.3 s；regress 3/3 / P1=ALL_READY(5)）；OWUI 收敛为单 /omg 连接（github / context7 已删除、模型引用清理完毕、spec 重取留痕核验）。待办：OTT「按 OT 严格对齐」批次（不单独立项，见工具面测试计划 Note）；T3 缓存已回填（验收聊天「GitHub Tools Enumeration」，见决策 26（g））。
 - 检索计数显式化（决策 24（l））：实现 + 部署已完成（产物 `304ff32c…`，2026-10-14；冒烟 + regress 3/3 + OWUI 重存核验）。
+- 规格字节恒稳修复（决策 24（m））：实现 + 部署 + 复测已完成（产物 `993be1d4…`，2026-10-16；三视点字节恒稳核验 + 指纹回环 + 缓存矩阵复测 GLM 0%→99%+ / DS 768→6400 + regress 3/3）。
 - 下一步：任务 1（`find_tab`）→ 5（Streamable HTTP）→ 4（工程治理）→ 界面端验收 → 1.0.0 发布。
 
 ## KNOWN_BUGS
