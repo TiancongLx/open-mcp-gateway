@@ -1,6 +1,6 @@
 // 统一工具目录内核单测（决策 24）：分词（camelCase 拆分 + CJK 二元组）与加权重叠排名语义。
 import { describe, test, expect } from 'bun:test';
-import { tokenize, searchCatalog, enumerateCatalog, buildManifestText, clampCount, type CatalogToolEntry } from '../src/openapi/catalog';
+import { tokenize, searchCatalog, enumerateCatalog, buildManifestText, manifestFingerprint, clampCount, type CatalogToolEntry } from '../src/openapi/catalog';
 
 const makeEntry = (server: string, name: string, description: string, properties: string[] = []): CatalogToolEntry => ({
     server,
@@ -135,5 +135,17 @@ describe('catalog 清单（manifest）', () => {
         const empty = buildManifestText({ ready: [], unavailable: [] });
         expect(empty.text).toBe('');
         expect(empty.truncated).toBe(false);
+    });
+});
+
+describe('catalog 清单指纹（fingerprint）', () => {
+    test('同内容恒等、异内容变化、形制 12 位十六进制', () => {
+        const body = '- aa: one, two\n- bb: three';
+        const fp = manifestFingerprint(body);
+        expect(fp).toMatch(/^[0-9a-f]{12}$/);
+        expect(manifestFingerprint(body)).toBe(fp);
+        expect(manifestFingerprint('- aa: one, three\n- bb: three')).not.toBe(fp);
+        // 截断标记是清单体的一部分：同文本不同截断态 → 指纹不同
+        expect(manifestFingerprint(`${body}\n…`)).not.toBe(fp);
     });
 });

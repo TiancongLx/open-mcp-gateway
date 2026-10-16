@@ -1,6 +1,6 @@
 // 统一目录入口（/omg）HTTP 集成测试：真实 GatewayServer + 目录夹具 ×2 + 图像夹具 + 慢握手节点。
 // 覆盖契约（决策 24）：
-//   1. GET /omg 与 /omg/openapi.json：规格结构（search_tools / call_tool、manifest 清单、servers.url）
+//   1. GET /omg 与 /omg/openapi.json：规格结构（search_tools / call_tool、manifest 清单、内容指纹、servers.url、跨请求字节恒稳）
 //   2. POST /omg/tools/search：精确名 / 关键词（含 CJK）/ unavailable_servers / 参数校验
 //   3. POST /omg/tools/call：跨池分发、server 消歧、歧义 400、未知 400（候选提示）、未知服务器 404、未就绪 503（Retry-After）
 //   4. 图像三态协商在 /omg/tools/call 上复用（inline data: URI / raw / 信封）
@@ -75,7 +75,8 @@ describe('统一目录入口（/omg，HTTP 集成）', () => {
         // ---- 1. 规格 ----
         const specResp = await fetch(`${BASE}/omg/openapi.json`);
         expect(specResp.status).toBe(200);
-        const spec = (await specResp.json()) as any;
+        const specText = await specResp.text();
+        const spec = JSON.parse(specText) as any;
         expect(spec.openapi).toBe('3.1.0');
         expect(spec.servers[0].url).toBe(`${BASE}/omg`);
         expect(spec.paths['/tools/search'].post.operationId).toBe('search_tools');
@@ -84,10 +85,15 @@ describe('统一目录入口（/omg，HTTP 集成）', () => {
         expect(searchDesc).toContain('read_doc');
         expect(searchDesc).toContain('shot');
         expect(searchDesc).not.toContain('slow');
+        expect(searchDesc).toMatch(/catalog fingerprint: [0-9a-f]{12}/);
+        expect(searchDesc).not.toContain('snapshot generated at');
 
+        // 跨请求字节恒稳（回归 2026-10-16：生成时间戳曾致逐请求字节变化，击穿前缀缓存）
         const specResp2 = await fetch(`${BASE}/omg`);
         expect(specResp2.status).toBe(200);
-        const spec2 = (await specResp2.json()) as any;
+        const specText2 = await specResp2.text();
+        expect(specText2).toBe(specText);
+        const spec2 = JSON.parse(specText2) as any;
         expect(spec2.paths['/tools/call'].post.operationId).toBe('call_tool');
 
         // ---- 2. 检索 ----

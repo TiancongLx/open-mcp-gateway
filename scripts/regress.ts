@@ -20,7 +20,7 @@ import { join } from 'node:path';
 
 const repoRoot = join(import.meta.dir, '..');
 const TSC = join(repoRoot, 'node_modules', '.bin', 'tsc.exe');
-const CASE_BASELINE = 51; // 基线 51 用例（实测 2026-10-13，人机工程迭代后）；低于基线仅告警
+const CASE_BASELINE = 52; // 基线 52 用例（实测 2026-10-16，指纹修复后）；低于基线仅告警
 const HTTP_MARK = '@@HTTP=';
 
 type GateStatus = 'PASS' | 'FAIL' | 'SKIPPED';

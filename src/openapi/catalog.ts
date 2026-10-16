@@ -9,7 +9,10 @@
 // 检索语义：精确工具名直返命中；否则按加权重叠排名（name×3 / 服务名×2 / 参数名×2 /
 // description×1；camelCase 拆分 + CJK 二元组）；count 缺省 5、上限 20
 // （对齐 OWUI Tool Search 参数语义）。search_tools 描述内嵌「服务: 工具名」
-// 清单（manifest）——于 spec 缓存时刻生成（配置态快照）；搜索与调用实时。
+// 清单（manifest）与内容指纹（catalog fingerprint）——清单字面不变则规格
+// 字节恒稳（跨请求前缀缓存前提，设计不变式 ③）；内容变化则指纹变化；
+// 搜索与调用实时。
+import { createHash } from 'node:crypto';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import type { McpPool } from '@/mcp/pool';
 import type { McpSession } from '@/mcp/session';
@@ -318,11 +321,19 @@ const EXECUTION_RESPONSE_DESCRIPTION =
     'single-image results (text/plain); Accept: image/* returns raw image bytes; Accept: application/json ' +
     'returns the JSON CallToolResult envelope; per-server owuiImageCompat=false pins the envelope.';
 
+// 清单内容指纹（决策 24（m））：以清单体内容（含截断标记）为输入的短哈希。
+// 内容不变 → 指纹与规格字节恒稳（设计不变式 ③，provider 前缀缓存前提）；
+// 内容变化 → 指纹变化（承接（j）② 的「漂移可辨识」语义；检索响应 generated_at 不在本面）。
+export function manifestFingerprint(manifestBody: string): string {
+    return createHash('sha256').update(manifestBody).digest('hex').slice(0, 12);
+}
+
 export function buildUnifiedSpec(pool: McpPool, publicOrigin: string): OpenApiSpec31 {
     const view = collectPoolView(pool);
     const manifest = buildManifestText(view);
+    const manifestBody = `${manifest.text}${manifest.truncated ? '\n…' : ''}`;
     const manifestBlock = manifest.text
-        ? `Currently available tools (snapshot generated at ${new Date().toISOString()}):\n${manifest.text}${manifest.truncated ? '\n…' : ''}`
+        ? `Currently available tools (catalog fingerprint: ${manifestFingerprint(manifestBody)}):\n${manifestBody}`
         : 'No tools are currently ready.';
 
     return {
